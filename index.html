@@ -1,332 +1,321 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>عالم التصاميم والزخرفة</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/feather-icons"></script>
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap');
-        body {
-            font-family: 'Noto Naskh Arabic', serif;
-            background-image: url('bg.png');
-            background-size: cover;
-            background-attachment: fixed;
-        }
-        .golden-tab {
-            background-color: rgba(212, 175, 55, 0.2);
-            backdrop-filter: blur(10px);
-            border: 2px solid #D4AF37;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
-        }
-        .golden-text {
-            color: #D4AF37;
-            text-shadow: 2px 2px 4px #000;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عالم التصاميم والزخرفة</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap');
+body {
+    font-family: 'Noto Naskh Arabic', serif;
+    background-image: url('assets/bg.png');
+    background-size: cover;
+    background-attachment: fixed;
+}
+.golden-tab {
+    background-color: rgba(212, 175, 55, 0.2);
+    backdrop-filter: blur(10px);
+    border: 2px solid #D4AF37;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+}
+.golden-text {
+    color: #D4AF37;
+    text-shadow: 2px 2px 4px #000;
+}
+</style>
 </head>
 <body class="min-h-screen">
-    <!-- Welcome Modal -->
-    <div id="welcomeModal" class="fixed inset-0 flex items-center justify-center z-50">
-        <div class="golden-tab p-8 rounded-lg max-w-md text-center relative">
-            <img src="abu7amza.png" alt="App Icon" class="w-24 h-24 mx-auto mb-4">
-            <h2 class="text-2xl font-bold golden-text mb-4">مرحبًا بك في عالم التصاميم والزخرفة</h2>
-            <p class="mb-6">أهلاً بك في التطبيق الأكثر إبداعًا لتصميم الزخارف والخطوط العربية الفنية</p>
-            <button onclick="closeWelcome()" class="px-6 py-2 bg-gradient-to-r from-yellow-600 to-yellow-800 text-white rounded-full hover:opacity-90 transition">ابدأ</button>
+
+<!-- Welcome Modal -->
+<div id="welcomeModal" class="fixed inset-0 flex items-center justify-center z-50">
+    <div class="golden-tab p-8 rounded-lg max-w-md text-center relative">
+        <img src="assets/abu7amza.png" alt="App Icon" class="w-24 h-24 mx-auto mb-4">
+        <h2 class="text-2xl font-bold golden-text mb-4">مرحبًا بك في عالم التصاميم والزخرفة</h2>
+        <p class="mb-6">أهلاً بك في التطبيق الأكثر إبداعًا لتصميم الزخارف والخطوط العربية الفنية</p>
+        <button onclick="closeWelcome()" class="px-6 py-2 bg-gradient-to-r from-yellow-600 to-yellow-800 text-white rounded-full hover:opacity-90 transition">ابدأ</button>
+    </div>
+</div>
+
+<!-- Main App -->
+<div id="app" class="hidden">
+
+<!-- Top Bar -->
+<div class="fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-40" style="background-image: url('assets/shbg.png'); background-size: cover;">
+    <button onclick="toggleSidebar()" class="text-white mr-4">
+        <i data-feather="menu"></i>
+    </button>
+    <div class="flex-1 text-center relative">
+        <h1 class="text-2xl font-bold golden-text">عالم التصاميم والزخرفة</h1>
+        <div class="absolute left-0 right-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent"></div>
+    </div>
+    <img src="assets/abu7amza.png" alt="App Icon" class="w-10 h-10 ml-4">
+    <button onclick="toggleControlPanel()" class="text-white ml-4">
+        <img src="assets/sitting.png" alt="Settings" class="w-6 h-6">
+    </button>
+</div>
+
+<!-- Sidebar -->
+<div id="sidebar" class="fixed top-0 right-0 h-full w-64 bg-gray-900 bg-opacity-90 transform translate-x-full transition-transform duration-300 z-30 overflow-y-auto">
+    <div class="p-4 flex justify-between items-center border-b border-yellow-600">
+        <h3 class="text-xl golden-text">الأقسام</h3>
+        <button onclick="toggleSidebar()" class="text-white">
+            <i data-feather="x"></i>
+        </button>
+    </div>
+    <nav class="p-4">
+        <ul class="space-y-3">
+            <li><a href="#" class="block p-2 hover:bg-yellow-600 hover:bg-opacity-20 rounded" onclick="showSection('home')">الصفحة الرئيسية</a></li>
+            <li><a href="#" class="block p-2 hover:bg-yellow-600 hover:bg-opacity-20 rounded" onclick="showSection('professional')">الزخرفة الاحترافية</a></li>
+            <li><a href="#" class="block p-2 hover:bg-yellow-600 hover:bg-opacity-20 rounded" onclick="showSection('names')">زخرفة الأسماء</a></li>
+            <li><a href="#" class="block p-2 hover:bg-yellow-600 hover:bg-opacity-20 rounded" onclick="showSection('about')">لمحة عن التطبيق</a></li>
+            <li><a href="#" class="block p-2 hover:bg-yellow-600 hover:bg-opacity-20 rounded" onclick="showSection('contact')">اتصل بنا</a></li>
+        </ul>
+    </nav>
+</div>
+
+<!-- Control Panel -->
+<div id="controlPanel" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="golden-tab p-6 rounded-lg w-full max-w-2xl">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold golden-text">لوحة التحكم</h3>
+            <button onclick="document.getElementById('controlPanel').classList.add('hidden')" class="text-white">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block golden-text mb-2">كلمة المرور:</label>
+            <input type="password" id="controlPassword" class="w-full p-2 rounded bg-gray-800 text-white border border-yellow-600">
+            <button onclick="checkPassword()" class="mt-2 w-full p-2 bg-yellow-600 rounded hover:bg-yellow-700 text-white">دخول</button>
+        </div>
+
+        <div id="controlContent" class="hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h4 class="golden-text mb-2">تعديل المظهر</h4>
+                    <select class="w-full p-2 rounded bg-gray-800 text-white border border-yellow-600">
+                        <option>خط عادي</option>
+                        <option>ديواني</option>
+                        <option>ثلث</option>
+                        <option>نسخ</option>
+                        <option>رقعة</option>
+                    </select>
+                </div>
+                <div>
+                    <h4 class="golden-text mb-2">الأقسام</h4>
+                    <button class="w-full p-2 bg-yellow-600 rounded hover:bg-yellow-700">إضافة قسم جديد</button>
+                </div>
+            </div>
+            <div class="mt-6">
+                <h4 class="golden-text mb-2">أدوات الصفحة الرئيسية</h4>
+                <input type="file" id="uploadImage" class="hidden" multiple>
+                <label for="uploadImage" class="block w-full p-2 bg-yellow-600 rounded text-center hover:bg-yellow-700 cursor-pointer mb-2">رفع صور</label>
+                <h4 class="golden-text mb-2 mt-4">أدوات الزخرفة الاحترافية</h4>
+                <input type="file" id="uploadFont" class="hidden">
+                <label for="uploadFont" class="block w-full p-2 bg-yellow-600 rounded text-center hover:bg-yellow-700 cursor-pointer mb-2">رفع خطوط</label>
+            </div>
         </div>
     </div>
+</div>
 
-    <!-- Main App -->
-    <div id="app" class="hidden">
-        <!-- Top Bar -->
-        <div class="fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-40" style="background-image: url('shbg.png'); background-size: cover;">
-            <button onclick="toggleSidebar()" class="text-white mr-4">
-                <i data-feather="menu"></i>
-            </button>
-            
-            <div class="flex-1 text-center relative">
-                <h1 class="text-2xl font-bold golden-text">عالم التصاميم والزخرفة</h1>
-                <div class="absolute left-0 right-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent"></div>
-            </div>
-            
-            <img src="abu7amza.png" alt="App Icon" class="w-10 h-10 ml-4">
-            
-            <button onclick="toggleControlPanel()" class="text-white ml-4">
-                <img src="sitting.png" alt="Settings" class="w-6 h-6">
-            </button>
+<!-- Main Content -->
+<div class="pt-16 pb-16 min-h-screen">
+
+<!-- Sections -->
+<div id="homeSection" class="p-4">
+    <div class="mb-6">
+        <div class="relative">
+            <input type="text" placeholder="ابحث عن ملفات..." class="w-full p-3 pl-10 rounded-full bg-gray-800 text-white border border-yellow-600">
+            <i data-feather="search" class="absolute right-3 top-3 text-yellow-500"></i>
         </div>
-
-        <!-- Sidebar -->
-        <div id="sidebar" class="fixed top-0 right-0 h-full w-64 bg-gray-900 bg-opacity-90 transform translate-x-full transition-transform duration-300 z-30 overflow-y-auto">
-            <div class="p-4 flex justify-between items-center border-b border-yellow-600">
-                <h3 class="text-xl golden-text">الأقسام</h3>
-                <button onclick="toggleSidebar()" class="text-white">
-                    <i data-feather="x"></i>
-                </button>
-            </div>
-            <nav class="p-4">
-                <ul class="space-y-3">
-                    <li><a href="#" class="block p-2 hover:bg-yellow-600 hover:bg-opacity-20 rounded" onclick="showSection('home')">الصفحة الرئيسية</a></li>
-                    <li><a href="#" class="block p-2 hover:bg-yellow-600 hover:bg-opacity-20 rounded" onclick="showSection('professional')">الزخرفة الاحترافية</a></li>
-                    <li><a href="#" class="block p-2 hover:bg-yellow-600 hover:bg-opacity-20 rounded" onclick="showSection('names')">زخرفة الأسماء</a></li>
-                    <li><a href="#" class="block p-2 hover:bg-yellow-600 hover:bg-opacity-20 rounded" onclick="showSection('about')">لمحة عن التطبيق</a></li>
-                    <li><a href="#" class="block p-2 hover:bg-yellow-600 hover:bg-opacity-20 rounded" onclick="showSection('contact')">اتصل بنا</a></li>
-                </ul>
-            </nav>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="imageGrid">
+        <!-- Images will be loaded here -->
+    </div>
+</div>
+<!-- Professional Decoration Section -->
+<div id="professionalSection" class="p-4 hidden">
+    <h2 class="text-2xl font-bold golden-text mb-6 text-center">الزخرفة الاحترافية</h2>
+    <div class="mb-6">
+        <input type="text" id="professionalInput" placeholder="اكتب النص هنا..." class="w-full p-3 rounded bg-gray-800 text-white border border-yellow-600">
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div>
+            <label class="block golden-text mb-2">اختر الخط:</label>
+            <select id="fontSelect" class="w-full p-2 rounded bg-gray-800 text-white border border-yellow-600">
+                <option>ديواني</option>
+                <option>ثلث</option>
+                <option>نسخ</option>
+                <option>رقعة</option>
+            </select>
         </div>
-
-        <!-- Control Panel -->
-        <div id="controlPanel" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-            <div class="golden-tab p-6 rounded-lg w-full max-w-2xl">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold golden-text">لوحة التحكم</h3>
-                    <button onclick="toggleControlPanel()" class="text-white">
-                        <i data-feather="x"></i>
-                    </button>
-                </div>
-                
-                <div class="mb-4">
-                    <label class="block golden-text mb-2">كلمة المرور:</label>
-                    <input type="password" class="w-full p-2 rounded bg-gray-800 text-white border border-yellow-600">
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <h4 class="golden-text mb-2">تعديل المظهر</h4>
-                        <select class="w-full p-2 rounded bg-gray-800 text-white border border-yellow-600">
-                            <option>خط عادي</option>
-                            <option>ديواني</option>
-                            <option>ثلث</option>
-                            <option>نسخ</option>
-                            <option>رقعة</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <h4 class="golden-text mb-2">الأقسام</h4>
-                        <button class="w-full p-2 bg-yellow-600 rounded hover:bg-yellow-700">إضافة قسم جديد</button>
-                    </div>
-                </div>
-                
-                <div class="mt-6">
-                    <h4 class="golden-text mb-2">أدوات الصفحة الرئيسية</h4>
-                    <input type="file" id="uploadImage" class="hidden" multiple>
-                    <label for="uploadImage" class="block w-full p-2 bg-yellow-600 rounded text-center hover:bg-yellow-700 cursor-pointer mb-2">رفع صور</label>
-                    
-                    <h4 class="golden-text mb-2 mt-4">أدوات الزخرفة الاحترافية</h4>
-                    <input type="file" id="uploadFont" class="hidden">
-                    <label for="uploadFont" class="block w-full p-2 bg-yellow-600 rounded text-center hover:bg-yellow-700 cursor-pointer mb-2">رفع خطوط</label>
-                </div>
-            </div>
+        <div>
+            <label class="block golden-text mb-2">لون النص:</label>
+            <input type="color" id="textColor" class="w-full h-10 rounded">
         </div>
+        <div>
+            <label class="block golden-text mb-2">الخلفية:</label>
+            <input type="file" id="uploadBg" class="hidden">
+            <label for="uploadBg" class="block w-full p-2 bg-yellow-600 rounded text-center hover:bg-yellow-700 cursor-pointer">رفع خلفية</label>
+        </div>
+    </div>
+    <div class="golden-tab p-4 mb-6 rounded-lg min-h-48 flex items-center justify-center">
+        <p class="text-3xl" id="previewText">معاينة النص</p>
+    </div>
+    <button class="w-full p-3 bg-yellow-600 rounded-lg hover:bg-yellow-700" id="downloadProfessional">تحميل التصميم</button>
+</div>
 
-        <!-- Main Content -->
-        <div class="pt-16 pb-16 min-h-screen">
-            <!-- Home Section -->
-            <div id="homeSection" class="p-4">
-                <div class="mb-6">
-                    <div class="relative">
-                        <input type="text" placeholder="ابحث عن ملفات..." class="w-full p-3 pl-10 rounded-full bg-gray-800 text-white border border-yellow-600">
-                        <i data-feather="search" class="absolute right-3 top-3 text-yellow-500"></i>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="imageGrid">
-                    <!-- Images will be loaded here -->
-                </div>
+<!-- Names Decoration Section -->
+<div id="namesSection" class="p-4 hidden">
+    <h2 class="text-2xl font-bold golden-text mb-6 text-center">زخرفة الأسماء</h2>
+    <div class="mb-6">
+        <input type="text" id="namesInput" placeholder="اكتب الاسم هنا..." class="w-full p-3 rounded bg-gray-800 text-white border border-yellow-600">
+        <button id="generateNames" class="mt-2 w-full p-3 bg-yellow-600 rounded-lg hover:bg-yellow-700">توليد الزخارف</button>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="namesResults">
+        <!-- Names decoration results will be loaded here -->
+    </div>
+</div>
+
+<!-- About Section -->
+<div id="aboutSection" class="p-4 hidden">
+    <div class="golden-tab p-6 rounded-lg">
+        <h2 class="text-2xl font-bold golden-text mb-4 text-center">لمحة عن التطبيق</h2>
+        <p id="aboutText" class="mb-4">تطبيق عالم التصاميم والزخرفة هو أداة متكاملة لإنشاء وتصميم الزخارف العربية باحترافية عالية.</p>
+        <p>يمكنك من خلال التطبيق زخرفة الأسماء بخطوط مختلفة مثل الديواني والثلث وغيرها، مع إمكانية إضافة التلبيسات والتأثيرات الفنية.</p>
+    </div>
+</div>
+
+<!-- Contact Section -->
+<div id="contactSection" class="p-4 hidden">
+    <div class="golden-tab p-6 rounded-lg" style="background-color: rgba(212, 175, 55, 0.4);">
+        <h2 class="text-2xl font-bold golden-text mb-4 text-center">اتصل بنا</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-xl golden-text mb-2">معلومات التواصل</h3>
+                <p class="mb-2"><i data-feather="mail" class="inline mr-2"></i> info@example.com</p>
+                <p><i data-feather="phone" class="inline mr-2"></i> +123456789</p>
             </div>
-
-            <!-- Professional Decoration Section -->
-            <div id="professionalSection" class="p-4 hidden">
-                <h2 class="text-2xl font-bold golden-text mb-6 text-center">الزخرفة الاحترافية</h2>
-                
-                <div class="mb-6">
-                    <input type="text" placeholder="اكتب النص هنا..." class="w-full p-3 rounded bg-gray-800 text-white border border-yellow-600">
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div>
-                        <label class="block golden-text mb-2">اختر الخط:</label>
-                        <select class="w-full p-2 rounded bg-gray-800 text-white border border-yellow-600">
-                            <option>ديواني</option>
-                            <option>ثلث</option>
-                            <option>نسخ</option>
-                            <option>رقعة</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block golden-text mb-2">لون النص:</label>
-                        <input type="color" class="w-full h-10 rounded">
-                    </div>
-                    
-                    <div>
-                        <label class="block golden-text mb-2">الخلفية:</label>
-                        <input type="file" id="uploadBg" class="hidden">
-                        <label for="uploadBg" class="block w-full p-2 bg-yellow-600 rounded text-center hover:bg-yellow-700 cursor-pointer">رفع خلفية</label>
-                    </div>
-                </div>
-                
-                <div class="golden-tab p-4 mb-6 rounded-lg min-h-48 flex items-center justify-center">
-                    <p class="text-3xl" id="previewText">معاينة النص</p>
-                </div>
-                
-                <button class="w-full p-3 bg-yellow-600 rounded-lg hover:bg-yellow-700">تحميل التصميم</button>
-            </div>
-
-            <!-- Names Decoration Section -->
-            <div id="namesSection" class="p-4 hidden">
-                <h2 class="text-2xl font-bold golden-text mb-6 text-center">زخرفة الأسماء</h2>
-                
-                <div class="mb-6">
-                    <input type="text" placeholder="اكتب الاسم هنا..." class="w-full p-3 rounded bg-gray-800 text-white border border-yellow-600">
-                    <button class="mt-2 w-full p-3 bg-yellow-600 rounded-lg hover:bg-yellow-700">توليد الزخارف</button>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="namesResults">
-                    <!-- Names decoration results will be loaded here -->
-                </div>
-            </div>
-
-            <!-- About Section -->
-            <div id="aboutSection" class="p-4 hidden">
-                <div class="golden-tab p-6 rounded-lg">
-                    <h2 class="text-2xl font-bold golden-text mb-4 text-center">لمحة عن التطبيق</h2>
-                    <p class="mb-4">تطبيق عالم التصاميم والزخرفة هو أداة متكاملة لإنشاء وتصميم الزخارف العربية باحترافية عالية.</p>
-                    <p>يمكنك من خلال التطبيق زخرفة الأسماء بخطوط مختلفة مثل الديواني والثلث وغيرها، مع إمكانية إضافة التلبيسات والتأثيرات الفنية.</p>
-                </div>
-            </div>
-
-            <!-- Contact Section -->
-            <div id="contactSection" class="p-4 hidden">
-                <div class="golden-tab p-6 rounded-lg" style="background-color: rgba(212, 175, 55, 0.4);">
-                    <h2 class="text-2xl font-bold golden-text mb-4 text-center">اتصل بنا</h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="text-xl golden-text mb-2">معلومات التواصل</h3>
-                            <p class="mb-2"><i data-feather="mail" class="inline mr-2"></i> info@example.com</p>
-                            <p><i data-feather="phone" class="inline mr-2"></i> +123456789</p>
-                        </div>
-                        
-                        <div>
-                            <h3 class="text-xl golden-text mb-2">وسائل التواصل الاجتماعي</h3>
-                            <div class="flex space-x-4">
-                                <a href="#" class="text-yellow-500 hover:text-yellow-400"><i data-feather="facebook"></i></a>
-                                <a href="#" class="text-yellow-500 hover:text-yellow-400"><i data-feather="twitter"></i></a>
-                                <a href="#" class="text-yellow-500 hover:text-yellow-400"><i data-feather="instagram"></i></a>
-                            </div>
-                        </div>
-                    </div>
+            <div>
+                <h3 class="text-xl golden-text mb-2">وسائل التواصل الاجتماعي</h3>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-yellow-500 hover:text-yellow-400"><i data-feather="facebook"></i></a>
+                    <a href="#" class="text-yellow-500 hover:text-yellow-400"><i data-feather="twitter"></i></a>
+                    <a href="#" class="text-yellow-500 hover:text-yellow-400"><i data-feather="instagram"></i></a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Initialize Feather Icons
-        feather.replace();
-        
-        // Welcome Modal
-        function closeWelcome() {
-            document.getElementById('welcomeModal').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
+</div> <!-- End Main Content -->
+</div> <!-- End App -->
+
+<script>
+// Initialize Feather Icons
+feather.replace();
+
+// Welcome Modal
+function closeWelcome() {
+    document.getElementById('welcomeModal').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+}
+
+// Sidebar Toggle
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('translate-x-full');
+    sidebar.classList.toggle('translate-x-0');
+}
+
+// Control Panel Toggle
+function toggleControlPanel() {
+    const panel = document.getElementById('controlPanel');
+    panel.classList.toggle('hidden');
+}
+
+// Show Section
+function showSection(sectionId) {
+    document.querySelectorAll('[id$="Section"]').forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(sectionId + 'Section').classList.remove('hidden');
+    document.getElementById('sidebar').classList.add('translate-x-full');
+    document.getElementById('sidebar').classList.remove('translate-x-0');
+}
+
+// Control Panel Password
+const correctPassword = '1234'; // يمكنك تغييره
+function checkPassword() {
+    const input = document.getElementById('controlPassword').value;
+    const content = document.getElementById('controlContent');
+    if(input === correctPassword) {
+        content.classList.remove('hidden');
+    } else {
+        alert('كلمة المرور غير صحيحة');
+    }
+}
+
+// Sample data for image grid
+const sampleImages = [
+    'https://picsum.photos/400/300?random=1',
+    'https://picsum.photos/400/300?random=2',
+    'https://picsum.photos/400/300?random=3',
+    'https://picsum.photos/400/300?random=4',
+    'https://picsum.photos/400/300?random=5',
+    'https://picsum.photos/400/300?random=6'
+];
+
+// Load sample images
+const imageGrid = document.getElementById('imageGrid');
+sampleImages.forEach(imageUrl => {
+    const imgDiv = document.createElement('div');
+    imgDiv.className = 'golden-tab p-2 rounded-lg overflow-hidden';
+    imgDiv.innerHTML = `
+        <img src="${imageUrl}" alt="Sample" class="w-full h-48 object-cover rounded">
+        <div class="p-2 text-center">
+            <button class="px-3 py-1 bg-yellow-600 rounded-full text-sm hover:bg-yellow-700">تحميل</button>
+        </div>
+    `;
+    imageGrid.appendChild(imgDiv);
+});
+
+// Names Decoration
+document.getElementById('generateNames').addEventListener('click', function() {
+    const name = document.getElementById('namesInput').value;
+    const namesResults = document.getElementById('namesResults');
+    namesResults.innerHTML = '';
+    for(let i=0; i<4; i++){
+        const box = document.createElement('div');
+        box.className = 'golden-tab p-4 rounded-lg min-h-24 flex items-center justify-center';
+        box.style.fontSize = '1.5rem';
+        let decoratedName = '';
+        switch(i){
+            case 0: decoratedName = `【${name}】`; box.style.fontFamily = 'diwani'; break;
+            case 1: decoratedName = `★ ${name} ★`; box.style.fontFamily = 'thuluth'; break;
+            case 2: decoratedName = `|̲̅${name}̲̅|`; box.style.fontFamily = 'naskh'; break;
+            case 3: decoratedName = `••• ${name} •••`; box.style.fontFamily = 'ruqaa'; break;
         }
-        
-        // Sidebar Toggle
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('translate-x-full');
-            sidebar.classList.toggle('translate-x-0');
-        }
-        
-        // Control Panel Toggle
-        function toggleControlPanel() {
-            const panel = document.getElementById('controlPanel');
-            panel.classList.toggle('hidden');
-        }
-        
-        // Show Section
-        function showSection(sectionId) {
-            // Hide all sections
-            document.querySelectorAll('[id$="Section"]').forEach(section => {
-                section.classList.add('hidden');
-            });
-            
-            // Show selected section
-            document.getElementById(sectionId + 'Section').classList.remove('hidden');
-            
-            // Close sidebar if open
-            document.getElementById('sidebar').classList.add('translate-x-full');
-            document.getElementById('sidebar').classList.remove('translate-x-0');
-        }
-        
-        // Sample data for image grid
-        const sampleImages = [
-            'http://static.photos/arabic/640x360/1',
-            'http://static.photos/arabic/640x360/2',
-            'http://static.photos/arabic/640x360/3',
-            'http://static.photos/arabic/640x360/4',
-            'http://static.photos/arabic/640x360/5',
-            'http://static.photos/arabic/640x360/6',
-            'http://static.photos/arabic/640x360/7',
-            'http://static.photos/arabic/640x360/8'
-        ];
-        
-        // Load sample images
-        const imageGrid = document.getElementById('imageGrid');
-        sampleImages.forEach(imageUrl => {
-            const imgDiv = document.createElement('div');
-            imgDiv.className = 'golden-tab p-2 rounded-lg overflow-hidden';
-            imgDiv.innerHTML = `
-                <img src="${imageUrl}" alt="Sample" class="w-full h-48 object-cover rounded">
-                <div class="p-2 text-center">
-                    <button class="px-3 py-1 bg-yellow-600 rounded-full text-sm hover:bg-yellow-700">تحميل</button>
-                </div>
-            `;
-            imageGrid.appendChild(imgDiv);
-        });
-        
-        // Sample names decoration
-        document.querySelector('#namesSection input').addEventListener('keyup', function(e) {
-            if(e.key === 'Enter') {
-                const name = this.value;
-                const namesResults = document.getElementById('namesResults');
-                namesResults.innerHTML = '';
-                
-                for(let i = 0; i < 4; i++) {
-                    const box = document.createElement('div');
-                    box.className = 'golden-tab p-4 rounded-lg min-h-24 flex items-center justify-center';
-                    box.style.fontSize = '1.5rem';
-                    
-                    // Simulate different decoration styles
-                    let decoratedName = '';
-                    switch(i) {
-                        case 0:
-                            decoratedName = `【${name}】`;
-                            box.style.fontFamily = 'diwani';
-                            break;
-                        case 1:
-                            decoratedName = `★ ${name} ★`;
-                            box.style.fontFamily = 'thuluth';
-                            break;
-                        case 2:
-                            decoratedName = `|̲̅${name}̲̅|`;
-                            box.style.fontFamily = 'naskh';
-                            break;
-                        case 3:
-                            decoratedName = `••• ${name} •••`;
-                            box.style.fontFamily = 'ruqaa';
-                            break;
-                    }
-                    
-                    box.textContent = decoratedName;
-                    namesResults.appendChild(box);
-                }
-            }
-        });
-    </script>
+        box.textContent = decoratedName;
+        namesResults.appendChild(box);
+    }
+});
+
+// Professional Decoration Preview
+document.getElementById('professionalInput').addEventListener('input', function() {
+    const text = this.value;
+    const preview = document.getElementById('previewText');
+    preview.textContent = text;
+});
+document.getElementById('textColor').addEventListener('input', function() {
+    const color = this.value;
+    document.getElementById('previewText').style.color = color;
+});
+document.getElementById('fontSelect').addEventListener('change', function() {
+    document.getElementById('previewText').style.fontFamily = this.value;
+});
+</script>
 </body>
-    </html>
+        </html>
