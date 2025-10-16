@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عالم التصاميم والزخرفة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Noto Naskh Arabic', serif;
+        }
+        .golden-text {
+            color: #D4AF37;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .golden-border {
+            border: 2px solid #D4AF37;
+        }
+        .golden-bg {
+            background-color: rgba(212, 175, 55, 0.2);
+        }
+        .welcome-modal {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(0, 0, 0, 0.7) 100%);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Welcome Modal -->
+    <div id="welcomeModal" class="fixed inset-0 flex items-center justify-center z-50 welcome-modal">
+        <div class="bg-black bg-opacity-70 p-8 rounded-lg max-w-md w-full golden-border">
+            <div class="flex justify-center mb-4">
+                <img src="abu7amza.png" alt="App Icon" class="w-20 h-20">
+            </div>
+            <h2 class="text-2xl font-bold text-center golden-text mb-4">مرحبًا بك في عالم التصاميم والزخرفة</h2>
+            <p class="text-center mb-6">أهلاً وسهلاً بكم في منصة الزخرفة العربية الاحترافية حيث يمكنكم تحويل النصوص إلى تحف فنية</p>
+            <button id="startBtn" class="w-full py-2 golden-bg golden-text rounded-md hover:bg-opacity-30 transition">ابدأ الرحلة</button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="hidden">
+        <!-- Top Bar -->
+        <header class="fixed top-0 left-0 right-0 h-16 bg-[url('shbg.png')] bg-cover bg-center flex items-center justify-between px-4 z-40">
+            <!-- Sidebar Toggle -->
+            <button id="sidebarToggle" class="w-10 h-10 flex items-center justify-center">
+                <img src="yhbg.png" alt="Menu" class="w-8 h-8">
+            </button>
+
+            <!-- App Title -->
+            <div class="flex items-center">
+                <h1 class="text-xl font-bold golden-text mx-2">عالم التصاميم والزخرفة</h1>
+                <img src="abu7amza.png" alt="App Icon" class="w-8 h-8">
+            </div>
+
+            <!-- Dashboard Toggle -->
+            <button id="dashboardToggle" class="w-10 h-10 flex items-center justify-center">
+                <img src="sitting.png" alt="Dashboard" class="w-8 h-8">
+            </button>
+        </header>
+
+        <!-- Sidebar -->
+        <div id="sidebar" class="fixed top-16 right-0 bottom-0 w-64 bg-gray-800 transform translate-x-full transition-transform duration-300 z-30 p-4 overflow-y-auto">
+            <button id="sidebarClose" class="absolute top-2 left-2 text-gray-400 hover:text-white">
+                <i data-feather="x"></i>
+            </button>
+            <nav class="mt-8">
+                <ul class="space-y-4">
+                    <li><a href="#" class="block golden-text hover:bg-gray-700 p-2 rounded">الصفحة الرئيسية</a></li>
+                    <li><a href="#" class="block text-white hover:bg-gray-700 p-2 rounded">الزخرفة الاحترافية</a></li>
+                    <li><a href="#" class="block text-white hover:bg-gray-700 p-2 rounded">زخرفة الأسماء</a></li>
+                    <li><a href="#" class="block text-white hover:bg-gray-700 p-2 rounded">لمحة عن التطبيق</a></li>
+                    <li><a href="#" class="block text-white hover:bg-gray-700 p-2 rounded">اتصل بنا</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="fixed top-16 left-0 bottom-0 w-72 bg-gray-800 transform -translate-x-full transition-transform duration-300 z-30 p-4 overflow-y-auto golden-border">
+            <div class="mb-6">
+                <h3 class="text-lg font-bold golden-text mb-2">لوحة التحكم</h3>
+                <div class="p-4 golden-bg rounded mb-4">
+                    <input type="password" placeholder="كلمة المرور" class="w-full bg-gray-700 text-white p-2 rounded mb-2">
+                    <button class="w-full py-1 golden-bg golden-text rounded hover:bg-opacity-30">دخول</button>
+                </div>
+            </div>
+            <div class="space-y-6">
+                <div>
+                    <h4 class="font-bold golden-text mb-2">إعدادات المظهر</h4>
+                    <select class="w-full bg-gray-700 text-white p-2 rounded">
+                        <option>Noto Naskh Arabic</option>
+                        <option>Amiri</option>
+                        <option>Lalezar</option>
+                        <option>Scheherazade</option>
+                        <option>Lateef</option>
+                    </select>
+                </div>
+                <div>
+                    <h4 class="font-bold golden-text mb-2">إدارة الأقسام</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between bg-gray-700 p-2 rounded">
+                            <span>الصفحة الرئيسية</span>
+                            <div class="flex space-x-2">
+                                <button><i data-feather="edit-2" class="w-4 h-4"></i></button>
+                                <button><i data-feather="x" class="w-4 h-4"></i></button>
+                            </div>
+                        </div>
+                        <!-- More sections here -->
+                    </div>
+                </div>
+            </div>
+            <button id="dashboardClose" class="absolute top-2 right-2 text-gray-400 hover:text-white">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <main class="pt-16 min-h-screen bg-[url('bg.png')] bg-cover bg-center bg-fixed">
+            <div class="container mx-auto p-4">
+                <!-- Home Page Content -->
+                <section id="home" class="py-8">
+                    <div class="mb-8">
+                        <div class="relative">
+                            <input type="text" placeholder="ابحث عن ملفات..." class="w-full bg-gray-800 bg-opacity-70 text-white p-3 pl-10 rounded-lg golden-border">
+                            <i data-feather="search" class="absolute right-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <h2 class="text-2xl font-bold golden-text mb-4">الصور المضافة</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="imageGallery">
+                        <!-- Images will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Other sections will be added here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Welcome Modal
+        document.getElementById('startBtn').addEventListener('click', function() {
+            document.getElementById('welcomeModal').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            feather.replace();
+        });
+
+        // Sidebar Toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').style.transform = 'translateX(0)';
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', function() {
+            document.getElementById('sidebar').style.transform = 'translateX(100%)';
+        });
+
+        // Dashboard Toggle
+        document.getElementById('dashboardToggle').addEventListener('click', function() {
+            document.getElementById('dashboard').style.transform = 'translateX(0)';
+        });
+
+        document.getElementById('dashboardClose').addEventListener('click', function() {
+            document.getElementById('dashboard').style.transform = 'translateX(-100%)';
+        });
+
+        // Initialize Feather Icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+
+        // Sample image loading (would be replaced with actual implementation)
+        function loadImages() {
+            const gallery = document.getElementById('imageGallery');
+            for (let i = 0; i < 8; i++) {
+                const imgDiv = document.createElement('div');
+                imgDiv.className = 'golden-bg rounded-lg overflow-hidden';
+                imgDiv.innerHTML = `
+                    <img src="http://static.photos/arabic/320x240/${i+1}" alt="Sample ${i+1}" class="w-full h-40 object-cover">
+                    <div class="p-2">
+                        <p class="text-sm truncate">صورة ${i+1}</p>
+                        <button class="text-xs golden-text hover:underline">تحميل</button>
+                    </div>
+                `;
+                gallery.appendChild(imgDiv);
+            }
+        }
+
+        loadImages();
+    </script>
+</body>
+</html>
