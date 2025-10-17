@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap');
+
+body {
+  font-family: 'Reem Kufi', sans-serif;
+  background: linear-gradient(to bottom, #fff8e1, #fff);
+  margin: 0;
+  padding: 0;
+  direction: rtl;
+}
+
+/* رأس الصفحة */
+.golden-header {
+  background: rgba(255, 215, 0, 0.3); /* ذهبي شفاف */
+  backdrop-filter: blur(8px);
+  border-bottom: 2px solid #fff;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  color: #6b4f00;
+  font-weight: bold;
+}
+
+.app-logo {
+  width: 50px;
+  height: 50px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+
+/* القائمة الجانبية */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -250px;
+  width: 250px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
+  transition: right 0.4s ease;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+  padding-top: 60px;
+}
+
+.sidebar.open {
+  right: 0;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-menu li {
+  margin: 15px 0;
+}
+
+.sidebar-menu a {
+  text-decoration: none;
+  color: #6b4f00;
+  font-weight: bold;
+  display: block;
+  padding: 10px 20px;
+  transition: background 0.3s;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu .active {
+  background: rgba(255, 215, 0, 0.3);
+  border-right: 4px solid gold;
+}
+
+/* المحتوى الرئيسي */
+.about-section {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.about-section h1 {
+  font-size: 2rem;
+  color: #6b4f00;
+  border-bottom: 2px solid #fff;
+  display: inline-block;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+}
+
+.about-section p {
+  color: #333;
+  line-height: 1.8;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+  }
