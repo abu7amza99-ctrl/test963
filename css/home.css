@@ -1,3 +1,5 @@
+/* === عام === */
+:root { --gold: #D4AF37; --gold-10: rgba(212,175,55,0.10); }
 body {
   margin: 0;
   font-family: 'Reem Kufi', sans-serif;
@@ -5,87 +7,79 @@ body {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  text-align: center;
-  color: #000;
+  direction: rtl;
+  color: #111;
 }
 
+/* شريط علوي */
 header {
-  background-image: url('../assets/shbg.png');
-  background-size: cover;
-  background-position: center;
   height: 70px;
-  border-bottom: 5px solid #D4AF37;
-  box-shadow: 0 6px 8px rgba(0,0,0,0.6);
   display: flex;
   align-items: center;
   justify-content: center;
+  background-image: url('../assets/shbg.png');
+  background-size: cover;
+  border-bottom: 5px solid var(--gold);
+  box-shadow: 0 6px 8px rgba(0,0,0,0.6);
   border-radius: 0 0 15px 15px;
+  position: relative;
+  z-index: 30;
 }
+.header-center { display:flex; align-items:center; gap:10px; }
+.app-title { color: var(--gold); font-size: 28px; text-shadow: 2px 2px 0 #000; }
+.app-logo { width:48px; height:48px; }
 
-.app-title {
-  color: #D4AF37;
-  font-size: 28px;
-  font-weight: bold;
-  text-shadow: 2px 2px 0 #000;
+/* زر اللوحة */
+.sidebar-btn { position:absolute; right:18px; top:50%; transform:translateY(-50%); background:none; border:0; cursor:pointer; }
+.sidebar-btn img { width:38px; height:38px; }
+
+/* اللوحة الجانبية */
+.sidebar {
+  position: fixed; right: -100%; top:0; width:320px; height:100%;
+  background-color: var(--gold-10);
+  border-left: 2px solid var(--gold);
+  padding:18px;
+  box-shadow: -4px 0 18px rgba(0,0,0,0.5);
+  transition: right .35s ease;
+  z-index: 40;
 }
+.sidebar.open { right:0; }
+.close-btn { position:absolute; left:12px; top:8px; background:none; border:0; color:var(--gold); font-size:28px; cursor:pointer; }
+.sidebar-menu{ margin-top:56px; padding:0; list-style:none; }
+.sidebar-menu a{ color:var(--gold); text-decoration:none; font-size:20px; display:block; margin:12px 0; }
 
-.search-container {
-  margin: 20px auto;
-  width: 90%;
-  max-width: 400px;
+/* اللوحة الرئيسية */
+.home-panel{
+  max-width:1000px; margin:28px auto; padding:20px;
+  background-color: rgba(255,255,255,0.9);
+  border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,0.25);
+  border: 2px solid rgba(0,0,0,0.05);
 }
+.home-title { color: var(--gold); text-align:center; font-size:26px; margin:0 0 10px; text-shadow:1px 1px #000; }
 
-#search {
-  width: 100%;
-  padding: 10px;
-  font-size: 18px;
-  border: 2px solid #D4AF37;
-  border-radius: 10px;
-  text-align: center;
-  outline: none;
-}
+/* البحث */
+.search-wrap{ display:flex; justify-content:center; margin:14px 0 18px; }
+#searchInput { width:86%; max-width:600px; padding:10px 14px; font-size:16px; border-radius:10px; border:2px solid var(--gold); text-align:center; }
 
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 15px;
-  padding: 20px;
-}
+/* شبكة الصور */
+.gallery-grid{ display:grid; gap:14px; grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); margin-top:8px; }
+.gallery-item{ display:block; border-radius:10px; overflow:hidden; border:3px solid var(--gold); background:#fff; box-shadow:0 6px 12px rgba(0,0,0,0.25); }
+.gallery-item img{ width:100%; height:170px; object-fit:cover; display:block; transition: transform .25s ease; }
+.gallery-item:hover img{ transform: scale(1.03); }
 
-.gallery-item {
-  display: block;
-  border: 2px solid #D4AF37;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.4);
-  transition: transform 0.3s ease;
-}
-
-.gallery-item:hover {
-  transform: scale(1.05);
-}
-
-.gallery-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
+/* === تعديلات LightGallery المرادفة لحل الشاشة السوداء + خلفية ذهبية شفافة 10% === */
 /* خلفية واجهة العرض */
-.lg-backdrop {
-  background-color: rgba(212, 175, 55, 0.1) !important;
-}
+.lg-backdrop { background-color: rgba(212,175,55,0.10) !important; }
+/* تصحيح عرض الصور داخل LightGallery */
+.lg-object { object-fit: contain !important; width:100% !important; height:100% !important; background-color: transparent !important; }
+/* تحسين شريط المصغرات */
+.lg-thumb-item.active, .lg-thumb-item:hover { border-color: var(--gold) !important; box-shadow: 0 0 12px rgba(212,175,55,0.25) !important; }
 
-/* تصحيح عرض الصورة داخل LightGallery */
-.lg-object {
-  object-fit: contain !important;
-  width: 100% !important;
-  height: 100% !important;
-  background-color: transparent !important;
-}
+/* أزرار التحميل/إغلاق داخل LightGallery (إذا احتجت ضبط إضافي) */
+.lg-toolbar .lg-download { color: #000 !important; background: var(--gold) !important; border-radius:8px !important; border:2px solid #000 !important; padding:6px 10px !important; }
 
-/* تحسين شريط الصور المصغّرة */
-.lg-thumb-item.active,
-.lg-thumb-item:hover {
-  border-color: #D4AF37 !important;
+/* استجابة */
+@media (max-width:640px){
+  .gallery-item img{ height:140px; }
+  #searchInput{ width:92%; }
 }
