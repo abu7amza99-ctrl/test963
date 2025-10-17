@@ -5,33 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لمحة عن التطبيق</title>
   <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/about.css">
+  <link rel="icon" href="../assets/abu7amza.png" type="image/png">
 </head>
 <body>
-  <header>
+  <header class="golden-header">
     <div class="header-center">
       <div class="app-title">عالم التصاميم والزخرفة</div>
       <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
     </div>
-    <button class="sidebar-btn">
-      <img src="../assets/yhbg.png" alt="لوحة جانبية">
+    <button class="sidebar-btn" aria-label="فتح القائمة الجانبية">
+      <img src="../assets/yhbg.png" alt="">
     </button>
   </header>
 
   <aside class="sidebar">
-    <button class="close-btn">&times;</button>
+    <button class="close-btn" aria-label="إغلاق القائمة">&times;</button>
     <ul class="sidebar-menu">
       <li><a href="../index.html">الصفحة الرئيسية</a></li>
       <li><a href="professional-decoration.html">الزخرفة الاحترافية</a></li>
       <li><a href="name-decoration.html">زخرفة الأسماء</a></li>
-      <li><a href="about.html">لمحة عن التطبيق</a></li>
+      <li><a href="about.html" class="active">لمحة عن التطبيق</a></li>
       <li><a href="contact.html">اتصل بنا</a></li>
     </ul>
   </aside>
 
   <main>
-    <h1>لمحة عن التطبيق</h1>
-    <p>هذا القسم يشرح فكرة التطبيق وهدفه في تقديم تصاميم وزخارف مبتكرة للمستخدمين.</p>
+    <section class="about-section">
+      <h1>لمحة عن التطبيق</h1>
+      <p>
+        تطبيق <strong>عالم التصاميم والزخرفة</strong> صُمم ليكون بوابتك لعالم الجمال والإبداع.
+        هنا تجد أدوات زخرفة احترافية وأفكار تصميم مبتكرة تساعدك على إبراز لمستك الفنية بسهولة وأناقة.
+      </p>
+    </section>
   </main>
 
   <script src="../js/script.js" defer></script>
