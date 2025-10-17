@@ -1,52 +1,69 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الصفحة الرئيسية</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>الصفحة الرئيسية - عالم التصاميم والزخرفة</title>
   <link rel="stylesheet" href="../css/home.css">
 </head>
 <body>
+
   <!-- الشريط العلوي -->
-  <header class="topbar">
-    <img src="../assets/shbg.png" class="topbar-bg" alt="">
+  <header class="topbar" role="banner" aria-hidden="false">
+    <div class="topbar-bg-wrap">
+      <img src="../assets/shbg.png" alt="" class="topbar-bg">
+    </div>
     <div class="topbar-content">
       <button class="sidebar-btn" aria-label="فتح القائمة">
         <img src="../assets/yhbg.png" alt="زر القائمة">
       </button>
-      <div class="app-title">
-        <img src="../assets/abu7amza.png" alt="أيقونة التطبيق" class="app-icon">
-        <span>تطبيق أبو حمزة</span>
+
+      <div class="app-center">
+        <img src="../assets/abu7amza.png" alt="لوغو" class="app-logo">
+        <div class="app-name">عالم التصاميم والزخرفة</div>
       </div>
     </div>
   </header>
 
   <!-- اللوحة الجانبية -->
   <aside class="sidebar" aria-hidden="true">
-    <button class="sidebar-close">×</button>
-    <nav>
-      <a href="../index.html">الصفحة الرئيسية</a>
-      <a href="#">قسم آخر</a>
-      <a href="#">الإعدادات</a>
+    <button class="sidebar-close" aria-label="إغلاق القائمة">×</button>
+    <nav class="sidebar-menu" aria-label="القائمة الرئيسية">
+      <ul>
+        <li><a href="../index.html">الصفحة الرئيسية</a></li>
+        <li><a href="professional-decoration.html">الزخرفة الاحترافية</a></li>
+        <li><a href="name-decoration.html">زخرفة الأسماء</a></li>
+        <li><a href="about.html">لمحة عن التطبيق</a></li>
+        <li><a href="contact.html">اتصل بنا</a></li>
+      </ul>
     </nav>
   </aside>
 
-  <!-- المحتوى -->
-  <main>
-    <div class="search-container">
-      <input id="searchInput" type="text" placeholder="ابحث عن صورة..." aria-label="بحث">
-    </div>
+  <!-- المحتوى الرئيسي -->
+  <main class="main">
+    <section class="hero">
+      <h1 class="page-title">الصفحة الرئيسية</h1>
+      <div class="search-wrap">
+        <input id="searchInput" type="search" placeholder="ابحث عن اسم/رقم الصورة..." aria-label="ابحث عن الصور">
+      </div>
+    </section>
 
-    <div id="gallery" class="gallery"></div>
+    <section class="gallery-section">
+      <div id="gallery" class="gallery-grid" aria-live="polite"></div>
+    </section>
   </main>
 
   <!-- Lightbox -->
   <div id="lightbox" class="lightbox" aria-hidden="true">
-    <span class="lightbox-close">×</span>
-    <img id="lightboxImage" src="" alt="">
-    <a id="downloadBtn" class="download-btn" href="#" download>تحميل</a>
+    <button class="lightbox-close" aria-label="إغلاق">×</button>
+    <div class="lightbox-inner">
+      <img id="lightboxImage" src="" alt="">
+      <div class="lightbox-toolbar">
+        <a id="downloadBtn" class="btn-download" href="#" download>تحميل</a>
+      </div>
+    </div>
   </div>
 
-  <script src="../js/home.js"></script>
+  <script src="../js/home.js" defer></script>
 </body>
-        </html>
+</html>
