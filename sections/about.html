@@ -1,29 +1,25 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لمحة عن التطبيق</title>
   <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/about.css">
-  <link rel="icon" href="../assets/abu7amza.png" type="image/png">
 </head>
 <body>
-  <!-- ===== الشريط العلوي ===== -->
-  <header class="golden-header">
-    <div class="header-bg"></div>
-    <div class="header-center">
-      <div class="app-title">عالم التصاميم والزخرفة</div>
-      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
-    </div>
-    <button class="sidebar-btn" aria-label="فتح القائمة الجانبية">
-      <img src="../assets/yhbg.png" alt="زر القائمة">
+  <header>
+    <button class="sidebar-btn">
+      <img src="../assets/yhbg.png" alt="زر القائمة الجانبية">
     </button>
+    <div class="header-center">
+      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
+      <div class="app-title">عالم التصاميم والزخرفة</div>
+    </div>
   </header>
 
-  <!-- ===== اللوحة الجانبية ===== -->
   <aside class="sidebar">
-    <button class="close-btn" aria-label="إغلاق القائمة">&times;</button>
+    <button class="close-btn">&times;</button>
     <ul class="sidebar-menu">
       <li><a href="../index.html">الصفحة الرئيسية</a></li>
       <li><a href="professional-decoration.html">الزخرفة الاحترافية</a></li>
@@ -33,27 +29,24 @@
     </ul>
   </aside>
 
-  <!-- ===== المحتوى الرئيسي ===== -->
   <main>
-    <section class="about-section">
+    <section class="about-box">
       <h1>لمحة عن التطبيق</h1>
       <p>
-        تطبيق <strong>عالم التصاميم والزخرفة</strong> هو مساحة إبداعية تجمع بين الفن والدقة.
-        يوفر أدوات متنوعة لتصميم زخارف فنية وأسماء جميلة بأسلوب احترافي، مع واجهة بسيطة
-        وألوان أنيقة تمنح المستخدم تجربة فريدة ومريحة.
+        تطبيق عالم التصاميم والزخرفة هو مساحة إبداعية تمزج بين الفن والدقة؛
+        يوفر أدوات متنوعة لتصميم زخارف فنية وأسماء جميلة بأسلوب احترافي،
+        مع واجهة بسيطة وألوان أنيقة تمنح المستخدم تجربة فريدة ومرضية.
       </p>
     </section>
   </main>
 
-  <!-- ===== سكربت التحكم باللوحة الجانبية ===== -->
   <script>
     const sidebar = document.querySelector('.sidebar');
-    document.querySelector('.sidebar-btn').addEventListener('click', () => {
-      sidebar.classList.add('open');
-    });
-    document.querySelector('.close-btn').addEventListener('click', () => {
-      sidebar.classList.remove('open');
-    });
+    const btn = document.querySelector('.sidebar-btn');
+    const closeBtn = document.querySelector('.close-btn');
+
+    btn.addEventListener('click', () => sidebar.classList.add('active'));
+    closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
   </script>
 </body>
 </html>
