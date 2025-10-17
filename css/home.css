@@ -1,303 +1,177 @@
-/* -------------------------
-  CSS كامل لقسم home
-  - شريط علوي ثابت
-  - لوحة جانبية تفتح من اليمين (شفافية ذهبية 15%)
-  - شبكة صور 4x (desktop) و2x (mobile)
-  - لون ذهبي متناسق وحدود سوداء خفيفة
-  - نافذة تكبير خلفيتها ذهبية شفافة 10%
---------------------------- */
-
-:root{
-  --gold: #D4AF37;
-  --gold-opaque: rgba(212,175,55,0.15); /* لوحة جانبية */
-  --gold-lightbox: rgba(212,175,55,0.10); /* خلفية ليت بوكس */
-  --gold-strong: rgba(212,175,55,0.95);
-  --black-soft: rgba(0,0,0,0.5);
-  --radius-lg: 14px;
-  --radius-sm: 8px;
+body {
+  margin: 0;
+  font-family: "Cairo", sans-serif;
+  background: url("../assets/bg.png") no-repeat center center fixed;
+  background-size: cover;
+  color: #fff;
 }
 
-/* عام */
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family:'Reem Kufi',sans-serif;
-  background-image: url('../assets/bg.png');
-  background-repeat:no-repeat;
-  background-position:center;
-  background-size:cover;
-  background-attachment: fixed;
-  color:#111;
-  direction: rtl;
+/* الشريط العلوي */
+.topbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 60px;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+}
+.topbar-bg {
+  display: none;
+}
+.topbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 15px;
+}
+.sidebar-btn img {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+.app-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: bold;
+}
+.app-title img {
+  width: 32px;
+  height: 32px;
 }
 
-/* ---------------- Header (ثابت) ---------------- */
-.app-header{
-  position: sticky;
-  top:0;
-  z-index:1200;
-  display:block;
-  padding:10px 14px;
-  background: linear-gradient(90deg, rgba(212,175,55,0.95), rgba(206,160,40,0.95));
-  border-bottom: 3px solid var(--gold);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.35);
-  border-radius: 0 0 12px 12px;
+/* اللوحة الجانبية */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -260px;
+  width: 240px;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(8px);
+  transition: right 0.3s;
+  z-index: 1001;
+  padding-top: 70px;
+}
+.sidebar.open {
+  right: 0;
+}
+.sidebar-close {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+}
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+}
+.sidebar nav a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 18px;
+  transition: color 0.3s;
+}
+.sidebar nav a:hover {
+  color: gold;
 }
 
-/* داخل الشريط */
-.header-inner{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-  min-height:54px;
+/* معرض الصور */
+main {
+  padding-top: 80px;
+  padding-inline: 15px;
+}
+.search-container {
+  text-align: center;
+  margin-bottom: 15px;
+}
+#searchInput {
+  width: 90%;
+  max-width: 400px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+}
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.3s, opacity 0.3s;
+}
+.gallery img:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
 }
 
-/* اسم التطبيق واللوغو في الوسط */
-.header-center{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  transform: translateY(2px);
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 215, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s;
+  z-index: 2000;
 }
-.app-logo{
-  width:46px;
-  height:46px;
-  border-radius:50%;
-  border:2px solid rgba(0,0,0,0.15);
-  background: #fff0;
-  object-fit:cover;
-  box-shadow:0 2px 6px rgba(0,0,0,0.4);
+.lightbox.open {
+  opacity: 1;
+  visibility: visible;
 }
-.app-name{
-  font-size:20px;
-  color:var(--gold);
-  text-shadow: 2px 2px 0 #000;
-  font-weight:700;
+.lightbox img {
+  max-width: 90%;
+  max-height: 80%;
+  border-radius: 12px;
+  box-shadow: 0 0 20px #000;
 }
-
-/* زر اللوحة الجانبية - ظاهر دائماً */
-.sidebar-btn{
-  position:absolute;
-  right:12px;
-  top:50%;
-  transform:translateY(-50%);
-  width:48px;
-  height:48px;
-  border-radius:50%;
-  background:transparent;
-  border:none;
-  cursor:pointer;
-  z-index:1300;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 2px 6px rgba(0,0,0,0.35);
+.lightbox-close {
+  position: absolute;
+  top: 15px;
+  right: 25px;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
 }
-.sidebar-btn img{width:100%;height:100%;object-fit:cover}
-
-/* زخرفة خلفية الشريط (shbg) - تغطي الشريط بصرياً */
-.header-bg{
-  display:none;
-  position:absolute; inset:0; z-index:0;
-  background-image:url('../assets/shbg.png');
-  background-size:cover; background-position:center;
-  opacity:0.95;
+.download-btn {
+  position: absolute;
+  bottom: 20px;
+  background: gold;
+  color: #000;
+  padding: 10px 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: bold;
 }
 
-/* ---------------- Sidebar ---------------- */
-.sidebar{
-  position:fixed;
-  top:0;
-  right:-100%;
-  width:320px;
-  max-width:85%;
-  height:100vh;
-  padding:22px;
-  background: var(--gold-opaque);
-  box-shadow: -6px 0 18px rgba(0,0,0,0.45);
-  border-left: 3px solid var(--gold);
-  transition: right 0.45s cubic-bezier(.2,.9,.2,1);
-  z-index:1400;
-  backdrop-filter: blur(4px);
+/* استجابة */
+@media (min-width: 768px) {
+  .gallery {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
-.sidebar.open{ right:0; }
-.sidebar-close{
-  position:absolute;
-  left:12px;
-  top:10px;
-  font-size:28px;
-  background:none;
-  border:none;
-  color:var(--gold);
-  cursor:pointer;
-}
-.sidebar-nav{ margin-top:60px }
-.sidebar-nav ul{ list-style:none;padding:0;margin:0 }
-.sidebar-nav li{ margin:18px 0 }
-.sidebar-nav a{
-  color:var(--gold);
-  text-decoration:none;
-  font-size:20px;
-  display:inline-block;
-  text-shadow: 1px 1px 0 #000;
-}
-.sidebar-nav a:hover{ color:#fff }
-
-/* ---------------- Main content ---------------- */
-.main-content{ padding:22px; padding-top:100px; min-height:calc(100vh - 120px); }
-.hero-box{ max-width:1200px; margin:0 auto 10px auto; text-align:center; }
-.section-title{
-  font-size:26px;
-  color:var(--gold);
-  text-shadow:1px 1px 0 #000;
-  margin:0 0 12px 0;
-}
-
-/* مربع البحث */
-.search-wrap{ margin:8px auto 18px auto; }
-#searchInput{
-  width: 70%;
-  max-width:560px;
-  padding:12px 14px;
-  border-radius:12px;
-  border: 2px solid var(--gold);
-  text-align:center;
-  font-size:16px;
-  background: rgba(255,255,255,0.92);
-  outline:none;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.12) inset;
-}
-
-/* ---------------- Gallery grid fixed 4x on desktop, 2x mobile ---------------- */
-.gallery-wrap{ max-width:1200px; margin:0 auto; padding:6px; }
-.gallery-grid{
-  display:grid;
-  gap:18px;
-  grid-template-columns: repeat(4, 1fr); /* ثابت 4 للأجهزة الكبيرة */
-  align-items:stretch;
-}
-
-/* صورة الكارد */
-.gallery-item{
-  display:block;
-  position:relative;
-  border-radius:12px;
-  overflow:hidden;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
-  border: 3px solid var(--gold);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.32);
-  transition: transform .25s ease, box-shadow .25s ease;
-}
-.gallery-item img{
-  width:100%;
-  height:100%;
-  display:block;
-  object-fit:cover;
-  vertical-align:middle;
-  aspect-ratio:1/1; /* مربع */
-}
-.gallery-item:hover{ transform: translateY(-6px) scale(1.02); }
-
-/* اسم صغير وزر تحميل داخل البطاقة */
-.card-badge{
-  position:absolute;
-  bottom:8px;
-  left:8px;
-  background: rgba(255,255,255,0.92);
-  color:#000;
-  padding:6px 8px;
-  border-radius:8px;
-  font-weight:700;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
-  font-size:13px;
-}
-
-/* زر تحميل صغير على البطاقة (اختياري) */
-.card-download{
-  position:absolute;
-  bottom:8px;
-  right:8px;
-  background: var(--gold);
-  color:#000;
-  padding:6px 10px;
-  border-radius:10px;
-  text-decoration:none;
-  font-weight:700;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
-}
-
-/* mobile: 2 columns */
-@media (max-width: 768px){
-  .gallery-grid{ grid-template-columns: repeat(2, 1fr); gap:12px; }
-  #searchInput{ width:90% }
-  .app-name{ font-size:18px }
-  .app-logo{ width:40px; height:40px }
-}
-
-/* ---------------- Lightbox (تكبير الصورة) ---------------- */
-.lightbox{
-  display:none; /* يظهر عند الحاجة */
-  position:fixed;
-  inset:0;
-  z-index:1800;
-  background: var(--gold-lightbox); /* الذهبي الشفاف 10% */
-  backdrop-filter: blur(6px);
-  justify-content:center;
-  align-items:center;
-  padding:22px;
-  gap:16px;
-  flex-direction:column;
-}
-.lightbox.open{ display:flex; }
-
-.lightbox-inner{
-  max-width:1100px;
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:12px;
-}
-.lightbox img{
-  width:100%;
-  max-height:78vh;
-  object-fit:contain;
-  border-radius:12px;
-  border:4px solid var(--gold);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-  background:#000;
-}
-
-.lightbox-close{
-  position:absolute;
-  top:18px;
-  right:18px;
-  font-size:34px;
-  background:transparent;
-  border:none;
-  color:var(--gold);
-  cursor:pointer;
-  text-shadow:0 1px 0 #000;
-}
-
-/* زر تحميل داخل lightbox */
-.btn-download{
-  display:inline-block;
-  padding:10px 18px;
-  background:var(--gold);
-  color:#000;
-  font-weight:800;
-  border-radius:12px;
-  text-decoration:none;
-  box-shadow:0 6px 14px rgba(0,0,0,0.35);
-}
-
-/* تحسين استجابة */
-@media (min-width: 1200px){
-  .gallery-grid{ gap:22px }
-}
-
-/* ضمان أن الزر الضاغط للسايدبار عالي و ظاهر فوق كل شيء */
-.sidebar-btn{ z-index:1500; }
+@media (max-width: 767px) {
+  .gallery {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  }
