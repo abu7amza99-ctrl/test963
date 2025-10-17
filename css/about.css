@@ -60,12 +60,14 @@ header {
   height: 100%;
   background: rgba(184,134,11,0.2); /* ذهبي شفاف 20% */
   box-shadow: -3px 0 8px rgba(0,0,0,0.4);
-  transition: right 0.4s ease;
+  transition: right 0.4s ease, opacity 0.4s ease;
+  opacity: 0;
   z-index: 1000;
 }
 
 .sidebar.active {
   right: 0;
+  opacity: 1;
 }
 
 .close-btn {
@@ -126,9 +128,10 @@ main {
   border: 2px solid transparent;
   background-clip: padding-box;
   position: relative;
+  animation: fadeInUp 0.8s ease;
 }
 
-/* حواف ذهبية وسوداء مندمجة */
+/* إطار مزدوج أنيق */
 .about-box::before {
   content: "";
   position: absolute;
@@ -150,4 +153,16 @@ main {
   text-shadow: 0.5px 0.5px 1px #d4af37;
   font-size: 17px;
   line-height: 1.8;
+}
+
+/* ===== تأثير الدخول ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
