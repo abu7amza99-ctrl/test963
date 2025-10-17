@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الصفحة الرئيسية | عالم التصاميم والزخرفة</title>
+  <title>الصفحة الرئيسية - عالم التصاميم والزخرفة</title>
   <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/home.css">
 </head>
@@ -14,7 +14,7 @@
       <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
     </div>
     <button class="sidebar-btn">
-      <img src="../assets/yhbg.png" alt="لوحة جانبية">
+      <img src="../assets/yhbg.png" alt="زر اللوحة الجانبية">
     </button>
   </header>
 
@@ -30,27 +30,81 @@
   </aside>
 
   <main>
-    <h1>معرض التصاميم</h1>
-    <p>تصفح أجمل التصاميم المضافة في التطبيق</p>
-    <div id="gallery" class="gallery"></div>
+    <div class="home-container">
+      <h1 class="home-title">الصفحة الرئيسية</h1>
+      <input type="text" id="searchBox" placeholder="ابحث عن الصور..." class="search-box">
+      <div id="gallery" class="gallery"></div>
+    </div>
+
+    <!-- نافذة عرض الصور -->
+    <div id="lightbox" class="lightbox">
+      <span class="close-lightbox">&times;</span>
+      <img class="lightbox-img" src="" alt="عرض الصورة">
+      <button id="downloadBtn" class="download-btn">تحميل الصورة</button>
+    </div>
   </main>
 
-  <script src="../js/script.js" defer></script>
   <script>
-    // تحميل الصور تلقائياً من ملف JSON
-    fetch("../assets/home/images.json")
-      .then(res => res.json())
-      .then(images => {
-        const gallery = document.getElementById("gallery");
-        gallery.innerHTML = "";
-        images.forEach(img => {
-          const imgEl = document.createElement("img");
-          imgEl.src = `../assets/home/${img}`;
-          imgEl.alt = img;
-          gallery.appendChild(imgEl);
-        });
-      })
-      .catch(err => console.error("حدث خطأ أثناء تحميل الصور:", err));
+    // تحكم باللوحة الجانبية
+    const sidebarBtn = document.querySelector('.sidebar-btn');
+    const sidebar = document.querySelector('.sidebar');
+    const closeBtn = document.querySelector('.close-btn');
+    sidebarBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+    closeBtn.addEventListener('click', () => sidebar.classList.remove('open'));
+
+    // تحميل الصور من JSON
+    const gallery = document.getElementById('gallery');
+    const searchBox = document.getElementById('searchBox');
+
+    async function loadImages() {
+      const res = await fetch('../assets/home/images.json');
+      const data = await res.json();
+      renderGallery(data);
+      searchBox.addEventListener('input', () => {
+        const term = searchBox.value.toLowerCase();
+        const filtered = data.filter(img => img.name.toLowerCase().includes(term));
+        renderGallery(filtered);
+      });
+    }
+
+    function renderGallery(images) {
+      gallery.innerHTML = '';
+      images.forEach(img => {
+        const imgEl = document.createElement('img');
+        imgEl.src = `../assets/home/${img.file}`;
+        imgEl.alt = img.name;
+        imgEl.classList.add('gallery-item');
+        imgEl.addEventListener('click', () => openLightbox(imgEl.src));
+        gallery.appendChild(imgEl);
+      });
+    }
+
+    // عرض الصور بالحجم الكبير
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.querySelector('.lightbox-img');
+    const closeLightbox = document.querySelector('.close-lightbox');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    function openLightbox(src) {
+      lightboxImg.src = src;
+      lightbox.style.display = 'flex';
+    }
+
+    closeLightbox.addEventListener('click', () => {
+      lightbox.style.display = 'none';
+    });
+
+    // ✅ تفعيل زر التحميل
+    downloadBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.href = lightboxImg.src;
+      link.download = lightboxImg.src.split('/').pop();
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    loadImages();
   </script>
 </body>
 </html>
