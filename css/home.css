@@ -5,9 +5,10 @@ body {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  color: #000;
+  direction: rtl;
 }
 
-/* شريط علوي */
 header {
   display: flex;
   align-items: center;
@@ -41,7 +42,6 @@ header {
   height: 50px;
 }
 
-/* زر اللوحة الجانبية */
 .sidebar-btn {
   position: absolute;
   right: 20px;
@@ -49,13 +49,18 @@ header {
   transform: translateY(-50%);
   width: 50px;
   height: 50px;
+  border-radius: 50%;
   border: none;
-  background: transparent;
+  background-color: transparent;
+  overflow: hidden;
   cursor: pointer;
 }
-.sidebar-btn img { width: 100%; height: 100%; }
 
-/* اللوحة الجانبية */
+.sidebar-btn img {
+  width: 100%;
+  height: 100%;
+}
+
 .sidebar {
   position: fixed;
   top: 0;
@@ -64,11 +69,17 @@ header {
   height: 100%;
   background-color: rgba(212,175,55,0.15);
   padding: 20px;
+  box-shadow: -4px 0 12px rgba(0,0,0,0.6);
   border-left: 2px solid #D4AF37;
-  transition: right 0.5s;
+  transition: right 0.4s ease;
+  box-sizing: border-box;
   z-index: 100;
+  backdrop-filter: blur(6px);
 }
-.sidebar.open { right: 0; }
+
+.sidebar.open {
+  right: 0;
+}
 
 .close-btn {
   position: absolute;
@@ -77,8 +88,8 @@ header {
   background: transparent;
   border: none;
   font-size: 28px;
-  color: #D4AF37;
   cursor: pointer;
+  color: #D4AF37;
 }
 
 .sidebar-menu {
@@ -86,84 +97,128 @@ header {
   padding: 0;
   margin-top: 60px;
 }
-.sidebar-menu li { margin: 18px 0; }
+
+.sidebar-menu li {
+  margin: 20px 0;
+}
+
 .sidebar-menu li a {
   text-decoration: none;
   color: #D4AF37;
   font-size: 22px;
-  transition: 0.3s;
+  transition: color 0.3s;
 }
-.sidebar-menu li a:hover { color: white; }
 
-/* البحث */
-.search-container {
-  text-align: center;
-  margin: 20px;
+.sidebar-menu li a:hover {
+  color: white;
 }
+
+main {
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.content-box {
+  background-color: rgba(212,175,55,0.15);
+  border-radius: 20px;
+  padding: 20px;
+  width: 90%;
+  max-width: 1200px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.section-title {
+  font-size: 28px;
+  color: #D4AF37;
+  text-shadow: 1px 1px 0 #000;
+}
+
 #searchInput {
-  width: 60%;
-  max-width: 400px;
+  width: 100%;
   padding: 10px;
+  margin: 20px 0;
   border: 2px solid #D4AF37;
   border-radius: 10px;
-  background-color: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.7);
   font-size: 18px;
   text-align: center;
 }
 
-/* شبكة الصور */
 .gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 15px;
-  padding: 20px;
 }
-.image-item {
-  border: 2px solid #D4AF37;
-  border-radius: 10px;
+
+.img-box {
   overflow: hidden;
-  background-color: rgba(212,175,55,0.1);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  cursor: pointer;
-  transition: transform 0.3s ease;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  transition: transform 0.3s;
+  background: rgba(212,175,55,0.1);
 }
-.image-item:hover { transform: scale(1.05); }
-.image-item img {
+
+.img-box:hover {
+  transform: scale(1.05);
+}
+
+.img-box img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
-/* تكبير الصور */
-.overlay {
+.lightbox {
   display: none;
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-color: rgba(212,175,55,0.1);
-  backdrop-filter: blur(4px);
-  align-items: center;
   justify-content: center;
+  align-items: center;
   flex-direction: column;
-  z-index: 200;
+  z-index: 1000;
 }
-.overlay img {
+
+.lightbox img {
   max-width: 90%;
-  max-height: 80%;
-  border: 4px solid #D4AF37;
-  border-radius: 15px;
+  max-height: 70%;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.8);
 }
-#downloadBtn {
-  margin-top: 15px;
+
+.close-lightbox {
+  position: absolute;
+  top: 20px;
+  right: 40px;
+  font-size: 40px;
+  color: #D4AF37;
+  cursor: pointer;
+}
+
+.download-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
   background-color: #D4AF37;
   color: black;
-  padding: 10px 20px;
+  font-weight: bold;
   border-radius: 10px;
   text-decoration: none;
-  font-weight: bold;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.4);
-  transition: background-color 0.3s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.6);
 }
-#downloadBtn:hover {
-  background-color: #b89428;
+
+@media (min-width: 1024px) {
+  .gallery {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
+
+@media (max-width: 768px) {
+  .gallery {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  }
