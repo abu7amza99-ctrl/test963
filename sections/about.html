@@ -9,16 +9,19 @@
   <link rel="icon" href="../assets/abu7amza.png" type="image/png">
 </head>
 <body>
+  <!-- ===== الشريط العلوي ===== -->
   <header class="golden-header">
+    <div class="header-bg"></div>
     <div class="header-center">
       <div class="app-title">عالم التصاميم والزخرفة</div>
       <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
     </div>
     <button class="sidebar-btn" aria-label="فتح القائمة الجانبية">
-      <img src="../assets/yhbg.png" alt="">
+      <img src="../assets/yhbg.png" alt="زر القائمة">
     </button>
   </header>
 
+  <!-- ===== اللوحة الجانبية ===== -->
   <aside class="sidebar">
     <button class="close-btn" aria-label="إغلاق القائمة">&times;</button>
     <ul class="sidebar-menu">
@@ -30,16 +33,30 @@
     </ul>
   </aside>
 
+  <!-- ===== المحتوى الرئيسي ===== -->
   <main>
     <section class="about-section">
       <h1>لمحة عن التطبيق</h1>
       <p>
-        تطبيق <strong>عالم التصاميم والزخرفة</strong> صُمم ليكون بوابتك لعالم الجمال والإبداع.
-        هنا تجد أدوات زخرفة احترافية وأفكار تصميم مبتكرة تساعدك على إبراز لمستك الفنية بسهولة وأناقة.
+        تطبيق <strong>عالم التصاميم والزخرفة</strong> هو مساحة إبداعية تجمع بين الفن والدقة.
+        يوفر أدوات متنوعة لتصميم زخارف فنية وأسماء جميلة بأسلوب احترافي، مع واجهة بسيطة
+        وألوان أنيقة تمنح المستخدم تجربة فريدة ومريحة.
       </p>
     </section>
   </main>
 
-  <script src="../js/script.js" defer></script>
+  <!-- ===== سكربت التحكم باللوحة الجانبية ===== -->
+  <script>
+    const sidebar = document.querySelector('.sidebar');
+    document.querySelector('.sidebar-btn').addEventListener('click', () => {
+      sidebar.classList.add('open');
+      document.body.classList.add('blurred');
+    });
+
+    document.querySelector('.close-btn').addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      document.body.classList.remove('blurred');
+    });
+  </script>
 </body>
 </html>
