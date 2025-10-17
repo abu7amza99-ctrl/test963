@@ -1,94 +1,93 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الصفحة الرئيسية</title>
-  <link rel="stylesheet" href="home.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>الصفحة الرئيسية - عالم التصاميم والزخرفة</title>
+  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/home.css" />
 </head>
 <body>
-
-  <header class="header">
-    <h1>الصفحة الرئيسية</h1>
+  <header>
+    <div class="header-center">
+      <div class="app-title">عالم التصاميم والزخرفة</div>
+      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo" />
+    </div>
+    <button class="sidebar-btn">
+      <img src="../assets/yhbg.png" alt="لوحة جانبية" />
+    </button>
   </header>
 
-  <main class="container">
-    <input type="text" id="search" placeholder="ابحث عن الصور..." />
+  <aside class="sidebar">
+    <button class="close-btn">&times;</button>
+    <ul class="sidebar-menu">
+      <li><a href="../index.html">الصفحة الرئيسية</a></li>
+      <li><a href="professional-decoration.html">الزخرفة الاحترافية</a></li>
+      <li><a href="name-decoration.html">زخرفة الأسماء</a></li>
+      <li><a href="about.html">لمحة عن التطبيق</a></li>
+      <li><a href="contact.html">اتصل بنا</a></li>
+    </ul>
+  </aside>
 
-    <div id="gallery" class="gallery"></div>
+  <main>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="ابحث عن اسم الصورة..." />
+    </div>
+    <div class="gallery" id="gallery"></div>
+
+    <div class="overlay" id="overlay">
+      <img id="overlayImage" src="" alt="عرض الصورة" />
+      <a id="downloadBtn" href="#" download>تحميل الصورة</a>
+    </div>
   </main>
 
-  <!-- نافذة العرض المكبّر -->
-  <div id="lightbox" class="lightbox">
-    <span class="close">&times;</span>
-    <img class="lightbox-content" id="lightbox-img" alt="">
-    <div id="caption" class="caption"></div>
-  </div>
-
   <script>
+    const sidebarBtn = document.querySelector('.sidebar-btn');
+    const sidebar = document.querySelector('.sidebar');
+    const closeBtn = document.querySelector('.close-btn');
+
+    sidebarBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+    closeBtn.addEventListener('click', () => sidebar.classList.remove('open'));
+
+    // تحميل الصور من JSON
     async function loadImages() {
-      try {
-        const response = await fetch('images.json');
-        const images = await response.json();
-        const gallery = document.getElementById('gallery');
-        const searchInput = document.getElementById('search');
-
-        function render(filteredImages) {
-          gallery.innerHTML = '';
-          filteredImages.forEach(img => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-              <img src="assets/home/${img.file}" alt="${img.name}" class="zoomable">
-              <div class="card-footer">
-                <span class="img-name">${img.name}</span>
-                <a href="assets/home/${img.file}" download class="download-btn">تحميل</a>
-              </div>
-            `;
-            gallery.appendChild(card);
-          });
-
-          // تفعيل الLightbox بعد عرض الصور
-          enableLightbox();
-        }
-
-        render(images);
-
-        searchInput.addEventListener('input', () => {
-          const query = searchInput.value.trim();
-          const filtered = images.filter(img =>
-            img.name.includes(query)
-          );
-          render(filtered);
-        });
-
-      } catch (error) {
-        console.error('حدث خطأ أثناء تحميل الصور:', error);
-      }
+      const response = await fetch('../images.json');
+      const images = await response.json();
+      displayImages(images);
     }
 
-    function enableLightbox() {
-      const lightbox = document.getElementById('lightbox');
-      const lightboxImg = document.getElementById('lightbox-img');
-      const caption = document.getElementById('caption');
-      const closeBtn = document.querySelector('.close');
-
-      document.querySelectorAll('.zoomable').forEach(img => {
-        img.addEventListener('click', () => {
-          lightbox.style.display = 'flex';
-          lightboxImg.src = img.src;
-          caption.innerText = img.alt;
-        });
+    function displayImages(images) {
+      const gallery = document.getElementById('gallery');
+      gallery.innerHTML = '';
+      images.forEach(img => {
+        const div = document.createElement('div');
+        div.className = 'image-item';
+        div.innerHTML = `<img src="../assets/home/${img.file}" alt="${img.name}" title="${img.name}">`;
+        gallery.appendChild(div);
       });
 
-      closeBtn.onclick = () => lightbox.style.display = 'none';
-      lightbox.onclick = (e) => {
-        if (e.target === lightbox) lightbox.style.display = 'none';
-      };
+      document.querySelectorAll('.image-item img').forEach(img => {
+        img.addEventListener('click', () => {
+          document.getElementById('overlayImage').src = img.src;
+          document.getElementById('overlay').style.display = 'flex';
+          document.getElementById('downloadBtn').href = img.src;
+        });
+      });
     }
+
+    document.getElementById('searchInput').addEventListener('input', async (e) => {
+      const response = await fetch('../images.json');
+      const images = await response.json();
+      const term = e.target.value.trim();
+      const filtered = images.filter(img => img.name.includes(term));
+      displayImages(filtered);
+    });
+
+    document.getElementById('overlay').addEventListener('click', (e) => {
+      if (e.target.id === 'overlay') e.target.style.display = 'none';
+    });
 
     loadImages();
   </script>
-
 </body>
 </html>
