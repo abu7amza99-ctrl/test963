@@ -38,21 +38,22 @@
     <section class="about-section">
       <h1>لمحة عن التطبيق</h1>
       <p>
-        تطبيق <strong>عالم التصاميم والزخرفة</strong> هو منصة متكاملة تهدف لتقديم تصاميم وزخارف فنية
-        تجمع بين الأصالة والإبداع. يمكنك من خلاله إنشاء زخارف احترافية، وتزيين الأسماء بخطوط
-        فريدة، واكتشاف عالم من الجمال الفني بطريقة بسيطة وسلسة.
+        تطبيق <strong>عالم التصاميم والزخرفة</strong> هو مساحة إبداعية تجمع بين الفن والدقة.
+        يوفر أدوات متنوعة لتصميم زخارف فنية وأسماء جميلة بأسلوب احترافي، مع واجهة بسيطة
+        وألوان أنيقة تمنح المستخدم تجربة فريدة ومريحة.
       </p>
     </section>
   </main>
 
+  <!-- ===== سكربت التحكم باللوحة الجانبية ===== -->
   <script>
-    // فتح وإغلاق القائمة الجانبية
+    const sidebar = document.querySelector('.sidebar');
     document.querySelector('.sidebar-btn').addEventListener('click', () => {
-      document.querySelector('.sidebar').classList.add('open');
+      sidebar.classList.add('open');
     });
 
     document.querySelector('.close-btn').addEventListener('click', () => {
-      document.querySelector('.sidebar').classList.remove('open');
+      sidebar.classList.remove('open');
     });
   </script>
 </body>
