@@ -1,88 +1,94 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>الصفحة الرئيسية</title>
-  <link rel="stylesheet" href="../css/home.css">
-  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
-
-  <!-- LightGallery -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.1/css/lightgallery-bundle.min.css">
+  <link rel="stylesheet" href="home.css">
 </head>
 <body>
-  <header>
-    <div class="header-center">
-      <div class="app-title">الصفحة الرئيسية</div>
-    </div>
+
+  <header class="header">
+    <h1>الصفحة الرئيسية</h1>
   </header>
 
-  <main>
-    <div class="search-container">
-      <input type="text" id="search" placeholder="ابحث عن الصور...">
-    </div>
+  <main class="container">
+    <input type="text" id="search" placeholder="ابحث عن الصور..." />
 
     <div id="gallery" class="gallery"></div>
   </main>
 
-  <!-- مكتبة LightGallery -->
-  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.1/lightgallery.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.1/plugins/zoom/lg-zoom.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.1/plugins/thumbnail/lg-thumbnail.umd.js"></script>
+  <!-- نافذة العرض المكبّر -->
+  <div id="lightbox" class="lightbox">
+    <span class="close">&times;</span>
+    <img class="lightbox-content" id="lightbox-img" alt="">
+    <div id="caption" class="caption"></div>
+  </div>
 
   <script>
     async function loadImages() {
       try {
-        const res = await fetch('../assets/home/images.json');
-        const images = await res.json();
-
+        const response = await fetch('images.json');
+        const images = await response.json();
         const gallery = document.getElementById('gallery');
-        gallery.innerHTML = '';
-
-        images.forEach(img => {
-          const item = document.createElement('a');
-          item.href = `../assets/home/${img.file}`;
-          item.setAttribute('data-sub-html', `<h4>${img.name}</h4>`);
-          item.classList.add('gallery-item');
-
-          const image = document.createElement('img');
-          image.src = `../assets/home/${img.file}`;
-          image.alt = img.name;
-          item.appendChild(image);
-
-          // زر تحميل فعلي
-          const downloadBtn = document.createElement('a');
-          downloadBtn.href = `../assets/home/${img.file}`;
-          downloadBtn.download = img.file;
-          downloadBtn.textContent = 'تحميل';
-          downloadBtn.className = 'download-btn';
-          item.appendChild(downloadBtn);
-
-          gallery.appendChild(item);
-        });
-
-        // تفعيل LightGallery
-        lightGallery(gallery, {
-          plugins: [lgZoom, lgThumbnail],
-          speed: 500,
-          backdropColor: 'rgba(212, 175, 55, 0.1)'
-        });
-
-        // البحث
         const searchInput = document.getElementById('search');
-        searchInput.addEventListener('input', () => {
-          const query = searchInput.value.trim().toLowerCase();
-          document.querySelectorAll('.gallery-item').forEach(item => {
-            const name = item.querySelector('img').alt.toLowerCase();
-            item.style.display = name.includes(query) ? 'block' : 'none';
+
+        function render(filteredImages) {
+          gallery.innerHTML = '';
+          filteredImages.forEach(img => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+              <img src="assets/home/${img.file}" alt="${img.name}" class="zoomable">
+              <div class="card-footer">
+                <span class="img-name">${img.name}</span>
+                <a href="assets/home/${img.file}" download class="download-btn">تحميل</a>
+              </div>
+            `;
+            gallery.appendChild(card);
           });
+
+          // تفعيل الLightbox بعد عرض الصور
+          enableLightbox();
+        }
+
+        render(images);
+
+        searchInput.addEventListener('input', () => {
+          const query = searchInput.value.trim();
+          const filtered = images.filter(img =>
+            img.name.includes(query)
+          );
+          render(filtered);
         });
-      } catch (err) {
-        console.error('خطأ بتحميل الصور:', err);
+
+      } catch (error) {
+        console.error('حدث خطأ أثناء تحميل الصور:', error);
       }
+    }
+
+    function enableLightbox() {
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = document.getElementById('lightbox-img');
+      const caption = document.getElementById('caption');
+      const closeBtn = document.querySelector('.close');
+
+      document.querySelectorAll('.zoomable').forEach(img => {
+        img.addEventListener('click', () => {
+          lightbox.style.display = 'flex';
+          lightboxImg.src = img.src;
+          caption.innerText = img.alt;
+        });
+      });
+
+      closeBtn.onclick = () => lightbox.style.display = 'none';
+      lightbox.onclick = (e) => {
+        if (e.target === lightbox) lightbox.style.display = 'none';
+      };
     }
 
     loadImages();
   </script>
+
 </body>
 </html>
