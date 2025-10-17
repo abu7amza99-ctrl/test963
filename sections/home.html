@@ -3,9 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الصفحة الرئيسية - عالم التصاميم والزخرفة</title>
+  <title>الصفحة الرئيسية</title>
   <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/home.css">
+
+  <!-- مكتبة LightGallery -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lightgallery-bundle.min.css">
 </head>
 <body>
   <header>
@@ -30,10 +34,60 @@
   </aside>
 
   <main>
-    <h1>الصفحة الرئيسية</h1>
-    <p>سيتم إضافة محتوى الصفحة الرئيسية لاحقًا.</p>
+    <div class="home-container">
+      <h1 class="home-title">الصفحة الرئيسية</h1>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="ابحث عن صورة...">
+        <button id="searchBtn">بحث</button>
+      </div>
+
+      <div id="lightgallery" class="gallery-grid">
+        <!-- يتم تحميل الصور تلقائيًا من مجلد assets/home -->
+      </div>
+    </div>
   </main>
 
   <script src="../js/script.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/lightgallery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/thumbnail/lg-thumbnail.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/zoom/lg-zoom.min.js"></script>
+
+  <script>
+    const gallery = document.getElementById("lightgallery");
+    const searchInput = document.getElementById("searchInput");
+    const searchBtn = document.getElementById("searchBtn");
+
+    // محاكاة الصور (يمكنك لاحقًا إضافة صورك الحقيقية داخل assets/home)
+    const images = [
+      { name: "تصميم1", src: "../assets/home/design1.jpg" },
+      { name: "تصميم2", src: "../assets/home/design2.jpg" },
+      { name: "زخرفةA", src: "../assets/home/decorationA.png" },
+      { name: "زخرفةB", src: "../assets/home/decorationB.jpg" }
+    ];
+
+    function displayImages(filteredImages) {
+      gallery.innerHTML = filteredImages.map(img => `
+        <a href="${img.src}" data-lg-size="1400-933">
+          <img src="${img.src}" alt="${img.name}">
+        </a>
+      `).join("");
+      lightGallery(gallery, {
+        plugins: [lgZoom, lgThumbnail],
+        speed: 400,
+        download: true,
+        actualSize: true
+      });
+    }
+
+    // أول تحميل
+    displayImages(images);
+
+    // البحث
+    searchBtn.addEventListener("click", () => {
+      const term = searchInput.value.trim();
+      const filtered = images.filter(img => img.name.includes(term));
+      displayImages(filtered);
+    });
+  </script>
 </body>
 </html>
