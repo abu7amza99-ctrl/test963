@@ -67,7 +67,7 @@ header {
   right: -100%;
   width: 320px;
   height: 100%;
-  background-color: rgba(212,175,55,0.2);
+  background-color: rgba(212,175,55,0.15);
   padding: 20px;
   box-shadow: -4px 0 12px rgba(0,0,0,0.6);
   border-left: 2px solid #D4AF37;
@@ -118,4 +118,23 @@ main {
   padding: 20px;
   color: #000;
   text-align: center;
-    }
+}
+
+.go-home-btn {
+  display: inline-block;
+  background-color: #D4AF37;
+  color: #000;
+  padding: 12px 25px;
+  border-radius: 30px;
+  font-size: 18px;
+  text-decoration: none;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+}
+
+.go-home-btn:hover {
+  background-color: #b89227;
+  color: #fff;
+  transform: scale(1.05);
+}
