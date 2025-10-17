@@ -1,97 +1,72 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الصفحة الرئيسية - عالم التصاميم والزخرفة</title>
-
-  <!-- الخط -->
-  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
-
-  <!-- التنسيقات -->
-  <link rel="stylesheet" href="../css/home.css">
-
-  <!-- مكتبة LightGallery -->
+  <title>الصفحة الرئيسية</title>
+  <link rel="stylesheet" href="home.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lightgallery-bundle.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/lightgallery.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/thumbnail/lg-thumbnail.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/zoom/lg-zoom.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/fullscreen/lg-fullscreen.umd.js"></script>
 </head>
 
 <body>
-  <!-- الشريط العلوي -->
   <header>
     <div class="header-center">
-      <div class="app-title">عالم التصاميم والزخرفة</div>
-      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
+      <h1 class="app-title">الصفحة الرئيسية</h1>
     </div>
-    <button class="sidebar-btn">
-      <img src="../assets/yhbg.png" alt="زر القائمة">
-    </button>
   </header>
 
-  <!-- اللوحة الجانبية -->
-  <aside class="sidebar">
-    <button class="close-btn">&times;</button>
-    <ul class="sidebar-menu">
-      <li><a href="../index.html">الصفحة الرئيسية</a></li>
-      <li><a href="professional-decoration.html">الزخرفة الاحترافية</a></li>
-      <li><a href="name-decoration.html">زخرفة الأسماء</a></li>
-      <li><a href="about.html">لمحة عن التطبيق</a></li>
-      <li><a href="contact.html">اتصل بنا</a></li>
-    </ul>
-  </aside>
-
-  <!-- المحتوى الرئيسي -->
   <main>
-    <h1>الصفحة الرئيسية</h1>
+    <div class="search-container">
+      <input type="text" id="search" placeholder="ابحث عن الصور...">
+    </div>
 
-    <!-- مربع البحث -->
-    <input type="text" id="search" placeholder="ابحث عن صورة..." />
-
-    <!-- المعرض -->
-    <div id="lightgallery" class="gallery-container"></div>
+    <div id="lightgallery" class="gallery"></div>
   </main>
 
-  <!-- سكريبتات -->
-  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/lightgallery.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/thumbnail/lg-thumbnail.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/zoom/lg-zoom.umd.min.js"></script>
-
   <script>
-    const sidebarBtn = document.querySelector('.sidebar-btn');
-    const sidebar = document.querySelector('.sidebar');
-    const closeBtn = document.querySelector('.close-btn');
-
-    sidebarBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
-    closeBtn.addEventListener('click', () => sidebar.classList.remove('open'));
-
-    // تحميل الصور من ملف JSON
-    async function loadImages() {
+    const loadImages = async () => {
       const res = await fetch('../assets/home/images.json');
       const images = await res.json();
       const gallery = document.getElementById('lightgallery');
-
-      gallery.innerHTML = ''; // تفريغ المحتوى السابق
+      gallery.innerHTML = '';
 
       images.forEach(img => {
         const item = document.createElement('a');
         item.href = `../assets/home/${img.file}`;
+        item.dataset.subHtml = `<h4>${img.name}</h4>`;
         item.dataset.downloadUrl = `../assets/home/${img.file}`;
         item.className = 'gallery-item';
-        item.dataset.subHtml = `<h4>${img.name}</h4>`;
         item.innerHTML = `<img src="../assets/home/${img.file}" alt="${img.name}">`;
         gallery.appendChild(item);
       });
 
-      // تفعيل LightGallery
-      lightGallery(gallery, {
-        plugins: [lgZoom, lgThumbnail],
+      initLightGallery();
+    };
+
+    const initLightGallery = () => {
+      lightGallery(document.getElementById('lightgallery'), {
+        plugins: [lgZoom, lgThumbnail, lgFullscreen],
         speed: 400,
         download: true,
-        actualSize: true,
-        selector: '.gallery-item'
+        actualSize: false,
+        selector: '.gallery-item',
+        mode: 'lg-fade',
+        backdropDuration: 300,
+        zoomFromOrigin: false,
+        mobileSettings: {
+          controls: true,
+          showCloseIcon: true,
+          download: true,
+          rotate: false,
+          pinchZoom: true
+        }
       });
-    }
+    };
 
-    // بحث
     document.getElementById('search').addEventListener('input', async (e) => {
       const query = e.target.value.trim();
       const res = await fetch('../assets/home/images.json');
@@ -103,22 +78,16 @@
       filtered.forEach(img => {
         const item = document.createElement('a');
         item.href = `../assets/home/${img.file}`;
+        item.dataset.subHtml = `<h4>${img.name}</h4>`;
         item.dataset.downloadUrl = `../assets/home/${img.file}`;
         item.className = 'gallery-item';
-        item.dataset.subHtml = `<h4>${img.name}</h4>`;
         item.innerHTML = `<img src="../assets/home/${img.file}" alt="${img.name}">`;
         gallery.appendChild(item);
       });
 
-      lightGallery(gallery, {
-        plugins: [lgZoom, lgThumbnail],
-        speed: 400,
-        download: true,
-        selector: '.gallery-item'
-      });
+      initLightGallery();
     });
 
-    // تحميل أولي
     loadImages();
   </script>
 </body>
