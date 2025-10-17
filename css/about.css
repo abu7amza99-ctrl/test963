@@ -2,104 +2,164 @@
 
 body {
   font-family: 'Reem Kufi', sans-serif;
-  background: linear-gradient(to bottom, #fff8e1, #fff);
   margin: 0;
   padding: 0;
   direction: rtl;
+  background: url('../assets/bg.png') no-repeat center center fixed;
+  background-size: cover;
+  transition: filter 0.3s ease;
 }
 
-/* رأس الصفحة */
+body.blurred {
+  filter: blur(3px);
+}
+
+/* ===== الشريط العلوي ===== */
 .golden-header {
-  background: rgba(255, 215, 0, 0.3); /* ذهبي شفاف */
-  backdrop-filter: blur(8px);
-  border-bottom: 2px solid #fff;
-  padding: 10px 20px;
+  position: relative;
+  background: linear-gradient(to right, #b8860b, #d4af37, #b8860b);
+  color: #fff;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px 15px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  overflow: hidden;
+  z-index: 10;
+}
+
+.header-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: url('../assets/shbg.png') repeat-x;
+  opacity: 0.25;
+  z-index: 0;
 }
 
 .header-center {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
+  z-index: 1;
 }
 
 .app-title {
-  font-size: 1.5rem;
-  color: #6b4f00;
+  font-size: 1.3rem;
   font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
 .app-logo {
-  width: 50px;
-  height: 50px;
-  border: 2px solid #fff;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
+  border: 1px solid #fff;
+  z-index: 1;
 }
 
-/* القائمة الجانبية */
+.sidebar-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.sidebar-btn img {
+  width: 28px;
+  height: 28px;
+}
+
+/* ===== اللوحة الجانبية ===== */
 .sidebar {
   position: fixed;
   top: 0;
-  right: -250px;
+  right: -260px;
   width: 250px;
   height: 100%;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(5px);
+  background: rgba(212, 175, 55, 0.85);
+  backdrop-filter: blur(10px);
   transition: right 0.4s ease;
-  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
-  padding-top: 60px;
+  box-shadow: -2px 0 12px rgba(0,0,0,0.3);
+  z-index: 999;
 }
 
 .sidebar.open {
   right: 0;
 }
 
+.close-btn {
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  font-size: 2rem;
+  color: #fff;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
 .sidebar-menu {
   list-style: none;
-  padding: 0;
+  padding: 60px 0 0 0;
+  margin: 0;
+  text-align: right;
 }
 
 .sidebar-menu li {
-  margin: 15px 0;
+  margin: 10px 0;
 }
 
 .sidebar-menu a {
-  text-decoration: none;
-  color: #6b4f00;
-  font-weight: bold;
   display: block;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.1rem;
   padding: 10px 20px;
-  transition: background 0.3s;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .sidebar-menu a:hover,
 .sidebar-menu .active {
-  background: rgba(255, 215, 0, 0.3);
-  border-right: 4px solid gold;
+  background: rgba(255, 255, 255, 0.2);
+  border-right: 4px solid #fff;
 }
 
-/* المحتوى الرئيسي */
+/* ===== المحتوى ===== */
 .about-section {
   text-align: center;
+  color: #3a2e00;
   padding: 3rem 1rem;
+  background-color: rgba(255, 255, 255, 0.75);
+  margin: 3rem auto;
+  width: 90%;
+  max-width: 700px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  animation: fadeIn 1s ease-in-out;
 }
 
 .about-section h1 {
   font-size: 2rem;
-  color: #6b4f00;
-  border-bottom: 2px solid #fff;
+  color: #b8860b;
+  border-bottom: 2px solid #d4af37;
   display: inline-block;
   padding-bottom: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .about-section p {
-  color: #333;
-  line-height: 1.8;
   font-size: 1.1rem;
-  max-width: 600px;
-  margin: 0 auto;
+  line-height: 1.8;
+  color: #444;
+}
+
+/* ===== تأثير دخول ناعم ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
   }
