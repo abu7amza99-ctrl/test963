@@ -1,183 +1,169 @@
-/* إعدادات عامة */
 body {
   margin: 0;
-  font-family: "Cairo", sans-serif;
-  background: url('assets/bg-pattern.jpg') center/cover fixed no-repeat;
-  color: #222;
+  font-family: 'Reem Kufi', sans-serif;
+  background-image: url('../assets/bg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
-/* رأس الصفحة */
-.header {
-  background: linear-gradient(to right, #b8860b, #d4af37);
-  color: #fff;
-  text-align: center;
-  padding: 15px 10px;
-  font-size: 1.5em;
-  border-bottom: 3px solid rgba(255, 215, 0, 0.4);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+/* شريط علوي */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 70px;
+  background-image: url('../assets/shbg.png');
+  background-size: cover;
+  background-position: center;
+  border-bottom: 5px solid #D4AF37;
+  box-shadow: 0 6px 8px rgba(0,0,0,0.6);
+  position: relative;
+  border-radius: 0 0 15px 15px;
 }
 
-/* الحاوية العامة */
-.container {
+.header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-title {
+  font-size: 32px;
+  font-weight: bold;
+  color: #D4AF37;
+  text-shadow: 2px 2px 0 #000, 4px 4px 2px rgba(0,0,0,0.3);
+  margin-right: 10px;
+}
+
+.app-logo {
+  width: 50px;
+  height: 50px;
+}
+
+/* زر اللوحة الجانبية */
+.sidebar-btn {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+.sidebar-btn img { width: 100%; height: 100%; }
+
+/* اللوحة الجانبية */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 320px;
+  height: 100%;
+  background-color: rgba(212,175,55,0.15);
   padding: 20px;
-  text-align: center;
+  border-left: 2px solid #D4AF37;
+  transition: right 0.5s;
+  z-index: 100;
+}
+.sidebar.open { right: 0; }
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  color: #D4AF37;
+  cursor: pointer;
 }
 
-/* مربع البحث */
-#search {
-  width: 90%;
-  max-width: 450px;
-  padding: 10px 15px;
-  border: 2px solid #d4af37;
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin-top: 60px;
+}
+.sidebar-menu li { margin: 18px 0; }
+.sidebar-menu li a {
+  text-decoration: none;
+  color: #D4AF37;
+  font-size: 22px;
+  transition: 0.3s;
+}
+.sidebar-menu li a:hover { color: white; }
+
+/* البحث */
+.search-container {
+  text-align: center;
+  margin: 20px;
+}
+#searchInput {
+  width: 60%;
+  max-width: 400px;
+  padding: 10px;
+  border: 2px solid #D4AF37;
   border-radius: 10px;
-  font-size: 1em;
-  margin-bottom: 25px;
-  outline: none;
+  background-color: rgba(255,255,255,0.8);
+  font-size: 18px;
   text-align: center;
-  transition: all 0.3s ease;
-}
-
-#search:focus {
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
 }
 
 /* شبكة الصور */
 .gallery {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 25px;
-  justify-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  padding: 20px;
 }
-
-/* البطاقة */
-.card {
-  background: #fff;
-  border-radius: 15px;
+.image-item {
+  border: 2px solid #D4AF37;
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 100%;
-  max-width: 250px;
-}
-
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.6);
-}
-
-/* الصورة داخل البطاقة */
-.card img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
+  background-color: rgba(212,175,55,0.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
   cursor: pointer;
-  border-bottom: 2px solid rgba(212, 175, 55, 0.2);
   transition: transform 0.3s ease;
 }
-
-.card img:hover {
-  transform: scale(1.05);
-}
-
-/* تذييل البطاقة */
-.card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(212, 175, 55, 0.1);
-  padding: 10px 12px;
-}
-
-/* الاسم */
-.img-name {
-  font-weight: bold;
-  color: #333;
-}
-
-/* زر التحميل */
-.download-btn {
-  background: linear-gradient(to right, #b8860b, #d4af37);
-  color: #fff;
-  text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.9em;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.download-btn:hover {
-  opacity: 0.9;
-  transform: scale(1.05);
-}
-
-/* نفس الشبكة على الموبايل */
-@media (max-width: 768px) {
-  .gallery {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-  }
-
-  .card img {
-    height: 140px;
-  }
-
-  .card-footer {
-    padding: 8px;
-  }
-
-  .download-btn {
-    padding: 4px 10px;
-    font-size: 0.85em;
-  }
-}
-
-/* تأثير Lightbox */
-.lightbox {
-  display: none;
-  position: fixed;
-  z-index: 9999;
-  top: 0;
-  left: 0;
+.image-item:hover { transform: scale(1.05); }
+.image-item img {
   width: 100%;
   height: 100%;
-  background: rgba(10, 10, 10, 0.8);
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  animation: fadeIn 0.3s ease-in-out;
+  object-fit: cover;
 }
 
-.lightbox-content {
+/* تكبير الصور */
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(212,175,55,0.1);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 200;
+}
+.overlay img {
   max-width: 90%;
   max-height: 80%;
-  border: 3px solid #d4af37;
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+  border: 4px solid #D4AF37;
+  border-radius: 15px;
 }
-
-.close {
-  position: absolute;
-  top: 25px;
-  right: 35px;
-  color: #fff;
-  font-size: 40px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.close:hover {
-  color: #d4af37;
-}
-
-.caption {
-  color: #fff;
-  font-size: 1.2em;
+#downloadBtn {
   margin-top: 15px;
-  text-shadow: 0 0 8px #000;
+  background-color: #D4AF37;
+  color: black;
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: bold;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+  transition: background-color 0.3s;
 }
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-    }
+#downloadBtn:hover {
+  background-color: #b89428;
+}
