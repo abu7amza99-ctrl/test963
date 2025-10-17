@@ -1,156 +1,88 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>الصفحة الرئيسية | عالم التصاميم والزخرفة</title>
-
-  <!-- الخط والـ CSS الخاص بالقسم -->
-  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الصفحة الرئيسية</title>
   <link rel="stylesheet" href="../css/home.css">
+  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
 
-  <!-- LightGallery CSS (CDN) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lightgallery-bundle.min.css">
+  <!-- LightGallery -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.1/css/lightgallery-bundle.min.css">
 </head>
 <body>
-  <!-- الشريط العلوي -->
   <header>
     <div class="header-center">
-      <div class="app-title">عالم التصاميم والزخرفة</div>
-      <img src="../assets/abu7amza.png" class="app-logo" alt="شعار">
+      <div class="app-title">الصفحة الرئيسية</div>
     </div>
-    <button class="sidebar-btn"><img src="../assets/yhbg.png" alt="قائمة"></button>
   </header>
 
-  <!-- اللوحة الجانبية (نفس الشكل العام) -->
-  <aside class="sidebar">
-    <button class="close-btn">&times;</button>
-    <ul class="sidebar-menu">
-      <li><a href="../index.html">الصفحة الرئيسية</a></li>
-      <li><a href="professional-decoration.html">الزخرفة الاحترافية</a></li>
-      <li><a href="name-decoration.html">زخرفة الأسماء</a></li>
-      <li><a href="about.html">لمحة عن التطبيق</a></li>
-      <li><a href="contact.html">اتصل بنا</a></li>
-    </ul>
-  </aside>
-
-  <!-- المحتوى -->
   <main>
-    <section class="home-panel">
-      <h1 class="home-title">الصفحة الرئيسية</h1>
+    <div class="search-container">
+      <input type="text" id="search" placeholder="ابحث عن الصور...">
+    </div>
 
-      <div class="search-wrap">
-        <input id="searchInput" type="text" placeholder="ابحث عن صورة..." autocomplete="off">
-      </div>
-
-      <!-- هنا تُضاف روابط الصور كعناصر <a> وستحوّل LightGallery الصور إلى معرض -->
-      <div id="lightgallery" class="gallery-grid"></div>
-    </section>
+    <div id="gallery" class="gallery"></div>
   </main>
 
-  <!-- LightGallery JS (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/lightgallery.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/thumbnail/lg-thumbnail.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/zoom/lg-zoom.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/fullscreen/lg-fullscreen.umd.min.js"></script>
+  <!-- مكتبة LightGallery -->
+  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.1/lightgallery.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.1/plugins/zoom/lg-zoom.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.1/plugins/thumbnail/lg-thumbnail.umd.js"></script>
 
-  <!-- سكربت القسم: تحميل JSON، بناء المعرض، البحث، وتهيئة LightGallery -->
   <script>
-    // لوحة جانبية بسيطة (يعتمد نفس الكود الموجود في site الرئيسي)
-    const sidebarBtn = document.querySelector('.sidebar-btn');
-    const sidebar = document.querySelector('.sidebar');
-    const closeBtn = document.querySelector('.close-btn');
-    sidebarBtn?.addEventListener('click', () => sidebar.classList.toggle('open'));
-    closeBtn?.addEventListener('click', () => sidebar.classList.remove('open'));
-
-    const LG_PLUGINS = [lgZoom, lgThumbnail, lgFullscreen];
-    let lgInstance = null;
-    const galleryRoot = document.getElementById('lightgallery');
-    const searchInput = document.getElementById('searchInput');
-
-    // يقرأ images.json ويعيد مصفوفة من الكائنات {name, file}
-    async function fetchImagesJSON() {
-      const res = await fetch('../assets/home/images.json', { cache: "no-store" });
-      if (!res.ok) throw new Error('فشل تحميل images.json');
-      return await res.json();
-    }
-
-    // إنشـاء عناصر المعرض من مصفوفة الصور
-    function buildGalleryItems(images) {
-      galleryRoot.innerHTML = ''; // تفريغ
-      images.forEach(img => {
-        // تأكد من ترميز المسار (مسافات أو محارف خاصة)
-        const filePath = `../assets/home/${encodeURI(img.file)}`;
-        const a = document.createElement('a');
-        a.className = 'gallery-item';
-        a.href = filePath;
-        a.dataset.subHtml = `<h4>${escapeHtml(img.name)}</h4>`;
-        a.dataset.downloadUrl = filePath; // LightGallery يستخدم هذا لحقل التحميل
-        a.innerHTML = `<img src="${filePath}" alt="${escapeHtml(img.name)}">`;
-        galleryRoot.appendChild(a);
-      });
-    }
-
-    // هدم مثيل LightGallery إن وُجد (لتفادي تهيئة مكررة)
-    function destroyLG() {
-      if (lgInstance && typeof lgInstance.destroy === 'function') {
-        try { lgInstance.destroy(); } catch(e) {}
-        lgInstance = null;
-      }
-    }
-
-    // تهيئة LightGallery على العنصر الحالي
-    function initLightGallery() {
-      destroyLG();
-      lgInstance = lightGallery(galleryRoot, {
-        plugins: LG_PLUGINS,
-        selector: '.gallery-item',
-        speed: 400,
-        mode: 'lg-fade',
-        download: true,
-        actualSize: false,
-        zoomFromOrigin: false,
-        mobileSettings: {
-          controls: true,
-          showCloseIcon: true,
-          download: true,
-          swipeThreshold: 50,
-          pinchZoom: true
-        }
-      });
-    }
-
-    // وظيفة المزامنة: جلب، بناء، تهيئة
-    async function loadAndInit(filter = '') {
+    async function loadImages() {
       try {
-        const imgs = await fetchImagesJSON();
-        const filtered = filter ? imgs.filter(i => i.name.includes(filter) || i.file.includes(filter)) : imgs;
-        buildGalleryItems(filtered);
-        initLightGallery();
+        const res = await fetch('../assets/home/images.json');
+        const images = await res.json();
+
+        const gallery = document.getElementById('gallery');
+        gallery.innerHTML = '';
+
+        images.forEach(img => {
+          const item = document.createElement('a');
+          item.href = `../assets/home/${img.file}`;
+          item.setAttribute('data-sub-html', `<h4>${img.name}</h4>`);
+          item.classList.add('gallery-item');
+
+          const image = document.createElement('img');
+          image.src = `../assets/home/${img.file}`;
+          image.alt = img.name;
+          item.appendChild(image);
+
+          // زر تحميل فعلي
+          const downloadBtn = document.createElement('a');
+          downloadBtn.href = `../assets/home/${img.file}`;
+          downloadBtn.download = img.file;
+          downloadBtn.textContent = 'تحميل';
+          downloadBtn.className = 'download-btn';
+          item.appendChild(downloadBtn);
+
+          gallery.appendChild(item);
+        });
+
+        // تفعيل LightGallery
+        lightGallery(gallery, {
+          plugins: [lgZoom, lgThumbnail],
+          speed: 500,
+          backdropColor: 'rgba(212, 175, 55, 0.1)'
+        });
+
+        // البحث
+        const searchInput = document.getElementById('search');
+        searchInput.addEventListener('input', () => {
+          const query = searchInput.value.trim().toLowerCase();
+          document.querySelectorAll('.gallery-item').forEach(item => {
+            const name = item.querySelector('img').alt.toLowerCase();
+            item.style.display = name.includes(query) ? 'block' : 'none';
+          });
+        });
       } catch (err) {
-        console.error(err);
-        galleryRoot.innerHTML = '<div class="error">حدث خطأ أثناء تحميل الصور.</div>';
+        console.error('خطأ بتحميل الصور:', err);
       }
     }
 
-    // بحث حي
-    let searchTimeout = null;
-    searchInput.addEventListener('input', (e) => {
-      clearTimeout(searchTimeout);
-      const term = e.target.value.trim();
-      // تأخير بسيط لتقليل عمليات fetch أثناء الكتابة
-      searchTimeout = setTimeout(() => loadAndInit(term), 200);
-    });
-
-    // مساعدة أمان لعرض النص داخل HTML
-    function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, (m) => ({
-        '&': '&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
-      }[m]));
-    }
-
-    // تحميل افتراضي عند فتح الصفحة
-    document.addEventListener('DOMContentLoaded', () => loadAndInit());
+    loadImages();
   </script>
 </body>
 </html>
