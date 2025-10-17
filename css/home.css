@@ -5,6 +5,7 @@ body {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  direction: rtl;
 }
 
 /* الشريط العلوي */
@@ -13,12 +14,15 @@ header {
   align-items: center;
   justify-content: center;
   height: 70px;
+  padding: 0 20px;
   background-image: url('../assets/shbg.png');
   background-size: cover;
-  border-bottom: 4px solid #D4AF37;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.6);
-  position: relative;
+  background-position: center;
+  border-bottom: 5px solid #D4AF37;
+  box-shadow: 0 6px 8px rgba(0,0,0,0.6);
   border-radius: 0 0 15px 15px;
+  position: relative;
+  z-index: 10;
 }
 
 .header-center {
@@ -28,37 +32,33 @@ header {
 }
 
 .app-title {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: bold;
   color: #D4AF37;
-  text-shadow: 2px 2px 0 #000, 3px 3px 2px rgba(0,0,0,0.3);
+  text-shadow: 2px 2px 0 #000;
   margin-right: 10px;
 }
 
 .app-logo {
-  width: 45px;
-  height: 45px;
+  width: 50px;
+  height: 50px;
 }
 
-/* زر اللوحة الجانبية */
 .sidebar-btn {
   position: absolute;
   right: 20px;
   top: 50%;
   transform: translateY(-50%);
-  width: 50px;
-  height: 50px;
-  background: transparent;
+  background: none;
   border: none;
   cursor: pointer;
 }
 
 .sidebar-btn img {
-  width: 100%;
-  height: 100%;
+  width: 40px;
+  height: 40px;
 }
 
-/* اللوحة الجانبية */
 .sidebar {
   position: fixed;
   top: 0;
@@ -66,132 +66,86 @@ header {
   width: 300px;
   height: 100%;
   background-color: rgba(212,175,55,0.15);
-  padding: 20px;
   border-left: 2px solid #D4AF37;
-  box-shadow: -3px 0 10px rgba(0,0,0,0.6);
-  transition: right 0.4s ease;
-  z-index: 999;
+  box-shadow: -5px 0 10px rgba(0,0,0,0.5);
+  padding: 20px;
+  transition: right 0.4s;
+  z-index: 20;
 }
 
-.sidebar.open { right: 0; }
+.sidebar.open {
+  right: 0;
+}
 
 .close-btn {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: transparent;
+  background: none;
   border: none;
   font-size: 28px;
-  cursor: pointer;
   color: #D4AF37;
+  cursor: pointer;
 }
 
 .sidebar-menu {
   list-style: none;
   padding: 0;
-  margin-top: 60px;
+  margin-top: 40px;
 }
 
-.sidebar-menu li { margin: 15px 0; }
+.sidebar-menu li {
+  margin: 15px 0;
+}
 
 .sidebar-menu li a {
   text-decoration: none;
   color: #D4AF37;
   font-size: 20px;
-  transition: 0.3s;
+  text-shadow: 1px 1px 2px #000;
 }
-.sidebar-menu li a:hover { color: white; }
 
-/* محتوى الصفحة */
-.home-container {
-  margin: 40px auto;
-  max-width: 900px;
+main {
   text-align: center;
-  background-color: rgba(212,175,55,0.15);
-  padding: 25px;
-  border-radius: 20px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-  border: 2px solid #D4AF37;
+  padding: 20px;
+  color: #000;
 }
 
-.home-title {
+h1 {
   color: #D4AF37;
-  font-size: 28px;
   text-shadow: 2px 2px 0 #000;
+  margin-bottom: 20px;
 }
 
-.search-box {
-  width: 80%;
-  padding: 10px;
-  font-size: 18px;
-  border-radius: 10px;
+/* مربع البحث */
+#search {
+  padding: 10px 20px;
+  width: 60%;
   border: 2px solid #D4AF37;
-  margin: 15px 0;
-  outline: none;
+  border-radius: 10px;
+  font-size: 18px;
   text-align: center;
+  outline: none;
+  margin-bottom: 25px;
+  background-color: rgba(255,255,255,0.8);
 }
 
-.gallery {
+/* المعرض */
+.gallery-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 15px;
-  margin-top: 20px;
+  justify-items: center;
 }
 
-.gallery-item {
+.gallery-item img {
   width: 100%;
+  height: 200px;
+  object-fit: cover;
   border-radius: 10px;
-  transition: transform 0.3s;
-  cursor: pointer;
-  border: 2px solid #D4AF37;
-}
-
-.gallery-item:hover {
-  transform: scale(1.05);
-}
-
-/* نافذة عرض الصور */
-.lightbox {
-  display: none;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  z-index: 1000;
-  flex-direction: column;
-}
-
-.lightbox-img {
-  max-width: 80%;
-  max-height: 80%;
   border: 3px solid #D4AF37;
-  border-radius: 15px;
-}
-
-.close-lightbox {
-  position: absolute;
-  top: 20px;
-  right: 40px;
-  font-size: 40px;
-  color: #D4AF37;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
 }
 
-.download-btn {
-  margin-top: 20px;
-  background-color: #D4AF37;
-  color: black;
-  border: 2px solid #000;
-  border-radius: 10px;
-  font-size: 18px;
-  padding: 10px 25px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.download-btn:hover {
-  background-color: black;
-  color: #D4AF37;
-  border-color: #D4AF37;
-}
+.gallery-item img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(212,175,55,0.7);
+                         }
