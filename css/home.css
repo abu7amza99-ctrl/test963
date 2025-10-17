@@ -1,177 +1,159 @@
-body {
-  margin: 0;
-  font-family: "Cairo", sans-serif;
-  background: url("../assets/bg.png") no-repeat center center fixed;
-  background-size: cover;
-  color: #fff;
+:root{
+  --gold:#D4AF37;
+  --gold-15: rgba(212,175,55,0.15);
+  --gold-10: rgba(212,175,55,0.10);
+  --black-60: rgba(0,0,0,0.6);
+  --radius:12px;
+  --font: "Reem Kufi", "Segoe UI", Tahoma, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:var(--font);
+  background-image:url('../assets/bg.png');
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
+  direction:rtl;
+  color:#111;
 }
 
-/* الشريط العلوي */
-.topbar {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 60px;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  align-items: center;
-  z-index: 1000;
+/* ---------- TOPBAR ---------- */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:1400;
+  height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:6px 12px;
+  box-shadow:0 6px 12px rgba(0,0,0,0.35);
+  border-bottom-left-radius:14px;
+  border-bottom-right-radius:14px;
+  background:transparent;
 }
-.topbar-bg {
-  display: none;
+.topbar-bg-wrap{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  border-bottom-left-radius:14px;
+  border-bottom-right-radius:14px;
+  pointer-events:none;
 }
-.topbar-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0 15px;
+.topbar-bg{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:1;
+  display:block;
+  transform:translateY(0);
 }
-.sidebar-btn img {
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
+.topbar-content{
+  position:relative;
+  width:100%;
+  max-width:1180px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
 }
-.app-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  font-weight: bold;
+.sidebar-btn{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  width:44px;height:44px;border:0;background:transparent;cursor:pointer;z-index:1500;
+  box-shadow:0 3px 8px rgba(0,0,0,0.35);
+  border-radius:50%;overflow:hidden;
 }
-.app-title img {
-  width: 32px;
-  height: 32px;
+.sidebar-btn img{width:100%;height:100%;object-fit:cover}
+.app-center{display:flex;align-items:center;gap:10px;justify-content:center}
+.app-logo{width:46px;height:46px;border-radius:50%;border:2px solid rgba(0,0,0,0.15);object-fit:cover}
+.app-name{font-size:20px;color:var(--gold);font-weight:800;text-shadow:1px 1px 0 #000;padding-top:2px}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{
+  position:fixed;
+  top:0;
+  right:-320px;
+  width:300px;
+  height:100vh;
+  background:var(--gold-15);
+  border-left:2px solid var(--gold);
+  box-shadow:-6px 0 18px rgba(0,0,0,0.45);
+  transition:right .42s cubic-bezier(.2,.9,.2,1);
+  z-index:1600;
+  padding:22px;
+  backdrop-filter: blur(3px);
+}
+.sidebar.open{right:0}
+.sidebar-close{
+  position:absolute;left:12px;top:10px;background:none;border:0;font-size:28px;color:var(--gold);cursor:pointer
+}
+.sidebar-menu{margin-top:60px;padding:0}
+.sidebar-menu ul{list-style:none;padding:0;margin:0}
+.sidebar-menu li{margin:14px 0}
+.sidebar-menu a{
+  text-decoration:none;color:var(--gold);font-size:18px;display:inline-block;
+  text-shadow:0 1px 0 #000;padding:4px 6px;border-radius:6px
+}
+.sidebar-menu a:hover{color:#fff}
+
+/* ---------- MAIN / SEARCH ---------- */
+.main{padding:18px;padding-top:110px;min-height:calc(100vh - 120px)}
+.hero{max-width:1180px;margin:0 auto;text-align:center}
+.page-title{color:var(--gold);font-size:24px;text-shadow:1px 1px 0 #000;margin:0 0 10px}
+.search-wrap{margin:6px auto 18px}
+#searchInput{
+  width:72%;max-width:640px;padding:12px 16px;border-radius:22px;border:2px solid var(--gold);
+  background:rgba(255,255,255,0.95);outline:none;text-align:center;font-size:16px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.12) inset;
 }
 
-/* اللوحة الجانبية */
-.sidebar {
-  position: fixed;
-  top: 0;
-  right: -260px;
-  width: 240px;
-  height: 100%;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(8px);
-  transition: right 0.3s;
-  z-index: 1001;
-  padding-top: 70px;
+/* ---------- GALLERY GRID ---------- */
+.gallery-section{max-width:1180px;margin:10px auto;padding:6px}
+.gallery-grid{
+  display:grid;
+  gap:18px;
+  grid-template-columns: repeat(4,1fr);
+  align-items:stretch;
 }
-.sidebar.open {
-  right: 0;
+.gallery-item{
+  position:relative;border-radius:var(--radius);overflow:hidden;
+  border:3px solid var(--gold);box-shadow:0 10px 22px rgba(0,0,0,0.35);
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
 }
-.sidebar-close {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 24px;
-  cursor: pointer;
-}
-.sidebar nav {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  padding: 20px;
-}
-.sidebar nav a {
-  color: #fff;
-  text-decoration: none;
-  font-size: 18px;
-  transition: color 0.3s;
-}
-.sidebar nav a:hover {
-  color: gold;
+.gallery-item img{
+  width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:1/1;
 }
 
-/* معرض الصور */
-main {
-  padding-top: 80px;
-  padding-inline: 15px;
+/* effect hover */
+.gallery-item:hover{transform:translateY(-6px) scale(1.02);transition:transform .25s}
+
+/* ---------- LIGHTBOX ---------- */
+.lightbox{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  z-index:2000;background:var(--gold-10);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .28s;
 }
-.search-container {
-  text-align: center;
-  margin-bottom: 15px;
+.lightbox.open{opacity:1;visibility:visible}
+.lightbox-inner{max-width:1100px;width:100%;padding:18px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.lightbox img{width:100%;max-height:78vh;object-fit:contain;border-radius:12px;border:4px solid var(--gold);box-shadow:0 14px 40px rgba(0,0,0,0.6);background:#000}
+.lightbox-close{position:absolute;top:18px;right:18px;font-size:34px;background:none;border:0;color:var(--gold);cursor:pointer}
+.btn-download{display:inline-block;margin-top:8px;padding:10px 18px;border-radius:10px;background:var(--gold);color:#000;text-decoration:none;font-weight:800;box-shadow:0 6px 14px rgba(0,0,0,0.35)}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 900px){
+  .gallery-grid{grid-template-columns: repeat(3,1fr)}
+  #searchInput{width:86%}
 }
-#searchInput {
-  width: 90%;
-  max-width: 400px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-  font-size: 16px;
-}
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
-}
-.gallery img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.3s, opacity 0.3s;
-}
-.gallery img:hover {
-  transform: scale(1.05);
-  opacity: 0.9;
+@media (max-width: 600px){
+  .gallery-grid{grid-template-columns: repeat(2,1fr)}
+  .app-name{font-size:18px}
+  .topbar{height:64px}
+  #searchInput{width:92%}
 }
 
-/* Lightbox */
-.lightbox {
-  position: fixed;
-  inset: 0;
-  background: rgba(255, 215, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s;
-  z-index: 2000;
-}
-.lightbox.open {
-  opacity: 1;
-  visibility: visible;
-}
-.lightbox img {
-  max-width: 90%;
-  max-height: 80%;
-  border-radius: 12px;
-  box-shadow: 0 0 20px #000;
-}
-.lightbox-close {
-  position: absolute;
-  top: 15px;
-  right: 25px;
-  color: #fff;
-  font-size: 32px;
-  cursor: pointer;
-}
-.download-btn {
-  position: absolute;
-  bottom: 20px;
-  background: gold;
-  color: #000;
-  padding: 10px 20px;
-  border-radius: 12px;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-/* استجابة */
-@media (min-width: 768px) {
-  .gallery {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-@media (max-width: 767px) {
-  .gallery {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  }
+/* misc */
+a{color:inherit}
