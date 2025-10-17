@@ -1,163 +1,136 @@
-@import url('https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap');
-
 body {
   font-family: 'Reem Kufi', sans-serif;
   margin: 0;
-  padding: 0;
-  direction: rtl;
   background: url('../assets/bg.png') no-repeat center center fixed;
   background-size: cover;
+  direction: rtl;
 }
 
-/* ===== الشريط العلوي ===== */
-.golden-header {
-  position: relative;
-  background: linear-gradient(to right, #b8860b, #d4af37, #b8860b);
-  color: #fff;
+/* ====== الشريط العلوي ====== */
+header {
+  background: url('../assets/shbg.png') no-repeat center;
+  background-size: cover;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px 15px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  overflow: hidden;
-  z-index: 10;
-}
-
-.header-bg {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: url('../assets/shbg.png') repeat-x;
-  opacity: 0.25;
-  z-index: 0;
+  justify-content: center;
+  position: relative;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
 .header-center {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  z-index: 1;
-}
-
-.app-title {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
 .app-logo {
   width: 45px;
   height: 45px;
-  border-radius: 50%;
-  border: 1px solid #fff;
-  z-index: 1;
 }
 
+.app-title {
+  font-size: 20px;
+  color: #d4af37;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+}
+
+/* ====== زر القائمة الجانبية ====== */
 .sidebar-btn {
-  background: transparent;
+  position: absolute;
+  right: 15px;
+  background: none;
   border: none;
   cursor: pointer;
-  z-index: 1;
+  padding: 5px;
 }
 
 .sidebar-btn img {
-  width: 28px;
-  height: 28px;
+  width: 30px;
 }
 
-/* ===== اللوحة الجانبية ===== */
+/* ====== اللوحة الجانبية ====== */
 .sidebar {
   position: fixed;
   top: 0;
-  right: -260px;
+  right: -270px;
   width: 250px;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(212,175,55,0.95), rgba(184,134,11,0.9));
+  background: rgba(184,134,11,0.2); /* ذهبي شفاف 20% */
+  box-shadow: -3px 0 8px rgba(0,0,0,0.3);
   transition: right 0.4s ease;
-  box-shadow: -2px 0 12px rgba(0,0,0,0.3);
-  z-index: 999;
+  z-index: 1000;
 }
 
-.sidebar.open {
+.sidebar.active {
   right: 0;
 }
 
 .close-btn {
   position: absolute;
   top: 10px;
-  left: 15px;
-  font-size: 2rem;
-  color: #fff;
-  background: transparent;
+  left: 10px;
+  background: none;
   border: none;
+  font-size: 28px;
+  color: #000;
   cursor: pointer;
 }
 
+/* ====== عناصر القائمة ====== */
 .sidebar-menu {
   list-style: none;
-  padding: 60px 0 0 0;
+  padding: 60px 20px;
   margin: 0;
-  text-align: right;
 }
 
 .sidebar-menu li {
-  margin: 10px 0;
-}
-
-.sidebar-menu a {
-  display: block;
-  color: #d4af37; /* ذهبي أنيق */
-  text-decoration: none;
-  font-size: 1.1rem;
-  padding: 10px 20px;
-  font-weight: bold;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
-  border-right: 2px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.sidebar-menu a:hover,
-.sidebar-menu .active {
-  color: #fff;
-  background: rgba(0,0,0,0.2);
-  border-right: 3px solid #000;
-}
-
-/* ===== المحتوى ===== */
-.about-section {
-  text-align: center;
-  color: #3a2e00;
-  padding: 3rem 1rem;
-  background-color: rgba(255, 255, 255, 0.8);
-  margin: 3rem auto;
-  width: 90%;
-  max-width: 700px;
-  border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-  animation: fadeIn 1s ease-in-out;
-}
-
-.about-section h1 {
-  font-size: 2rem;
-  color: #b8860b;
-  border-bottom: 2px solid #d4af37;
-  display: inline-block;
-  padding-bottom: 8px;
   margin-bottom: 15px;
 }
 
-.about-section p {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  color: #444;
+.sidebar-menu a {
+  text-decoration: none;
+  color: #d4af37;
+  font-size: 18px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+  transition: 0.3s;
+  border-right: 2px solid transparent;
+  padding-right: 5px;
 }
 
-/* ===== تأثير دخول ناعم ===== */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+  color: #fff;
+  background: rgba(0,0,0,0.2);
+  border-right: 3px solid #000;
+  padding-right: 10px;
 }
+
+/* ====== محتوى لمحة عن التطبيق ====== */
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 20px;
+}
+
+.about-box {
+  background: rgba(255,255,255,0.9);
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  max-width: 700px;
+  text-align: center;
+  padding: 30px;
+}
+
+.about-box h1 {
+  color: #b8860b;
+  margin-bottom: 15px;
+}
+
+.about-box p {
+  color: #333;
+  font-size: 16px;
+  line-height: 1.8;
+  }
