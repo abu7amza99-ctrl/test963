@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>اتصل بنا</title>
   <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/contact.css">
 </head>
 <body>
+  <!-- الشريط العلوي -->
   <header>
-    <div class="header-center">
-      <div class="app-title">عالم التصاميم والزخرفة</div>
-      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
-    </div>
     <button class="sidebar-btn">
-      <img src="../assets/yhbg.png" alt="لوحة جانبية">
+      <img src="../assets/yhbg.png" alt="زر القائمة">
     </button>
+    <div class="header-center">
+      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
+      <div class="app-title">عالم التصاميم والزخرفة</div>
+    </div>
   </header>
 
+  <!-- اللوحة الجانبية -->
   <aside class="sidebar">
     <button class="close-btn">&times;</button>
     <ul class="sidebar-menu">
@@ -25,15 +27,54 @@
       <li><a href="professional-decoration.html">الزخرفة الاحترافية</a></li>
       <li><a href="name-decoration.html">زخرفة الأسماء</a></li>
       <li><a href="about.html">لمحة عن التطبيق</a></li>
-      <li><a href="contact.html">اتصل بنا</a></li>
+      <li><a href="contact.html" class="active">اتصل بنا</a></li>
     </ul>
   </aside>
 
+  <!-- المحتوى الرئيسي -->
   <main>
-    <h1>اتصل بنا</h1>
-    <p>للاستفسارات أو التعاون، يمكنك التواصل معنا عبر البريد الإلكتروني أو وسائل التواصل الاجتماعي.</p>
+    <section class="contact-box">
+      <h1>اتصل بنا</h1>
+      <p>
+        يسعدنا تواصلك معنا في أي وقت عبر الوسائل التالية:<br>
+        اضغط على الأيقونة للانتقال مباشرة.
+      </p>
+
+      <div class="social-icons">
+        <div class="icon-item">
+          <a href="https://wa.me/96181412267" target="_blank">
+            <img src="../assets/social%20media/wa.png" alt="واتساب">
+          </a>
+          <span>واتساب</span>
+        </div>
+        <div class="icon-item">
+          <a href="https://facebook.com" target="_blank">
+            <img src="../assets/social%20media/fb.png" alt="فيسبوك">
+          </a>
+          <span>فيسبوك</span>
+        </div>
+        <div class="icon-item">
+          <a href="https://t.me" target="_blank">
+            <img src="../assets/social%20media/tl.png" alt="تلغرام">
+          </a>
+          <span>تلغرام</span>
+        </div>
+        <div class="icon-item">
+          <a href="https://discord.com" target="_blank">
+            <img src="../assets/social%20media/di.png" alt="ديسكورد">
+          </a>
+          <span>ديسكورد</span>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <script src="../js/script.js" defer></script>
+  <script>
+    const sidebar = document.querySelector('.sidebar');
+    const btn = document.querySelector('.sidebar-btn');
+    const closeBtn = document.querySelector('.close-btn');
+    btn.addEventListener('click', () => sidebar.classList.add('active'));
+    closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
+  </script>
 </body>
 </html>
