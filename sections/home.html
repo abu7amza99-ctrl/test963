@@ -4,20 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>الصفحة الرئيسية - عالم التصاميم والزخرفة</title>
+
+  <!-- الخط -->
   <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
+
+  <!-- التنسيقات -->
   <link rel="stylesheet" href="../css/home.css">
+
+  <!-- مكتبة LightGallery -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lightgallery-bundle.min.css">
 </head>
+
 <body>
+  <!-- الشريط العلوي -->
   <header>
     <div class="header-center">
       <div class="app-title">عالم التصاميم والزخرفة</div>
       <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
     </div>
     <button class="sidebar-btn">
-      <img src="../assets/yhbg.png" alt="زر اللوحة الجانبية">
+      <img src="../assets/yhbg.png" alt="زر القائمة">
     </button>
   </header>
 
+  <!-- اللوحة الجانبية -->
   <aside class="sidebar">
     <button class="close-btn">&times;</button>
     <ul class="sidebar-menu">
@@ -29,81 +39,86 @@
     </ul>
   </aside>
 
+  <!-- المحتوى الرئيسي -->
   <main>
-    <div class="home-container">
-      <h1 class="home-title">الصفحة الرئيسية</h1>
-      <input type="text" id="searchBox" placeholder="ابحث عن الصور..." class="search-box">
-      <div id="gallery" class="gallery"></div>
-    </div>
+    <h1>الصفحة الرئيسية</h1>
 
-    <!-- نافذة عرض الصور -->
-    <div id="lightbox" class="lightbox">
-      <span class="close-lightbox">&times;</span>
-      <img class="lightbox-img" src="" alt="عرض الصورة">
-      <button id="downloadBtn" class="download-btn">تحميل الصورة</button>
-    </div>
+    <!-- مربع البحث -->
+    <input type="text" id="search" placeholder="ابحث عن صورة..." />
+
+    <!-- المعرض -->
+    <div id="lightgallery" class="gallery-container"></div>
   </main>
 
+  <!-- سكريبتات -->
+  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/lightgallery.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/thumbnail/lg-thumbnail.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/plugins/zoom/lg-zoom.umd.min.js"></script>
+
   <script>
-    // تحكم باللوحة الجانبية
     const sidebarBtn = document.querySelector('.sidebar-btn');
     const sidebar = document.querySelector('.sidebar');
     const closeBtn = document.querySelector('.close-btn');
+
     sidebarBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
     closeBtn.addEventListener('click', () => sidebar.classList.remove('open'));
 
-    // تحميل الصور من JSON
-    const gallery = document.getElementById('gallery');
-    const searchBox = document.getElementById('searchBox');
-
+    // تحميل الصور من ملف JSON
     async function loadImages() {
       const res = await fetch('../assets/home/images.json');
-      const data = await res.json();
-      renderGallery(data);
-      searchBox.addEventListener('input', () => {
-        const term = searchBox.value.toLowerCase();
-        const filtered = data.filter(img => img.name.toLowerCase().includes(term));
-        renderGallery(filtered);
-      });
-    }
+      const images = await res.json();
+      const gallery = document.getElementById('lightgallery');
 
-    function renderGallery(images) {
-      gallery.innerHTML = '';
+      gallery.innerHTML = ''; // تفريغ المحتوى السابق
+
       images.forEach(img => {
-        const imgEl = document.createElement('img');
-        imgEl.src = `../assets/home/${img.file}`;
-        imgEl.alt = img.name;
-        imgEl.classList.add('gallery-item');
-        imgEl.addEventListener('click', () => openLightbox(imgEl.src));
-        gallery.appendChild(imgEl);
+        const item = document.createElement('a');
+        item.href = `../assets/home/${img.file}`;
+        item.dataset.downloadUrl = `../assets/home/${img.file}`;
+        item.className = 'gallery-item';
+        item.dataset.subHtml = `<h4>${img.name}</h4>`;
+        item.innerHTML = `<img src="../assets/home/${img.file}" alt="${img.name}">`;
+        gallery.appendChild(item);
+      });
+
+      // تفعيل LightGallery
+      lightGallery(gallery, {
+        plugins: [lgZoom, lgThumbnail],
+        speed: 400,
+        download: true,
+        actualSize: true,
+        selector: '.gallery-item'
       });
     }
 
-    // عرض الصور بالحجم الكبير
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.querySelector('.lightbox-img');
-    const closeLightbox = document.querySelector('.close-lightbox');
-    const downloadBtn = document.getElementById('downloadBtn');
+    // بحث
+    document.getElementById('search').addEventListener('input', async (e) => {
+      const query = e.target.value.trim();
+      const res = await fetch('../assets/home/images.json');
+      const images = await res.json();
+      const filtered = images.filter(img => img.name.includes(query));
+      const gallery = document.getElementById('lightgallery');
 
-    function openLightbox(src) {
-      lightboxImg.src = src;
-      lightbox.style.display = 'flex';
-    }
+      gallery.innerHTML = '';
+      filtered.forEach(img => {
+        const item = document.createElement('a');
+        item.href = `../assets/home/${img.file}`;
+        item.dataset.downloadUrl = `../assets/home/${img.file}`;
+        item.className = 'gallery-item';
+        item.dataset.subHtml = `<h4>${img.name}</h4>`;
+        item.innerHTML = `<img src="../assets/home/${img.file}" alt="${img.name}">`;
+        gallery.appendChild(item);
+      });
 
-    closeLightbox.addEventListener('click', () => {
-      lightbox.style.display = 'none';
+      lightGallery(gallery, {
+        plugins: [lgZoom, lgThumbnail],
+        speed: 400,
+        download: true,
+        selector: '.gallery-item'
+      });
     });
 
-    // ✅ تفعيل زر التحميل
-    downloadBtn.addEventListener('click', () => {
-      const link = document.createElement('a');
-      link.href = lightboxImg.src;
-      link.download = lightboxImg.src.split('/').pop();
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
-
+    // تحميل أولي
     loadImages();
   </script>
 </body>
