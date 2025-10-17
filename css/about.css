@@ -6,7 +6,7 @@ body {
   direction: rtl;
 }
 
-/* ====== الشريط العلوي ====== */
+/* ===== الشريط العلوي ===== */
 header {
   background: url('../assets/shbg.png') no-repeat center;
   background-size: cover;
@@ -15,7 +15,7 @@ header {
   justify-content: center;
   position: relative;
   padding: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
 }
 
 .header-center {
@@ -26,17 +26,18 @@ header {
 }
 
 .app-logo {
-  width: 45px;
-  height: 45px;
+  width: 50px;
+  height: 50px;
 }
 
 .app-title {
-  font-size: 20px;
+  font-size: 22px;
   color: #d4af37;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+  border-bottom: 2px solid #000;
 }
 
-/* ====== زر القائمة الجانبية ====== */
+/* ===== زر القائمة الجانبية ===== */
 .sidebar-btn {
   position: absolute;
   right: 15px;
@@ -47,10 +48,10 @@ header {
 }
 
 .sidebar-btn img {
-  width: 30px;
+  width: 32px;
 }
 
-/* ====== اللوحة الجانبية ====== */
+/* ===== اللوحة الجانبية ===== */
 .sidebar {
   position: fixed;
   top: 0;
@@ -58,7 +59,7 @@ header {
   width: 250px;
   height: 100%;
   background: rgba(184,134,11,0.2); /* ذهبي شفاف 20% */
-  box-shadow: -3px 0 8px rgba(0,0,0,0.3);
+  box-shadow: -3px 0 8px rgba(0,0,0,0.4);
   transition: right 0.4s ease;
   z-index: 1000;
 }
@@ -78,7 +79,7 @@ header {
   cursor: pointer;
 }
 
-/* ====== عناصر القائمة ====== */
+/* ===== عناصر القائمة ===== */
 .sidebar-menu {
   list-style: none;
   padding: 60px 20px;
@@ -93,7 +94,7 @@ header {
   text-decoration: none;
   color: #d4af37;
   font-size: 18px;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
   transition: 0.3s;
   border-right: 2px solid transparent;
   padding-right: 5px;
@@ -102,35 +103,51 @@ header {
 .sidebar-menu a:hover,
 .sidebar-menu a.active {
   color: #fff;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.25);
   border-right: 3px solid #000;
   padding-right: 10px;
 }
 
-/* ====== محتوى لمحة عن التطبيق ====== */
+/* ===== تبويب المحتوى ===== */
 main {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 80px 20px;
+  padding: 100px 20px;
 }
 
 .about-box {
-  background: rgba(255,255,255,0.9);
-  border-radius: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  background: rgba(255,255,255,0.85);
+  border-radius: 25px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3), 0 0 6px #d4af37 inset;
   max-width: 700px;
   text-align: center;
   padding: 30px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+/* حواف ذهبية وسوداء مندمجة */
+.about-box::before {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #000, #d4af37);
+  z-index: -1;
 }
 
 .about-box h1 {
-  color: #b8860b;
+  color: #d4af37;
+  text-shadow: 1px 1px 2px #000;
+  font-size: 24px;
   margin-bottom: 15px;
 }
 
 .about-box p {
-  color: #333;
-  font-size: 16px;
+  color: #000;
+  text-shadow: 0.5px 0.5px 1px #d4af37;
+  font-size: 17px;
   line-height: 1.8;
-  }
+}
