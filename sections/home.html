@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>الصفحة الرئيسية - عالم التصاميم والزخرفة</title>
   <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/home.css" />
+  <link rel="stylesheet" href="home.css" />
 </head>
 <body>
   <header>
@@ -14,7 +14,7 @@
       <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo" />
     </div>
     <button class="sidebar-btn">
-      <img src="../assets/yhbg.png" alt="لوحة جانبية" />
+      <img src="../assets/yhbg.png" alt="زر القائمة الجانبية" />
     </button>
   </header>
 
@@ -30,64 +30,74 @@
   </aside>
 
   <main>
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="ابحث عن اسم الصورة..." />
-    </div>
-    <div class="gallery" id="gallery"></div>
-
-    <div class="overlay" id="overlay">
-      <img id="overlayImage" src="" alt="عرض الصورة" />
-      <a id="downloadBtn" href="#" download>تحميل الصورة</a>
+    <div class="content-box">
+      <h1 class="section-title">الصفحة الرئيسية</h1>
+      <input type="text" id="searchInput" placeholder="ابحث عن صورة..." />
+      <div class="gallery" id="gallery"></div>
     </div>
   </main>
 
+  <div class="lightbox" id="lightbox">
+    <span class="close-lightbox">&times;</span>
+    <img id="lightboxImage" src="" alt="صورة" />
+    <a id="downloadBtn" class="download-btn" href="#" download>تحميل الصورة</a>
+  </div>
+
   <script>
-    const sidebarBtn = document.querySelector('.sidebar-btn');
-    const sidebar = document.querySelector('.sidebar');
-    const closeBtn = document.querySelector('.close-btn');
+    const sidebarBtn = document.querySelector(".sidebar-btn");
+    const sidebar = document.querySelector(".sidebar");
+    const closeBtn = document.querySelector(".close-btn");
 
-    sidebarBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
-    closeBtn.addEventListener('click', () => sidebar.classList.remove('open'));
+    sidebarBtn.addEventListener("click", () => sidebar.classList.toggle("open"));
+    closeBtn.addEventListener("click", () => sidebar.classList.remove("open"));
 
-    // تحميل الصور من JSON
-    async function loadImages() {
-      const response = await fetch('../images.json');
-      const images = await response.json();
-      displayImages(images);
-    }
+    const gallery = document.getElementById("gallery");
+    const searchInput = document.getElementById("searchInput");
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImage = document.getElementById("lightboxImage");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const closeLightbox = document.querySelector(".close-lightbox");
 
-    function displayImages(images) {
-      const gallery = document.getElementById('gallery');
-      gallery.innerHTML = '';
-      images.forEach(img => {
-        const div = document.createElement('div');
-        div.className = 'image-item';
-        div.innerHTML = `<img src="../assets/home/${img.file}" alt="${img.name}" title="${img.name}">`;
-        gallery.appendChild(div);
+    let imagesData = [];
+
+    fetch("../assets/home/images.json")
+      .then(res => res.json())
+      .then(data => {
+        imagesData = data;
+        renderGallery(data);
       });
 
-      document.querySelectorAll('.image-item img').forEach(img => {
-        img.addEventListener('click', () => {
-          document.getElementById('overlayImage').src = img.src;
-          document.getElementById('overlay').style.display = 'flex';
-          document.getElementById('downloadBtn').href = img.src;
+    function renderGallery(data) {
+      gallery.innerHTML = "";
+      data.forEach(img => {
+        const div = document.createElement("div");
+        div.classList.add("img-box");
+        const image = document.createElement("img");
+        image.src = `../assets/home/${img.file}`;
+        image.alt = img.name;
+        div.appendChild(image);
+        gallery.appendChild(div);
+
+        image.addEventListener("click", () => {
+          lightbox.style.display = "flex";
+          lightboxImage.src = image.src;
+          downloadBtn.href = image.src;
+          downloadBtn.download = img.file;
         });
       });
     }
 
-    document.getElementById('searchInput').addEventListener('input', async (e) => {
-      const response = await fetch('../images.json');
-      const images = await response.json();
-      const term = e.target.value.trim();
-      const filtered = images.filter(img => img.name.includes(term));
-      displayImages(filtered);
+    searchInput.addEventListener("input", () => {
+      const value = searchInput.value.trim();
+      const filtered = imagesData.filter(img =>
+        img.name.includes(value)
+      );
+      renderGallery(filtered);
     });
 
-    document.getElementById('overlay').addEventListener('click', (e) => {
-      if (e.target.id === 'overlay') e.target.style.display = 'none';
+    closeLightbox.addEventListener("click", () => {
+      lightbox.style.display = "none";
     });
-
-    loadImages();
   </script>
 </body>
 </html>
