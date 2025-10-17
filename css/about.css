@@ -7,11 +7,6 @@ body {
   direction: rtl;
   background: url('../assets/bg.png') no-repeat center center fixed;
   background-size: cover;
-  transition: filter 0.3s ease;
-}
-
-body.blurred {
-  filter: blur(3px);
 }
 
 /* ===== الشريط العلوي ===== */
@@ -26,7 +21,6 @@ body.blurred {
   border-bottom: 2px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   overflow: hidden;
-  z-index: 10;
 }
 
 .header-bg {
@@ -36,7 +30,7 @@ body.blurred {
   bottom: 0;
   left: 0;
   background: url('../assets/shbg.png') repeat-x;
-  opacity: 0.25;
+  opacity: 0.3;
   z-index: 0;
 }
 
@@ -81,10 +75,9 @@ body.blurred {
   right: -260px;
   width: 250px;
   height: 100%;
-  background: rgba(212, 175, 55, 0.85);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(to bottom, #d4af37, #b8860b);
   transition: right 0.4s ease;
-  box-shadow: -2px 0 12px rgba(0,0,0,0.3);
+  box-shadow: -2px 0 10px rgba(0,0,0,0.3);
   z-index: 999;
 }
 
@@ -134,12 +127,12 @@ body.blurred {
   text-align: center;
   color: #3a2e00;
   padding: 3rem 1rem;
-  background-color: rgba(255, 255, 255, 0.75);
-  margin: 3rem auto;
+  background-color: rgba(255, 255, 255, 0.7);
+  margin: 2rem auto;
   width: 90%;
   max-width: 700px;
   border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   animation: fadeIn 1s ease-in-out;
 }
 
