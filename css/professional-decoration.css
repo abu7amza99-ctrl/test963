@@ -1,3 +1,21 @@
+/* ===== استيراد الخطوط من داخل assets/fonts/ ===== */
+@font-face {
+  font-family: 'Reem Kufi';
+  src: url('../assets/fonts/ReemKufi-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Cairo';
+  src: url('../assets/fonts/Cairo-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Tajawal';
+  src: url('../assets/fonts/Tajawal-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Amiri';
+  src: url('../assets/fonts/Amiri-Regular.ttf') format('truetype');
+}
+
 /* ===== الأساسيات العامة ===== */
 body {
   font-family: 'Cairo', sans-serif;
@@ -230,4 +248,4 @@ hr {
   height: 100%;
   object-fit: cover;
   border-radius: 8px;
-  }
+    }
