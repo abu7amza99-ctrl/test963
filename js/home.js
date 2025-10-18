@@ -32,9 +32,9 @@ if (sidebarClose) {
   });
 }
 
-// جلب JSON من assets/home/images.json
+// جلب JSON من assets/images.json
 async function fetchImagesJson() {
-  const url = '../assets/home/images.json';
+  const url = '../assets/images.json';
   try {
     const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
