@@ -106,4 +106,4 @@ html,body{height:100%;font-family:'Cairo',sans-serif;direction:rtl;color:#111}
   .dress-grid{grid-template-columns:repeat(3,1fr)}
   .toolbar{overflow:auto}
   .sidebar{width:100%;right:-100%}
-              }
+}
