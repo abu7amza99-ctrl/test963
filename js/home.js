@@ -1,7 +1,7 @@
-/* home.js - نسخة محسّنة
-   يدعم أسماء ملفات تحتوي على شرطات أو مسافات أو رموز عربية
+/* home.js - نسخة نهائية كاملة
+   يدعم أسماء ملفات تحتوي على شرطات أو مسافات أو رموز عربية وإنجليزية
    يقرأ من ../assets/home/images.json
-   عرض شبكي 4x / 2x، بحث جزئي، lightbox مع زر تحميل
+   عرض شبكي 4x / 2x، بحث جزئي، lightbox مع زر تحميل، ودعم كامل لجميع الأسماء
 */
 
 const sidebarBtn = document.querySelector('.sidebar-btn');
@@ -34,28 +34,31 @@ if (sidebarClose) {
 
 // جلب JSON من assets/home/images.json
 async function fetchImagesJson() {
-  const url = '../assets/home/images.json'; // كما طلبت
+  const url = '../assets/home/images.json';
   try {
     const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const j = await res.json();
+
+    let data = [];
     if (Array.isArray(j)) {
-      return j.map(it => typeof it === 'string' ? { name: it, file: it } : it);
+      data = j.map(it => typeof it === 'string' ? { name: it, file: it } : it);
+    } else if (j && Array.isArray(j.images)) {
+      data = j.images.map(it => typeof it === 'string' ? { name: it, file: it } : it);
     }
-    if (j && Array.isArray(j.images)) {
-      return j.images.map(it => typeof it === 'string' ? { name: it, file: it } : it);
-    }
-    return [];
+
+    console.log(`✅ تم تحميل images.json (${data.length} صورة) من: ${url}`);
+    return data;
   } catch (err) {
-    console.error('fetch images.json failed', err);
-    throw err;
+    console.error('❌ فشل تحميل images.json', err);
+    return [];
   }
 }
 
 // إنشاء عنصر بطاقة صورة
 function createImageCard(imgObj) {
-  const encodedFile = encodeURIComponent(imgObj.file);
-  const imgPath = `../assets/home/${encodedFile}`;
+  const safeFile = encodeURIComponent(imgObj.file).replace(/%25/g, '%');
+  const imgPath = `../assets/home/${safeFile}`;
 
   const a = document.createElement('a');
   a.href = imgPath;
@@ -81,6 +84,10 @@ function renderGallery(arr) {
   if (!Array.isArray(arr) || arr.length === 0) {
     const p = document.createElement('p');
     p.textContent = 'لا توجد صور للعرض';
+    p.style.color = '#000';
+    p.style.background = '#fff';
+    p.style.padding = '10px';
+    p.style.borderRadius = '8px';
     gallery.appendChild(p);
     return;
   }
@@ -113,7 +120,9 @@ if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
 lightbox.addEventListener('click', (e) => {
   if (e.target === lightbox) closeLightbox();
 });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeLightbox();
+});
 
 // تحميل إجباري
 function forceDownload(url, filename) {
