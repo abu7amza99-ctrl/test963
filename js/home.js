@@ -32,7 +32,7 @@ if (sidebarClose) {
   });
 }
 
-// جلب JSON من assets/images.json
+// جلب JSON من assetsimages.json
 async function fetchImagesJson() {
   const url = '../assets/images.json';
   try {
@@ -165,6 +165,6 @@ if (searchInput) {
     IMAGES = await fetchImagesJson();
     renderGallery(IMAGES);
   } catch (err) {
-    gallery.innerHTML = '<p style="padding:12px;background:#fff;color:#000;border-radius:8px">فشل تحميل قائمة الصور. تأكد من وجود الملف: assets/home/images.json</p>';
+    gallery.innerHTML = '<p style="padding:12px;background:#fff;color:#000;border-radius:8px">فشل تحميل قائمة الصور. تأكد من وجود الملف: assets/images.json</p>';
   }
 })();
