@@ -4,6 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>الزخرفة الاحترافية</title>
+
+  <!-- ✅ استيراد الخطوط من داخل مجلد assets/fonts -->
+  <style>
+    @font-face {
+      font-family: 'Reem Kufi';
+      src: url('../assets/fonts/ReemKufi-Regular.ttf') format('truetype');
+    }
+    @font-face {
+      font-family: 'Cairo';
+      src: url('../assets/fonts/Cairo-Regular.ttf') format('truetype');
+    }
+    @font-face {
+      font-family: 'Tajawal';
+      src: url('../assets/fonts/Tajawal-Regular.ttf') format('truetype');
+    }
+    @font-face {
+      font-family: 'Amiri';
+      src: url('../assets/fonts/Amiri-Regular.ttf') format('truetype');
+    }
+  </style>
+
   <link rel="stylesheet" href="../css/professional-decoration.css">
 </head>
 <body>
@@ -89,17 +110,16 @@
   <script src="../js/professional-decoration.js"></script>
 
   <script>
-    // ✅ إصلاح تحديد العنصر عند الضغط داخل مساحة التحرير
+    // ✅ تأكيد تحديد العنصر عند النقر داخل ساحة التحرير
     document.addEventListener('click', (e) => {
       const canvas = document.getElementById('editorCanvas');
       if (!canvas) return;
 
       const item = e.target.closest('.canvas-item');
       if (item && canvas.contains(item)) {
-        // محاكاة حدث الماوس الداخلي للتحديد
         item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
       }
     });
   </script>
 </body>
-  </html>
+</html>
