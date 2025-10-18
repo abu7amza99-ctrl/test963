@@ -1,4 +1,4 @@
-/* professional-decoration.js - نهائي (إصلاح تحديد الصورة عند النقر عليها) */
+/* professional-decoration.js - نهائي (إصلاح تحديد الصورة + استيراد محلي للتلبيسات) */
 document.addEventListener('DOMContentLoaded', () => {
   const sidebarToggle = document.getElementById('toggleSidebar');
   const siteSidebar = document.getElementById('siteSidebar');
@@ -36,11 +36,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return out;
   })();
 
+  // ✅ استدعاء التلبيسات محليًا من مجلد assets/Dress up/
   const DRESSUPS = [
-    'assets/Dress up/gold1.jpg',
-    'assets/Dress up/gold2.jpg',
-    'assets/Dress up/silver1.jpg',
-    'assets/Dress up/metal1.jpg'
+    '../assets/Dress up/gold1.jpg',
+    '../assets/Dress up/gold2.jpg',
+    '../assets/Dress up/silver1.jpg',
+    '../assets/Dress up/metal1.jpg'
   ];
 
   if (sidebarToggle) sidebarToggle.addEventListener('click', () => siteSidebar.classList.toggle('active'));
@@ -83,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
       img.src = obj.img;
       img.alt = '';
       img.style.display = 'block';
-      img.style.pointerEvents = 'none'; // ✅ يسمح بتحديد العنصر عند النقر فوق الصورة
+      img.style.pointerEvents = 'none'; // ✅ يسمح بالتحديد عند النقر فوق الصورة
 
       const overlayCanvas = document.createElement('canvas');
       overlayCanvas.className = 'img-overlay-canvas';
