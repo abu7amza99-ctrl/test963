@@ -1,109 +1,121 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الزخرفة الاحترافية</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>عالم التصاميم والزخرفة — زخرفة احترافية</title>
 
-  <!-- ✅ استيراد الخطوط من داخل مجلد assets/fonts -->
-  <style>
-    @font-face {
-      font-family: 'Reem Kufi';
-      src: url('../assets/fonts/ReemKufi-Regular.ttf') format('truetype');
-    }
-    @font-face {
-      font-family: 'Cairo';
-      src: url('../assets/fonts/Cairo-Regular.ttf') format('truetype');
-    }
-    @font-face {
-      font-family: 'Tajawal';
-      src: url('../assets/fonts/Tajawal-Regular.ttf') format('truetype');
-    }
-    @font-face {
-      font-family: 'Amiri';
-      src: url('../assets/fonts/Amiri-Regular.ttf') format('truetype');
-    }
-  </style>
-
+  <!-- الخطوط والستايل -->
   <link rel="stylesheet" href="../css/professional-decoration.css">
+
+  <!-- سكربت التحكم (موجود في js/) -->
+  <script src="../js/professional-decoration.js" defer></script>
 </head>
 <body>
-  <section id="professionalDecorationSection">
-    <button id="toggleSidebar" class="sidebar-toggle">☰</button>
+  <!-- خلفية عامة -->
+  <div class="page-bg" style="background-image:url('../assets/bg.png')"></div>
 
-    <!-- الشريط الجانبي -->
-    <aside id="siteSidebar" class="sidebar">
-      <button id="closeSidebar" class="close-btn">×</button>
-      <h2>الزخرفة الاحترافية</h2>
+  <!-- شريط علوي -->
+  <header class="topbar" style="background-image:url('../assets/shbg.png')">
+    <div class="topbar-inner">
+      <button id="toggleSidebar" class="sidebar-btn" aria-label="قائمة"><img src="../assets/yhbg.png" alt="قائمة"></button>
 
-      <div class="mode-group">
-        <label for="modeSelect">الوضع:</label>
-        <select id="modeSelect">
-          <option value="text">نص</option>
-          <option value="image">صورة</option>
-        </select>
+      <div class="app-center">
+        <img src="../assets/abu7amza.png" alt="لوغو" class="app-logo">
+        <div class="app-title-main">عالم التصاميم والزخرفة</div>
       </div>
-
-      <div class="input-group">
-        <label for="textInput">النص:</label>
-        <input type="text" id="textInput" placeholder="أدخل النص هنا...">
-      </div>
-
-      <div class="input-group">
-        <label for="fontSelect">الخط:</label>
-        <select id="fontSelect">
-          <option value="Reem Kufi">Reem Kufi</option>
-          <option value="Cairo">Cairo</option>
-          <option value="Tajawal">Tajawal</option>
-          <option value="Amiri">Amiri</option>
-        </select>
-      </div>
-
-      <div class="input-group">
-        <label for="fileImage">صورة شفافة:</label>
-        <input type="file" id="fileImage" accept="image/*">
-      </div>
-
-      <button id="btnAdd" class="btn">➕ أضف</button>
-
-      <hr>
-
-      <div class="tools-group">
-        <button id="btnGradients" class="btn">🎨 التدرجات</button>
-        <button id="btnDressups" class="btn">✨ التلبيسات</button>
-      </div>
-
-      <div class="input-group">
-        <label for="dressQuick">تلبيس سريع:</label>
-        <select id="dressQuick">
-          <option value="none">—</option>
-          <option value="gold">ذهبي</option>
-          <option value="silver">فضي</option>
-        </select>
-      </div>
-
-      <hr>
-
-      <div class="stroke-group">
-        <label>حدود النص:</label>
-        <input type="number" id="strokeWidth" min="0" max="10" value="0">
-        <input type="color" id="strokeColor" value="#000000">
-      </div>
-
-      <hr>
-
-      <div class="actions">
-        <button id="deleteSelected" class="btn danger">🗑️ حذف المحدد</button>
-        <button id="downloadImage" class="btn success">⬇️ تحميل النتيجة</button>
-      </div>
-    </aside>
-
-    <!-- ساحة التحرير -->
-    <div id="editorCanvas" class="editor-canvas">
-      <div class="hint">ابدأ بإضافة نص أو صورة شفافة للزخرفة ✨</div>
     </div>
+  </header>
 
-    <!-- نافذة التدرجات / التلبيسات -->
+  <!-- اللوحة الجانبية (تظهر من اليمين) -->
+  <aside id="siteSidebar" class="sidebar" aria-hidden="true">
+    <button id="closeSidebar" class="sidebar-close" aria-label="إغلاق">×</button>
+    <nav class="sidebar-menu" aria-label="القائمة الرئيسية">
+      <ul>
+        <li><a href="../home.html">الصفحة الرئيسية</a></li>
+        <li><a href="professional-decoration.html" class="active">الزخرفة الاحترافية</a></li>
+        <li><a href="../name-decoration.html">زخرفة الأسماء</a></li>
+        <li><a href="../about.html">لمحة عن التطبيق</a></li>
+        <li><a href="../contact.html">اتصل بنا</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- القسم الرئيسي -->
+  <main class="main">
+    <section class="editor-container">
+
+      <h1 class="editor-section-title">الزخرفة الاحترافية</h1>
+
+      <!-- شريط الأدوات -->
+      <div class="toolbar">
+        <label class="tool-item">النوع
+          <select id="modeSelect">
+            <option value="text">نص</option>
+            <option value="image">صورة</option>
+          </select>
+        </label>
+
+        <!-- input text (يظهر عندما يختار المستخدم نص) -->
+        <label class="tool-item" id="textInputWrap">النص
+          <input id="textInput" type="text" placeholder="اكتب النص هنا...">
+        </label>
+
+        <!-- upload image (يظهر عندما يختار المستخدم صورة) -->
+        <label class="tool-item" id="fileInputWrap" style="display:none">صورة شفافة
+          <input id="fileImage" type="file" accept="image/png,image/*">
+        </label>
+
+        <!-- اختيار الخط -->
+        <label class="tool-item">الخط
+          <select id="fontSelect"></select>
+        </label>
+
+        <!-- نوع التلوين -->
+        <label class="tool-item">نوع اللون
+          <select id="colorMode">
+            <option value="solid">لون ثابت</option>
+            <option value="gradient">تدرج</option>
+            <option value="dress">تلبيس</option>
+          </select>
+        </label>
+
+        <!-- زر عرض الشبكة للتدرجات / التلبيسات -->
+        <button id="btnShowPalette" class="tool-item btn">إظهار الشبكة</button>
+
+        <!-- إضافة / معاينة -->
+        <button id="btnAdd" class="btn primary">أضف / اعرض</button>
+      </div>
+
+      <!-- مربع المعاينة -->
+      <div id="editorCanvas" class="editor-canvas" tabindex="0" role="application" aria-label="لوحة التصميم">
+        <div class="hint">أضف نصاً أو صورة شفافة لبدء المعاينة</div>
+      </div>
+
+      <!-- أسفل المعاينة: أدوات إضافية -->
+      <div class="bottom-controls">
+        <button id="deleteSelected" class="btn danger">حذف المحدد</button>
+        <button id="downloadImage" class="btn download">تحميل التصميم</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- نافذة عرض التدرجات / التلبيسات -->
+  <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
+
+  <!-- إصلاح: السماح للنقر على الصورة داخل العنصر ليفعل التحديد -->
+  <script>
+    document.addEventListener('click', (e) => {
+      const canvas = document.getElementById('editorCanvas');
+      if (!canvas) return;
+      const item = e.target.closest('.canvas-item');
+      if (item && canvas.contains(item)) {
+        item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+      }
+    });
+  </script>
+</body>
+</html>    <!-- نافذة التدرجات / التلبيسات -->
     <div id="popupContainer" class="popup-container"></div>
   </section>
 
