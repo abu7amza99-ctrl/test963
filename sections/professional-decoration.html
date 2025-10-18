@@ -1,106 +1,105 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>عالم الزخرفة الاحترافية</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;700;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الزخرفة الاحترافية</title>
   <link rel="stylesheet" href="../css/professional-decoration.css">
-  <!-- html2canvas لم يعد مطلوباً للتصدير (التصدير الآن يتم بواسطة Canvas مخصص) -->
-  <script src="../js/professional-decoration.js" defer></script>
 </head>
 <body>
-  <!-- الشريط العلوي -->
-  <header>
-    <button class="sidebar-btn">
-      <img src="../assets/yhbg.png" alt="زر القائمة">
-    </button>
-    <div class="header-center">
-      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
-      <div class="app-title">عالم التصاميم والزخرفة</div>
+  <section id="professionalDecorationSection">
+    <button id="toggleSidebar" class="sidebar-toggle">☰</button>
+
+    <!-- الشريط الجانبي -->
+    <aside id="siteSidebar" class="sidebar">
+      <button id="closeSidebar" class="close-btn">×</button>
+      <h2>الزخرفة الاحترافية</h2>
+
+      <div class="mode-group">
+        <label for="modeSelect">الوضع:</label>
+        <select id="modeSelect">
+          <option value="text">نص</option>
+          <option value="image">صورة</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="textInput">النص:</label>
+        <input type="text" id="textInput" placeholder="أدخل النص هنا...">
+      </div>
+
+      <div class="input-group">
+        <label for="fontSelect">الخط:</label>
+        <select id="fontSelect">
+          <option value="Reem Kufi">Reem Kufi</option>
+          <option value="Cairo">Cairo</option>
+          <option value="Tajawal">Tajawal</option>
+          <option value="Amiri">Amiri</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="fileImage">صورة شفافة:</label>
+        <input type="file" id="fileImage" accept="image/*">
+      </div>
+
+      <button id="btnAdd" class="btn">➕ أضف</button>
+
+      <hr>
+
+      <div class="tools-group">
+        <button id="btnGradients" class="btn">🎨 التدرجات</button>
+        <button id="btnDressups" class="btn">✨ التلبيسات</button>
+      </div>
+
+      <div class="input-group">
+        <label for="dressQuick">تلبيس سريع:</label>
+        <select id="dressQuick">
+          <option value="none">—</option>
+          <option value="gold">ذهبي</option>
+          <option value="silver">فضي</option>
+        </select>
+      </div>
+
+      <hr>
+
+      <div class="stroke-group">
+        <label>حدود النص:</label>
+        <input type="number" id="strokeWidth" min="0" max="10" value="0">
+        <input type="color" id="strokeColor" value="#000000">
+      </div>
+
+      <hr>
+
+      <div class="actions">
+        <button id="deleteSelected" class="btn danger">🗑️ حذف المحدد</button>
+        <button id="downloadImage" class="btn success">⬇️ تحميل النتيجة</button>
+      </div>
+    </aside>
+
+    <!-- ساحة التحرير -->
+    <div id="editorCanvas" class="editor-canvas">
+      <div class="hint">ابدأ بإضافة نص أو صورة شفافة للزخرفة ✨</div>
     </div>
-  </header>
 
-  <!-- اللوحة الجانبية -->
-  <aside id="siteSidebar" class="sidebar" aria-hidden="true">
-    <button id="closeSidebar" class="sidebar-close" aria-label="إغلاق">×</button>
-    <nav class="sidebar-menu" aria-label="القائمة الرئيسية">
-      <ul>
-        <li><a href="../index.html">الصفحة الرئيسية</a></li>
-        <li><a href="professional-decoration.html" class="active">زخرفة احترافية</a></li>
-        <li><a href="name-decoration.html">زخرفة الأسماء</a></li>
-        <li><a href="about.html">لمحة عن التطبيق</a></li>
-        <li><a href="contact.html">اتصل بنا</a></li>
-      </ul>
-    </nav>
-  </aside>
+    <!-- نافذة التدرجات / التلبيسات -->
+    <div id="popupContainer" class="popup-container"></div>
+  </section>
 
-  <main class="main" style="background-image:url('assets/bg.png')">
-    <section class="editor-container">
-      <h1 class="editor-title">الزخرفة الاحترافية</h1>
+  <script src="../js/professional-decoration.js"></script>
 
-      <!-- toolbar -->
-      <div class="toolbar" role="toolbar" aria-label="أدوات المحرر">
-        <label>النوع
-          <select id="modeSelect">
-            <option value="text">نص</option>
-            <option value="image">صورة</option>
-          </select>
-        </label>
+  <script>
+    // ✅ إصلاح تحديد العنصر عند الضغط داخل مساحة التحرير
+    document.addEventListener('click', (e) => {
+      const canvas = document.getElementById('editorCanvas');
+      if (!canvas) return;
 
-        <label>النص
-          <input id="textInput" type="text" placeholder="اكتب النص ثم اضغط أضف">
-        </label>
-
-        <label>الخط
-          <select id="fontSelect">
-            <option value="Reem Kufi">Reem Kufi (افتراضي)</option>
-          </select>
-        </label>
-
-        <label>نمط الملء
-          <select id="fillMode">
-            <option value="solid">تلبيس (لون ثابت)</option>
-            <option value="gradient">تدرج</option>
-          </select>
-        </label>
-
-        <label class="file-label">رفع صورة
-          <input id="fileImage" type="file" accept="image/png,image/*">
-        </label>
-
-        <button id="btnAdd" class="btn">أضف</button>
-        <button id="btnGradients" class="btn">التدرجات</button>
-        <button id="btnDressups" class="btn">التلبيسات</button>
-      </div>
-
-      <div class="options-row">
-        <label>حدود: <input id="strokeWidth" type="number" min="0" value="0" style="width:80px"> px</label>
-        <label>لون الخط: <input id="strokeColor" type="color" value="#000000"></label>
-        <label>تلبيس سريع:
-          <select id="dressQuick">
-            <option value="none">—</option>
-            <option value="gold">ذهبي</option>
-            <option value="silver">فضي</option>
-          </select>
-        </label>
-      </div>
-
-      <!-- editor -->
-      <div id="editorCanvas" class="editor-canvas" tabindex="0" role="application" aria-label="لوحة التصميم">
-        <div class="hint"></div>
-      </div>
-
-      <div class="bottom-bar">
-        <button id="deleteSelected" class="btn btn-danger">حذف المحدد</button>
-        <button id="downloadImage" class="btn btn-primary">تحميل التصميم</button>
-      </div>
-    </section>
-  </main>
-
-  <!-- Popup عام: يستخدم لعرض التدرجات والتلبيسات -->
-  <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
-
+      const item = e.target.closest('.canvas-item');
+      if (item && canvas.contains(item)) {
+        // محاكاة حدث الماوس الداخلي للتحديد
+        item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+      }
+    });
+  </script>
 </body>
-</html>
+  </html>
