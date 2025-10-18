@@ -1,4 +1,6 @@
-/* home.js - قراءة من ../assets/home/images.json
+/* home.js - نسخة محسّنة
+   يدعم أسماء ملفات تحتوي على شرطات أو مسافات أو رموز عربية
+   يقرأ من ../assets/home/images.json
    عرض شبكي 4x / 2x، بحث جزئي، lightbox مع زر تحميل
 */
 
@@ -37,12 +39,9 @@ async function fetchImagesJson() {
     const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const j = await res.json();
-    // نتوقع مصفوفة كائنات {name,file} أو مصفوفة أسماء
     if (Array.isArray(j)) {
-      // normalize: إذا عناصرها سترينغ نحولها لكائنات
       return j.map(it => typeof it === 'string' ? { name: it, file: it } : it);
     }
-    // لو جلبنا كائن بداخل images: [...]
     if (j && Array.isArray(j.images)) {
       return j.images.map(it => typeof it === 'string' ? { name: it, file: it } : it);
     }
@@ -53,28 +52,30 @@ async function fetchImagesJson() {
   }
 }
 
-// إنشاء عنصر بطاقة صورة (بدون أسماء ظاهرة)
+// إنشاء عنصر بطاقة صورة
 function createImageCard(imgObj) {
+  const encodedFile = encodeURIComponent(imgObj.file);
+  const imgPath = `../assets/home/${encodedFile}`;
+
   const a = document.createElement('a');
-  a.href = `../assets/home/${imgObj.file}`;
+  a.href = imgPath;
   a.className = 'gallery-item';
   a.setAttribute('data-name', imgObj.name || '');
 
   const image = document.createElement('img');
-  image.src = `../assets/home/${imgObj.file}`;
+  image.src = imgPath;
   image.alt = imgObj.name || '';
   a.appendChild(image);
 
-  // prevent default navigation and open lightbox
   a.addEventListener('click', (e) => {
     e.preventDefault();
-    openLightbox(image.src, imgObj.file, imgObj.name);
+    openLightbox(imgPath, imgObj.file, imgObj.name);
   });
 
   return a;
 }
 
-// render gallery
+// عرض الشبكة
 function renderGallery(arr) {
   gallery.innerHTML = '';
   if (!Array.isArray(arr) || arr.length === 0) {
@@ -91,19 +92,18 @@ function renderGallery(arr) {
   gallery.appendChild(frag);
 }
 
-// open lightbox
+// فتح Lightbox
 function openLightbox(src, filename, name) {
   lightbox.classList.add('open');
   lightbox.setAttribute('aria-hidden','false');
   lightboxImage.src = src;
   lightboxImage.alt = name || filename || '';
   downloadBtn.href = src;
-  downloadBtn.download = filename || src.split('/').pop();
-  // focus download for keyboard users
+  downloadBtn.download = decodeURIComponent(filename || src.split('/').pop());
   downloadBtn.focus();
 }
 
-// close
+// إغلاق Lightbox
 function closeLightbox() {
   lightbox.classList.remove('open');
   lightbox.setAttribute('aria-hidden','true');
@@ -115,11 +115,11 @@ lightbox.addEventListener('click', (e) => {
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
 
-// force download fallback
+// تحميل إجباري
 function forceDownload(url, filename) {
   const a = document.createElement('a');
   a.href = url;
-  a.download = filename || url.split('/').pop();
+  a.download = decodeURIComponent(filename || url.split('/').pop());
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -133,7 +133,7 @@ if (downloadBtn) {
   });
 }
 
-// search
+// البحث الذكي
 if (searchInput) {
   searchInput.addEventListener('input', (e) => {
     const q = (e.target.value || '').trim().toLowerCase();
@@ -141,12 +141,16 @@ if (searchInput) {
       renderGallery(IMAGES);
       return;
     }
-    const filtered = IMAGES.filter(i => (i.name || '').toLowerCase().includes(q));
+    const normalizedQuery = q.replace(/[\s_-]+/g, '');
+    const filtered = IMAGES.filter(i => {
+      const normalizedName = (i.name || '').toLowerCase().replace(/[\s_-]+/g, '');
+      return normalizedName.includes(normalizedQuery);
+    });
     renderGallery(filtered);
   });
 }
 
-// init
+// التهيئة
 (async function init(){
   try {
     IMAGES = await fetchImagesJson();
