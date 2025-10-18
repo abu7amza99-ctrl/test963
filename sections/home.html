@@ -64,6 +64,29 @@
     </div>
   </div>
 
+  <!-- سكربت الصفحة الأساسي -->
   <script src="../js/home.js" defer></script>
+
+  <!-- ✅ سكربت عرض الصور من ملف JSON -->
+  <script>
+  fetch('../assets/images.json')
+    .then(res => res.json())
+    .then(data => {
+      const gallery = document.getElementById('gallery');
+      data.images.forEach(name => {
+        const img = document.createElement('img');
+        img.src = `../assets/home/${name}`;
+        img.alt = name;
+        img.loading = 'lazy';
+        img.style.width = '180px';
+        img.style.margin = '5px';
+        img.style.borderRadius = '10px';
+        img.style.cursor = 'pointer';
+        gallery.appendChild(img);
+      });
+    })
+    .catch(err => console.error('حدث خطأ أثناء تحميل الصور:', err));
+  </script>
+
 </body>
 </html>
