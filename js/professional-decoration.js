@@ -1,7 +1,10 @@
 /* professional-decoration.js - Final complete (modified)
-   - Fix: prevent duplicated image in preview when applying gradient/dress and scaling
-   - Approach: hide the base <img> when overlay is active; clear overlay canvas before draw
-   - All other logic preserved
+   - Fixes for "مشاكل النص" (file 980):
+     1) Text "dress" rendering in preview no longer appears intermittent: generate a high-DPR dress texture
+        for text, wait for fonts to be ready, and apply as CSS background-image (with background-clip:text).
+     2) Image dress/gradient preview now rendered on an overlay canvas with devicePixelRatio scaling so the
+        preview matches the downloaded PNG (size, color, pattern). Base <img> is hidden while overlay is active.
+   - Other logic preserved; kept compatible with existing HTML structure.
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -274,9 +277,11 @@ document.addEventListener('DOMContentLoaded', () => {
         wrap.style.width = dispW + 'px';
         wrap.style.height = dispH + 'px';
 
-        // set overlay canvas to match display dims
-        overlayCanvas.width = dispW; overlayCanvas.height = dispH;
-        overlayCanvas.style.width = dispW + 'px'; overlayCanvas.style.height = dispH + 'px';
+        // set overlay canvas to match display dims (use DPR scaling inside updateImageOverlay)
+        overlayCanvas.width = Math.max(1, dispW);
+        overlayCanvas.height = Math.max(1, dispH);
+        overlayCanvas.style.width = dispW + 'px';
+        overlayCanvas.style.height = dispH + 'px';
         obj.displayWidth = dispW; obj.displayHeight = dispH;
         updateImageOverlay(obj, wrap);
       };
@@ -316,7 +321,84 @@ document.addEventListener('DOMContentLoaded', () => {
     return dom;
   }
 
-  // update overlay for image (clears before draw)
+  // generate high-DPR dress texture for a given text and font (returns dataURL)
+  async function generateDressTextureDataURL(text, fontFamily, fontSizePx, dressUrl){
+    const dpr = window.devicePixelRatio || 1;
+    // estimate width via temporary canvas measuring
+    const measCanvas = document.createElement('canvas');
+    const mctx = measCanvas.getContext('2d');
+    mctx.font = `${fontSizePx}px "${fontFamily}"`;
+    const textWidth = Math.ceil(mctx.measureText(text).width) + 8;
+    const textHeight = Math.ceil(fontSizePx * 1.15) + 8;
+    const w = Math.max(1, Math.ceil(textWidth));
+    const h = Math.max(1, Math.ceil(textHeight));
+
+    const tmp = document.createElement('canvas');
+    tmp.width = Math.max(1, Math.ceil(w * dpr));
+    tmp.height = Math.max(1, Math.ceil(h * dpr));
+    tmp.style.width = w + 'px';
+    tmp.style.height = h + 'px';
+    const ctx = tmp.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0); // scale for DPR
+
+    // load dress image, draw cover to tmp then mask by text
+    return new Promise((resolve) => {
+      const dimg = new Image();
+      dimg.crossOrigin = 'anonymous';
+      dimg.onload = () => {
+        try {
+          // draw dress image to cover area
+          // keep aspect by drawing to fill (cover)
+          const sx = 0, sy = 0, sw = dimg.naturalWidth, sh = dimg.naturalHeight;
+          // draw in a way that covers tmp: scale to tmp dims
+          ctx.clearRect(0,0,w,h);
+          try { ctx.drawImage(dimg, 0, 0, w, h); } catch(e){ /* ignore cross-origin */ }
+
+          // mask by text
+          ctx.globalCompositeOperation = 'destination-in';
+          ctx.fillStyle = '#000';
+          ctx.font = `${fontSizePx}px "${fontFamily}"`;
+          ctx.textBaseline = 'top';
+          ctx.fillText(text, 4, 4);
+          ctx.globalCompositeOperation = 'source-over';
+
+          // produce dataURL
+          try {
+            const url = tmp.toDataURL('image/png');
+            resolve(url);
+            return;
+          } catch(e){
+            // fallback to original dress URL (not masked)
+            resolve(dressUrl);
+            return;
+          }
+        } catch(e){
+          resolve(dressUrl);
+        }
+      };
+      dimg.onerror = ()=> {
+        // if dress fails, fallback: create simple black text PNG
+        try {
+          ctx.clearRect(0,0,w,h);
+          ctx.fillStyle = '#000';
+          ctx.font = `${fontSizePx}px "${fontFamily}"`;
+          ctx.textBaseline = 'top';
+          ctx.fillText(text, 4, 4);
+          const url = tmp.toDataURL('image/png');
+          resolve(url);
+        } catch(e){
+          resolve(null);
+        }
+      };
+      dimg.src = dressUrl;
+      // If dressUrl is not provided, draw plain text onto tmp and return
+      if(!dressUrl){
+        dimg.onerror();
+      }
+    });
+  }
+
+  // update overlay for image (clears before draw) — improved: use DPR scaling for crisp preview
   function updateImageOverlay(obj, wrap){
     if(!wrap) return;
     const imgEl = wrap.querySelector('img');
@@ -336,15 +418,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // compute displayed width/height (consider scale)
-    const baseDispW = (obj.displayWidth || parseInt(imgEl.style.width) || imgEl.naturalWidth);
+    const baseDispW = (obj.displayWidth || parseInt(imgEl.style.width) || imgEl.naturalWidth) || 1;
     const dispW = Math.max(1, Math.round(baseDispW * (obj.scale || 1)));
-    const baseDispH = (obj.displayHeight || Math.round(imgEl.naturalHeight * (baseDispW / (imgEl.naturalWidth || baseDispW))));
+    const baseDispH = (obj.displayHeight || Math.round(imgEl.naturalHeight * (baseDispW / (imgEl.naturalWidth || baseDispW)))) || 1;
     const dispH = Math.max(1, Math.round(baseDispH * (obj.scale || 1)));
 
+    // device pixel ratio handling
+    const dpr = window.devicePixelRatio || 1;
+    const pixelW = Math.max(1, Math.round(dispW * dpr));
+    const pixelH = Math.max(1, Math.round(dispH * dpr));
+
     // update overlay canvas pixel dims and css dims
-    if (overlayCanvas.width !== dispW || overlayCanvas.height !== dispH) {
-      overlayCanvas.width = dispW;
-      overlayCanvas.height = dispH;
+    if (overlayCanvas.width !== pixelW || overlayCanvas.height !== pixelH) {
+      overlayCanvas.width = pixelW;
+      overlayCanvas.height = pixelH;
       overlayCanvas.style.width = dispW + 'px';
       overlayCanvas.style.height = dispH + 'px';
     }
@@ -353,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const ctx = overlayCanvas.getContext('2d');
     // Reset transform and clear to avoid duplicates
-    ctx.setTransform(1,0,0,1,0,0);
+    ctx.setTransform(dpr,0,0,dpr,0,0); // scale down drawing ops by dpr so drawImage uses CSS pixels
     ctx.clearRect(0,0,dispW,dispH);
 
     // determine whether overlay should be active
@@ -375,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if(hasGradient){
-      // draw gradient then mask by image
+      // draw gradient then mask by image (on overlayCanvas)
       const g = ctx.createLinearGradient(0,0,dispW,0);
       g.addColorStop(0, obj.gradient[0]); g.addColorStop(1, obj.gradient[1]);
       ctx.fillStyle = g;
@@ -389,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dimg.crossOrigin = 'anonymous';
       dimg.onload = ()=>{
         // clear then draw dress image sized to overlay
-        ctx.setTransform(1,0,0,1,0,0);
+        ctx.setTransform(dpr,0,0,dpr,0,0);
         ctx.clearRect(0,0,dispW,dispH);
         try { ctx.drawImage(dimg, 0, 0, dispW, dispH); } catch(e){}
         ctx.globalCompositeOperation = 'destination-in';
@@ -421,6 +508,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if(obj.type === 'text'){
       dom.style.webkitBackgroundClip = 'unset';
       dom.style.backgroundImage = '';
+      dom.style.backgroundSize = '';
+      dom.style.backgroundRepeat = '';
+      dom.style.backgroundPosition = '';
       dom.style.color = obj.color || '#000';
       dom.style.webkitTextFillColor = obj.color || '#000';
 
@@ -434,54 +524,40 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.style.backgroundClip = 'text';
         dom.style.color = 'transparent';
         dom.style.webkitTextFillColor = 'transparent';
+        // ensure background-size/position to look consistent
+        dom.style.backgroundSize = '100% 100%';
       } else if(obj.fillMode === 'dress' && obj.dress){
         const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
         const text = obj.text || '';
 
-        const drawDress = ()=>{
+        // Generate a robust dress texture and apply as background-image
+        (async ()=>{
           try {
-            const tmp = document.createElement('canvas');
-            const tctx = tmp.getContext('2d');
-            tctx.font = `${fontSize}px "${obj.font}"`;
-            let w = Math.max(1, Math.ceil(tctx.measureText(text).width));
-            let h = Math.max(1, Math.ceil(fontSize * 1.1));
-            w = Math.ceil(w + 8); h = Math.ceil(h + 8);
-            tmp.width = w; tmp.height = h;
-            const dimg = new Image(); dimg.crossOrigin='anonymous';
-            dimg.onload = ()=>{
-              const t2 = tmp.getContext('2d');
-              t2.clearRect(0,0,w,h);
-              try { t2.drawImage(dimg,0,0,w,h); } catch(e){}
-              t2.globalCompositeOperation = 'destination-in';
-              t2.fillStyle = '#000';
-              t2.font = `${fontSize}px "${obj.font}"`;
-              t2.textBaseline = 'top';
-              t2.fillText(text, 4, 4);
-              try {
-                dom.style.backgroundImage = `url(${tmp.toDataURL()})`;
-                dom.style.webkitBackgroundClip = 'text';
-                dom.style.backgroundClip = 'text';
-                dom.style.color = 'transparent';
-              } catch(e){
-                dom.style.color = obj.color || '#000';
-              }
-            };
-            dimg.onerror = ()=> { dom.style.color = obj.color || '#000'; };
-            dimg.src = obj.dress;
+            // ensure fonts loaded before generating texture (prevents flicker)
+            if(document.fonts && document.fonts.ready){
+              await document.fonts.ready;
+              if(obj.font) await document.fonts.load(`${fontSize}px "${obj.font}"`);
+            }
+          } catch(e){}
+          try {
+            const dataUrl = await generateDressTextureDataURL(text, obj.font || 'sans-serif', fontSize, obj.dress);
+            if(dataUrl){
+              dom.style.backgroundImage = `url(${dataUrl})`;
+              dom.style.webkitBackgroundClip = 'text';
+              dom.style.backgroundClip = 'text';
+              dom.style.color = 'transparent';
+              dom.style.webkitTextFillColor = 'transparent';
+              dom.style.backgroundSize = 'cover';
+              dom.style.backgroundRepeat = 'no-repeat';
+              dom.style.backgroundPosition = 'center';
+              dom.classList.add('dressed');
+            } else {
+              dom.style.color = obj.color || '#000';
+            }
           } catch(e){
             dom.style.color = obj.color || '#000';
           }
-        };
-
-        if(document.fonts && document.fonts.ready){
-          document.fonts.ready.then(()=>{
-            if(obj.font){
-              document.fonts.load(`${fontSize}px "${obj.font}"`).finally(drawDress);
-            } else drawDress();
-          }).catch(drawDress);
-        } else {
-          drawDress();
-        }
+        })();
       }
     } else if(obj.type === 'image'){
       updateImageOverlay(obj, dom);
@@ -574,6 +650,7 @@ document.addEventListener('DOMContentLoaded', () => {
       obj.rotation = gesture.origRotation + deltaAngle;
       dom.style.transform = `rotate(${obj.rotation}rad) scale(${obj.scale})`;
       if(obj.type === 'image') updateImageOverlay(obj, dom);
+      if(obj.type === 'text') applyStyleToDom(obj, dom); // update text dress texture size when pinching
     }, { passive: false });
 
     dom.addEventListener('touchend', (ev)=>{
@@ -722,13 +799,14 @@ document.addEventListener('DOMContentLoaded', () => {
       dom.style.backgroundClip = 'text';
       dom.style.color = 'transparent';
       dom.style.webkitTextFillColor = 'transparent';
+      dom.style.backgroundSize = '100% 100%';
     } else if(obj.type === 'image'){
       // For images: set the obj.gradient then redraw overlay (overlay cleared inside updateImageOverlay)
       updateImageOverlay(obj, dom);
     }
   }
 
-  function applyDressToSelected(url){
+  async function applyDressToSelected(url){
     if(!SELECTED){ alert('اختر عنصرًا أولاً'); return; }
     const {obj,dom} = SELECTED;
     obj.fillMode = 'dress';
@@ -736,6 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(obj.type === 'text'){
       dom.classList.add('dressed');
+      // Use applyStyleToDom to generate and apply the high-DPR background mask
       applyStyleToDom(obj, dom);
     } else if(obj.type === 'image'){
       dom.classList.add('dressed');
@@ -799,6 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(obj.stroke && obj.stroke>0){ ctx.lineWidth = obj.stroke; ctx.strokeStyle = obj.strokeColor || '#000'; ctx.strokeText(obj.text,x,y); }
             ctx.fillText(obj.text, x, y);
           } else if(obj.fillMode === 'dress' && obj.dress){
+            // Create temporary canvas for text mask then fill with dress image and draw into main ctx
             const tmp = document.createElement('canvas'); tmp.width = Math.max(1,Math.round(bboxW)); tmp.height = Math.max(1,Math.round(bboxH));
             const tctx = tmp.getContext('2d');
             tctx.clearRect(0,0,tmp.width,tmp.height);
@@ -874,7 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Helper for text/dress apply
+  // Helper for text/dress apply (text-specific gradient)
   function applyGradientToText(g){
     if(!SELECTED || SELECTED.obj.type !== 'text') { alert('اختر نصاً أولاً'); return; }
     const {obj,dom} = SELECTED;
@@ -886,42 +966,11 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.style.backgroundClip = 'text';
     dom.style.color = 'transparent';
     dom.style.webkitTextFillColor = 'transparent';
+    dom.style.backgroundSize = '100% 100%';
   }
 
-  function applyDressToSelected(url){
-  if(!SELECTED){ alert('اختر عنصرًا أولاً'); return; }
-  const {obj, dom} = SELECTED;
-  obj.fillMode = 'dress';
-  obj.dress = url;
-
-  if(obj.type === 'text'){
-    dom.classList.add('dressed');
-
-    // ✅ عرض التلبيس مباشرة في المعاينة
-    dom.style.backgroundImage = `url(${url})`;
-    dom.style.backgroundSize = 'cover';
-    dom.style.backgroundRepeat = 'no-repeat';
-    dom.style.backgroundPosition = 'center';
-    dom.style.webkitBackgroundClip = 'text';
-    dom.style.backgroundClip = 'text';
-    dom.style.color = 'transparent';
-    dom.style.webkitTextFillColor = 'transparent';
-    dom.style.filter = 'drop-shadow(1px 1px 2px rgba(0,0,0,0.4))';
-
-    // حفظ إعدادات التلبيس في الكائن
-    obj.style = {
-      ...obj.style,
-      backgroundImage: `url(${url})`,
-      backgroundSize: 'cover',
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center'
-    };
-
-  } else if(obj.type === 'image'){
-    dom.classList.add('dressed');
-    updateImageOverlay(obj, dom);
-  }
-}
+  // Reuse applyDressToSelected (kept for external calls)
+  // applyDressToSelected defined above (async)
 
   // show/hide controls on mode change
   modeSelect.addEventListener('change', ()=>{
