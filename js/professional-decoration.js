@@ -418,7 +418,7 @@ function closePopup() {
   popupContainer.innerHTML = "";
   popupContainer.setAttribute("aria-hidden", "true");
      }
-     /* ==========================================================
+/* ==========================================================
    professional-decoration.js — Final Part (2/2)
    ========================================================== */
 
