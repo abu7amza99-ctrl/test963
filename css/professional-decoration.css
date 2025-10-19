@@ -214,4 +214,4 @@ a{color:inherit;text-decoration:none}
   .dress-grid {grid-template-columns: repeat(2, 1fr);}
   .bottom-bar {flex-direction: column;gap: 8px;}
   .hint {font-size: 14px;margin-top: 25%;}
-     }
+  }
