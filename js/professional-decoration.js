@@ -890,39 +890,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function applyDressToSelected(url){
   if(!SELECTED){ alert('اختر عنصرًا أولاً'); return; }
-  const {obj,dom} = SELECTED;
+  const {obj, dom} = SELECTED;
   obj.fillMode = 'dress';
   obj.dress = url;
 
   if(obj.type === 'text'){
     dom.classList.add('dressed');
-    applyStyleToDom(obj, dom);
 
-    // تحديث المعاينة فورًا للتلبيس
-    const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
-    const text = obj.text || '';
-    const tmp = document.createElement('canvas');
-    const ctx = tmp.getContext('2d');
-    ctx.font = `${fontSize}px "${obj.font}"`;
-    const w = Math.ceil(ctx.measureText(text).width + 8);
-    const h = Math.ceil(fontSize * 1.1 + 8);
-    tmp.width = w; tmp.height = h;
+    // ✅ عرض التلبيس مباشرة في المعاينة
+    dom.style.backgroundImage = `url(${url})`;
+    dom.style.backgroundSize = 'cover';
+    dom.style.backgroundRepeat = 'no-repeat';
+    dom.style.backgroundPosition = 'center';
+    dom.style.webkitBackgroundClip = 'text';
+    dom.style.backgroundClip = 'text';
+    dom.style.color = 'transparent';
+    dom.style.webkitTextFillColor = 'transparent';
+    dom.style.filter = 'drop-shadow(1px 1px 2px rgba(0,0,0,0.4))';
 
-    const img = new Image(); img.crossOrigin = 'anonymous';
-    img.onload = ()=>{
-      const tctx = tmp.getContext('2d');
-      tctx.drawImage(img, 0, 0, w, h);
-      tctx.globalCompositeOperation = 'destination-in';
-      tctx.font = `${fontSize}px "${obj.font}"`;
-      tctx.textBaseline = 'top';
-      tctx.fillText(text, 4, 4);
-      dom.style.backgroundImage = `url(${tmp.toDataURL()})`;
-      dom.style.webkitBackgroundClip = 'text';
-      dom.style.backgroundClip = 'text';
-      dom.style.color = 'transparent';
+    // حفظ إعدادات التلبيس في الكائن
+    obj.style = {
+      ...obj.style,
+      backgroundImage: `url(${url})`,
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center'
     };
-    img.onerror = ()=> { dom.style.color = obj.color || '#000'; };
-    img.src = obj.dress;
 
   } else if(obj.type === 'image'){
     dom.classList.add('dressed');
