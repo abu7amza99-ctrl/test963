@@ -9,86 +9,29 @@
   <link rel="stylesheet" href="../css/professional-decoration.css">
 
   <style>
-    /* تحسين العرض على الموبايل */
+    /* تحسين العرض على الموبايل (بعض التعديلات المحلية) */
     @media (max-width: 768px) {
-      .topbar-inner {
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 6px 10px;
-      }
-      .brand {
-        transform: none;
-        gap: 8px;
-      }
-      .app-logo {
-        width: 40px;
-        height: 40px;
-      }
-      .app-title {
-        font-size: 16px;
-      }
-
-      .toolbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .toolbar label,
-      .toolbar select,
-      .toolbar input,
-      .toolbar button {
-        width: 100%;
-      }
-
-      .editor-container {
-        padding: 10px;
-      }
-
-      .editor-title {
-        font-size: 22px;
-      }
-
-      .editor-canvas {
-        min-height: 300px;
-        padding: 8px;
-      }
-
-      .bottom-bar {
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .sidebar {
-        width: 260px;
-      }
-
-      .dress-grid, .grad-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      .popup {
-        width: 95%;
-      }
+      .topbar-inner { flex-direction: row; justify-content: space-between; padding: 6px 10px; }
+      .brand { transform: none; gap: 8px; }
+      .app-logo { width: 40px; height: 40px; }
+      .app-title { font-size: 16px; }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .toolbar label, .toolbar select, .toolbar input, .toolbar button { width: 100%; }
+      .editor-container { padding: 10px; }
+      .editor-title { font-size: 22px; }
+      .editor-canvas { min-height: 300px; padding: 8px; }
+      .bottom-bar { flex-direction: column; gap: 8px; }
+      .sidebar { width: 260px; }
+      .dress-grid, .grad-grid { grid-template-columns: repeat(3, 1fr); }
+      .popup { width: 95%; }
     }
 
     @media (max-width: 480px) {
-      .topbar {
-        height: 60px;
-      }
-      .app-title {
-        font-size: 15px;
-      }
-      .toolbar select,
-      .toolbar input {
-        font-size: 14px;
-        padding: 6px;
-      }
-      .btn {
-        font-size: 14px;
-        padding: 6px 8px;
-      }
-      .editor-title {
-        font-size: 20px;
-      }
+      .topbar { height: 60px; }
+      .app-title { font-size: 15px; }
+      .toolbar select, .toolbar input { font-size: 14px; padding: 6px; }
+      .btn { font-size: 14px; padding: 6px 8px; }
+      .editor-title { font-size: 20px; }
     }
   </style>
 </head>
@@ -133,7 +76,7 @@
 
         <div id="textControls" class="conditional">
           <label>النص
-            <input id="textInput" type="text" placeholder="اكتب النص وسيظهر تلقائياً">
+            <input id="textInput" type="text" placeholder="اكتب النص ثم اضغط أضف">
           </label>
 
           <label>الخط
@@ -176,7 +119,7 @@
 
       <!-- المعاينة -->
       <div id="editorCanvas" class="editor-canvas" tabindex="0" role="application" aria-label="لوحة التصميم">
-        <div class="hint"></div>
+        <div class="hint">أضف نصاً أو صورة شفافة للمعاينة هنا ✨</div>
       </div>
 
       <div class="bottom-bar">
@@ -189,44 +132,27 @@
   <!-- Popup للتدرجات والتلبيسات -->
   <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
 
-  <!-- ✅ إصلاح عرض الصور وعدم ظهورها قبل الضغط على "أضف" -->
+  <!-- سكربتات المساعدة القصيرة (لا تعرض الصورة قبل ضغط أضف) -->
   <script>
+    // (حافظت على منطق بسيط: عند اختيار ملف الصورة، نخزّن المؤقت أولاً حتى يضغط المستخدم "أضف")
     document.addEventListener("DOMContentLoaded", () => {
       const fileInput = document.getElementById("fileImage");
-      const addButton = document.getElementById("btnAdd");
-      let selectedImage = null;
-
+      const btnAdd = document.getElementById("btnAdd");
+      let stagedImageData = null;
       fileInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          selectedImage = reader.result;
-        };
-        reader.readAsDataURL(file);
+        const f = e.target.files && e.target.files[0];
+        if(!f) { stagedImageData = null; return; }
+        const r = new FileReader();
+        r.onload = () => stagedImageData = r.result;
+        r.readAsDataURL(f);
       });
-
-      addButton.addEventListener("click", () => {
-        if (!selectedImage) return;
-        const canvas = document.getElementById("editorCanvas");
-        const img = document.createElement("img");
-        img.src = selectedImage;
-        img.alt = "صورة مرفوعة";
-        img.className = "uploaded-image";
-        const wrap = document.createElement("div");
-        wrap.className = "canvas-item img-wrap";
-        wrap.style.position = "absolute";
-        wrap.style.left = "10px";
-        wrap.style.top = "10px";
-        wrap.appendChild(img);
-        canvas.appendChild(wrap);
-        selectedImage = null;
-        fileInput.value = "";
-      });
+      // عند الضغط أضف، السكربت الرئيسي يتعامل مع stagedImageData
+      window.__getStagedImage = ()=> stagedImageData;
+      window.__clearStagedImage = ()=> { stagedImageData = null; fileInput.value = ''; };
     });
   </script>
 
-  <!-- السكربت الأصلي -->
+  <!-- السكربت الرئيسي -->
   <script src="../js/professional-decoration.js" defer></script>
 </body>
-    </html>
+</html>
