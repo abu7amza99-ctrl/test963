@@ -5,91 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>عالم التصاميم والزخرفة — الزخرفة الاحترافية</title>
 
-  <!-- الروابط -->
+  <!-- رابط CSS -->
   <link rel="stylesheet" href="../css/professional-decoration.css">
 
   <style>
-    /* تحسين العرض على الموبايل */
-    @media (max-width: 768px) {
-      .topbar-inner {
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 6px 10px;
-      }
-      .brand {
-        transform: none;
-        gap: 8px;
-      }
-      .app-logo {
-        width: 40px;
-        height: 40px;
-      }
-      .app-title {
-        font-size: 16px;
-      }
-
-      .toolbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .toolbar label,
-      .toolbar select,
-      .toolbar input,
-      .toolbar button {
-        width: 100%;
-      }
-
-      .editor-container {
-        padding: 10px;
-      }
-
-      .editor-title {
-        font-size: 22px;
-      }
-
-      .editor-canvas {
-        min-height: 300px;
-        padding: 8px;
-      }
-
-      .bottom-bar {
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .sidebar {
-        width: 260px;
-      }
-
-      .dress-grid, .grad-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      .popup {
-        width: 95%;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .topbar {
-        height: 60px;
-      }
-      .app-title {
-        font-size: 15px;
-      }
-      .toolbar select,
-      .toolbar input {
-        font-size: 14px;
-        padding: 6px;
-      }
-      .btn {
-        font-size: 14px;
-        padding: 6px 8px;
-      }
-      .editor-title {
-        font-size: 20px;
-      }
-    }
+    /* تأكيد موضعي لأن بعض البيئات قد تحتاج */
+    #editorCanvas { position: relative; }
   </style>
 </head>
 <body>
@@ -109,7 +30,7 @@
     <button id="closeSidebar" class="sidebar-close" aria-label="إغلاق">×</button>
     <nav class="sidebar-menu" aria-label="القائمة الرئيسية">
       <ul>
-        <li><a href="../home.html">الصفحة الرئيسية</a></li>
+        <li><a href="../index.html">الصفحة الرئيسية</a></li>
         <li><a href="professional-decoration.html" class="active">الزخرفة الاحترافية</a></li>
         <li><a href="../name-decoration.html">زخرفة الأسماء</a></li>
         <li><a href="../about.html">لمحة عن التطبيق</a></li>
@@ -131,9 +52,10 @@
           </select>
         </label>
 
+        <!-- تحكمات النص -->
         <div id="textControls" class="conditional">
           <label>النص
-            <input id="textInput" type="text" placeholder="اكتب النص وسيظهر تلقائياً">
+            <input id="textInput" type="text" placeholder="اكتب النص">
           </label>
 
           <label>الخط
@@ -150,10 +72,11 @@
               <option value="dress">تلبيس</option>
             </select>
           </label>
-          <button id="openColorGrid" class="btn small">إظهار التدرجات/ألوان</button>
-          <button id="openDressGrid" class="btn small">عرض التلبيسات</button>
+          <button id="openColorGrid" class="btn small">التدرجات</button>
+          <button id="openDressGrid" class="btn small">التلبيسات</button>
         </div>
 
+        <!-- تحكمات الصورة -->
         <div id="imageControls" class="conditional hidden">
           <label class="file-label">رفع صورة شفافة
             <input id="fileImage" type="file" accept="image/png,image/*">
@@ -189,38 +112,7 @@
   <!-- Popup للتدرجات والتلبيسات -->
   <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
 
-  <!-- ✅ إصلاح عرض الصور والتلبيس للهاتف -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const fileInput = document.getElementById("fileImage");
-      const canvas = document.getElementById("editorCanvas");
-      fileInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          const img = document.createElement("img");
-          img.src = reader.result;
-          img.alt = "صورة مرفوعة";
-          img.className = "uploaded-image";
-          img.style.maxWidth = "100%";
-          img.style.height = "auto";
-          img.style.display = "block";
-          img.style.margin = "0 auto";
-          const wrap = document.createElement("div");
-          wrap.className = "canvas-item img-wrap";
-          wrap.style.position = "absolute";
-          wrap.style.left = "10px";
-          wrap.style.top = "10px";
-          wrap.appendChild(img);
-          canvas.appendChild(wrap);
-        };
-        reader.readAsDataURL(file);
-      });
-    });
-  </script>
-
-  <!-- السكربت الأصلي -->
+  <!-- سكربت -->
   <script src="../js/professional-decoration.js" defer></script>
 </body>
-</html>
+  </html>
