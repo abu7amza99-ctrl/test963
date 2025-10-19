@@ -125,19 +125,25 @@ a{color:inherit;text-decoration:none}
   pointer-events:auto;
   mix-blend-mode:normal;
   transition:filter .2s, background-image .3s;
-  line-height:1.1; /* ✅ إصلاح التقطّع */
+  line-height:1.1;
   background-repeat:no-repeat;
   background-size:cover;
 }
 
-/* ✅ إصلاح التلبيس الذكي */
+/* ✅ إصلاح التلبيس الذكي للنص */
 .text-item.dressed {
   background-clip:text;
   -webkit-background-clip:text;
   color:transparent;
+  -webkit-text-fill-color: transparent;
   filter:drop-shadow(1px 1px 2px rgba(0,0,0,0.4));
   image-rendering: crisp-edges;
-  -webkit-text-fill-color: transparent;
+}
+
+/* ✅ إبقاء النص واضح بعد التكبير */
+.text-item.resized {
+  image-rendering: -webkit-optimize-contrast;
+  transform: scale(1);
 }
 
 /* image wrap */
