@@ -1,6 +1,12 @@
 /* professional-decoration.js - نهائي: تلوين الأحرف على الشفافية + جلب خطوط وتلبيسات من GitHub API
    تم إضافة: "التلبيس الذكي التلقائي" كما طُلب — لا أزرار جديدة، لا تأثيرات إضافية، فقط تطبيق التلبيسة
    تلقائياً على العناصر (نصوص/صور) عندما تتوفر تلبيسات من المستودع.
+
+   تحسينات موبايل مضافة:
+   - ضبط أحجام افتراضية أصغر على الشاشات الصغيرة
+   - استخدام عرض editorCanvas لحساب أقصى عرض للصور بدلاً من قيمة ثابتة
+   - دعم إيماءات اللمس: سحب، تدوير، وتكبير/تصغير بعنصرين (pinch-to-zoom)
+   - تكبير مقبض التدوير على أجهزة اللمس لتسهيل التفاعل
 */
 document.addEventListener('DOMContentLoaded', () => {
   // عناصر DOM
@@ -35,6 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ذكي: تذكرنا إذا أنهينا تحميل التلبيسات من الريبو
   let DRESSES_LOADED = false;
+
+  // ضبط افتراضي يعتمد على حجم الجهاز (موبايل أقل حجم)
+  const isMobileLike = window.innerWidth <= 768;
+  const DEFAULT_FONT_SIZE = isMobileLike ? 48 : 72;
+  const ROTATE_HANDLE_TOUCH_SIZE = isMobileLike ? 44 : 34; // نجعل المقبض أكبر على اللمس
 
   const GRADIENTS = (function(){
     const out = [];
@@ -197,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const base = {
       id, type, x:80, y:80, rotation:0, scale:1,
       font: AVAILABLE_FONTS.length?AVAILABLE_FONTS[0].name:'ReemKufiLocalFallback',
-      size: 72, stroke:0, strokeColor:'#000', fillMode:'solid', gradient:null, dress:null, img:null,
+      size: DEFAULT_FONT_SIZE, stroke:0, strokeColor:'#000', fillMode:'solid', gradient:null, dress:null, img:null,
       displayWidth:null, displayHeight:null, text:''
     };
     const obj = Object.assign(base, data||{});
@@ -217,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dom.className = 'canvas-item text-item';
       dom.textContent = obj.text || '';
       dom.style.fontFamily = obj.font;
-      dom.style.fontSize = (obj.size || 48) + 'px';
+      dom.style.fontSize = (obj.size || DEFAULT_FONT_SIZE) + 'px';
       dom.style.left = obj.x + 'px';
       dom.style.top = obj.y + 'px';
       dom.dataset.id = obj.id;
@@ -249,8 +260,13 @@ document.addEventListener('DOMContentLoaded', () => {
       overlayCanvas.className = 'img-overlay-canvas';
 
       img.onload = () => {
-        const maxw = Math.min(480, img.naturalWidth);
-        const dispW = obj.displayWidth || maxw;
+        // حساب أقصى عرض ديناميكي حسب عرض لوحة التحرير (يتناسب مع الموبايل)
+        const canvasPadding = 40; // ترك مسافة جانبية
+        const maxw = Math.min(
+          Math.max(200, editorCanvas.clientWidth - canvasPadding),
+          img.naturalWidth
+        );
+        const dispW = obj.displayWidth || Math.min(480, maxw);
         const aspect = img.naturalHeight / img.naturalWidth;
         const dispH = Math.round(dispW * aspect);
 
@@ -285,8 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const imgEl = wrap.querySelector('img');
     const overlayCanvas = wrap.querySelector('.img-overlay-canvas');
     if(!imgEl || !overlayCanvas) return;
-    const dispW = obj.displayWidth || parseInt(imgEl.style.width) || imgEl.naturalWidth;
-    const dispH = obj.displayHeight || Math.round(imgEl.naturalHeight * (dispW / img.naturalWidth));
+    const dispW = Math.round((obj.displayWidth || parseInt(imgEl.style.width) || img.naturalWidth) * (obj.scale || 1));
+    const dispH = Math.round((obj.displayHeight || Math.round(img.naturalHeight * (dispW / img.naturalWidth))) * (obj.scale || 1));
     overlayCanvas.width = dispW; overlayCanvas.height = dispH;
     overlayCanvas.style.width = dispW + 'px'; overlayCanvas.style.height = dispH + 'px';
     overlayCanvas.style.left = '0px'; overlayCanvas.style.top = '0px';
@@ -321,7 +337,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // apply styles to DOM item
   function applyStyleToDom(obj, dom){
     if(!dom) return;
-    dom.style.transform = `rotate(${obj.rotation}rad)`;
+    // include scale in transform
+    const sc = typeof obj.scale === 'number' ? obj.scale : 1;
+    dom.style.transform = `rotate(${obj.rotation}rad) scale(${sc})`;
     if(obj.type === 'text'){
       if(obj.fillMode === 'solid' || !obj.gradient && obj.fillMode !== 'dress'){
         dom.style.color = obj.color || '#000';
@@ -335,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.style.webkitTextFillColor = 'transparent';
       } else if(obj.fillMode === 'dress' && obj.dress){
         // Render dress style by creating a temporary canvas and setting as dataURL background
-        const fontSize = obj.size || 72;
+        const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
         const text = obj.text || '';
         const tmp = document.createElement('canvas');
         const tctx = tmp.getContext('2d');
@@ -371,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // attach interaction: select, drag, rotate
+  // attach interaction: select, drag, rotate, pinch-to-scale
   function attachInteraction(dom, obj){
     dom.style.left = (obj.x||50) + 'px';
     dom.style.top = (obj.y||50) + 'px';
@@ -380,6 +398,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // remove old handle if any
     const old = dom.querySelector('.rotate-handle'); if(old) old.remove();
     const handle = document.createElement('div'); handle.className='rotate-handle'; handle.textContent='⤾';
+    // enlarge handle for touch devices
+    handle.style.width = ROTATE_HANDLE_TOUCH_SIZE + 'px';
+    handle.style.height = ROTATE_HANDLE_TOUCH_SIZE + 'px';
+    handle.style.top = (-ROTATE_HANDLE_TOUCH_SIZE/2) + 'px';
+    handle.style.left = (-ROTATE_HANDLE_TOUCH_SIZE/2) + 'px';
     dom.appendChild(handle);
 
     // select on mousedown (even when clicking image because img has pointer-events none)
@@ -388,15 +411,16 @@ document.addEventListener('DOMContentLoaded', () => {
       selectElement(dom, obj);
     });
 
-    // drag
+    // pointer drag (works for mouse + touch via Pointer Events)
     let dragging=false, sx=0, sy=0, sl=0, st=0;
     dom.addEventListener('pointerdown', (ev)=>{
+      // ignore pointerdown if it started on handle (rotation handled separately)
       if(ev.target === handle) return;
       dragging=true;
       sx = ev.clientX; sy = ev.clientY;
       sl = parseFloat(dom.style.left) || 0;
       st = parseFloat(dom.style.top) || 0;
-      dom.setPointerCapture(ev.pointerId);
+      dom.setPointerCapture && dom.setPointerCapture(ev.pointerId);
       ev.preventDefault();
     });
     window.addEventListener('pointermove', (ev)=>{
@@ -408,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     window.addEventListener('pointerup', ()=> dragging=false);
 
-    // rotate via handle
+    // rotate via handle (pointer)
     handle.addEventListener('pointerdown', (ev)=>{
       ev.stopPropagation();
       const rect = dom.getBoundingClientRect();
@@ -418,7 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
       function move(e2){
         const angle = Math.atan2(e2.clientY - cy, e2.clientX - cx) - startAngle;
         obj.rotation = angle;
-        dom.style.transform = `rotate(${angle}rad)`;
+        dom.style.transform = `rotate(${angle}rad) scale(${obj.scale || 1})`;
       }
       function up(){
         window.removeEventListener('pointermove', move);
@@ -426,6 +450,62 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       window.addEventListener('pointermove', move);
       window.addEventListener('pointerup', up);
+    });
+
+    // --- Touch gesture fallback for older browsers or to enable multi-touch pinch (two fingers)
+    // We implement touchstart/touchmove handlers to support pinch-to-scale and two-finger rotate
+    let gesture = {
+      active: false,
+      startDist: 0,
+      startAngle: 0,
+      origScale: obj.scale || 1,
+      origRotation: obj.rotation || 0,
+      center: null
+    };
+
+    dom.addEventListener('touchstart', (ev)=>{
+      if(ev.touches.length === 1){
+        // single touch: treat as pointerdown for dragging selection
+        selectElement(dom, obj);
+      } else if(ev.touches.length === 2){
+        ev.preventDefault();
+        gesture.active = true;
+        gesture.origScale = obj.scale || 1;
+        gesture.origRotation = obj.rotation || 0;
+        const t1 = ev.touches[0]; const t2 = ev.touches[1];
+        const dx = t2.clientX - t1.clientX;
+        const dy = t2.clientY - t1.clientY;
+        gesture.startDist = Math.hypot(dx, dy);
+        gesture.startAngle = Math.atan2(dy, dx);
+        gesture.center = { x: (t1.clientX + t2.clientX)/2, y: (t1.clientY + t2.clientY)/2 };
+      }
+    }, { passive: false });
+
+    dom.addEventListener('touchmove', (ev)=>{
+      if(!gesture.active || ev.touches.length !== 2) return;
+      ev.preventDefault();
+      const t1 = ev.touches[0]; const t2 = ev.touches[1];
+      const dx = t2.clientX - t1.clientX;
+      const dy = t2.clientY - t1.clientY;
+      const dist = Math.hypot(dx, dy);
+      const angle = Math.atan2(dy, dx);
+      // scale factor
+      const factor = dist / (gesture.startDist || dist || 1);
+      obj.scale = Math.max(0.3, Math.min(3, gesture.origScale * factor));
+      // rotation difference
+      const deltaAngle = angle - gesture.startAngle;
+      obj.rotation = gesture.origRotation + deltaAngle;
+      // apply transform
+      dom.style.transform = `rotate(${obj.rotation}rad) scale(${obj.scale})`;
+      // for images update overlay sizes if necessary
+      if(obj.type === 'image') updateImageOverlay(obj, dom);
+      // for text, update font-size visual (we leave obj.size as base and scale via CSS)
+    }, { passive: false });
+
+    dom.addEventListener('touchend', (ev)=>{
+      if(ev.touches.length < 2){
+        gesture.active = false;
+      }
     });
   }
 
@@ -605,9 +685,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!obj) continue;
 
         if(obj.type === 'text'){
-          const x = Math.round(parseFloat(dom.style.left) || obj.x || 0);
-          const y = Math.round(parseFloat(dom.style.top) || obj.y || 0);
-          const fontSize = obj.size || 72;
+          const x = Math.round((parseFloat(dom.style.left) || obj.x || 0));
+          const y = Math.round((parseFloat(dom.style.top) || obj.y || 0));
+          const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
           ctx.save();
           const bboxW = dom.offsetWidth || (fontSize*(obj.text?obj.text.length:1));
           const bboxH = dom.offsetHeight || fontSize;
@@ -660,8 +740,8 @@ document.addEventListener('DOMContentLoaded', () => {
             img.onload = async ()=>{
               const left = Math.round(parseFloat(wrap.style.left)||obj.x||0);
               const top = Math.round(parseFloat(wrap.style.top)||obj.y||0);
-              const drawW = obj.displayWidth || parseInt(imgEl.style.width) || img.naturalWidth;
-              const drawH = obj.displayHeight || Math.round(img.naturalHeight * (drawW / img.naturalWidth));
+              const drawW = (obj.displayWidth || parseInt(imgEl.style.width) || img.naturalWidth) * (obj.scale || 1);
+              const drawH = (obj.displayHeight || Math.round(img.naturalHeight * (drawW / img.naturalWidth))) * (obj.scale || 1);
 
               if(obj.fillMode === 'gradient' && obj.gradient){
                 const tmp = document.createElement('canvas'); tmp.width = drawW; tmp.height = drawH;
@@ -739,9 +819,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if(imageControls) imageControls.classList.remove('hidden');
     }
   });
-
-  // make popup clicks (apply gradient for selected text)
-  // but we already implemented openPopup with applyGradientToSelected which targets selected.
 
   // allow clicking font list items outside overlay to close
   document.addEventListener('click', (e)=>{
