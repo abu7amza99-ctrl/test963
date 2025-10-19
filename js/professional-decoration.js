@@ -1,8 +1,4 @@
-/* professional-decoration.js
-   نهائي: تطبيق كل المطلوبات — تلوين أحرف النص أو أسماء داخل صور شفافة
-   يعمل مع: assets/dressup/*  و assets/fonts/*
-*/
-
+/* professional-decoration.js - نهائي: تلوين الأحرف على الشفافية + جلب خطوط وتلبيسات من GitHub API */
 document.addEventListener('DOMContentLoaded', () => {
   // عناصر DOM
   const toggleSidebar = document.getElementById('toggleSidebar');
@@ -12,86 +8,156 @@ document.addEventListener('DOMContentLoaded', () => {
   const editorCanvas = document.getElementById('editorCanvas');
   const modeSelect = document.getElementById('modeSelect');
   const textInput = document.getElementById('textInput');
-  const fontSelect = document.getElementById('fontSelect');
+  const fontListBtn = document.getElementById('openFontList');
+  const fontListPanel = document.getElementById('fontList');
   const fileImage = document.getElementById('fileImage');
   const btnAdd = document.getElementById('btnAdd');
-  const btnShowPalette = document.getElementById('btnShowPalette');
-  const colorMode = document.getElementById('colorMode');
-  const fileInputWrap = document.getElementById('fileInputWrap');
-  const textInputWrap = document.getElementById('textInputWrap');
-  const btnGradients = document.getElementById('btnGradients');
-  const deleteSelected = document.getElementById('deleteSelected');
+  const btnGradients = document.getElementById('openColorGrid');
+  const btnDressups = document.getElementById('openDressGrid');
+  const btnGradientsImg = document.getElementById('openColorGridImg');
+  const btnDressupsImg = document.getElementById('openDressGridImg');
   const downloadImage = document.getElementById('downloadImage');
   const popupContainer = document.getElementById('popupContainer');
+  const deleteSelected = document.getElementById('deleteSelected');
+
+  // conditionals
+  const textControls = document.getElementById('textControls');
+  const imageControls = document.getElementById('imageControls');
 
   // حالة
   let SELECTED = null;
   const ELEMENTS = [];
-
-  // توليد 50 تدرج لعرضهم
+  let AVAILABLE_FONTS = [];     // {name, url}
+  let AVAILABLE_DRESS = [];     // urls
   const GRADIENTS = (function(){
     const out = [];
     for(let i=0;i<50;i++){
-      const a = `hsl(${Math.round(i*360/50)} 80% 50%)`;
-      const b = `hsl(${Math.round((i*360/50)+30)} 80% 65%)`;
+      const a = `hsl(${(i*360/50)|0} 80% 45%)`;
+      const b = `hsl(${((i*360/50)+40)|0} 80% 60%)`;
       out.push([a,b]);
     }
-    // اضف بعض الانواع المعدنية الافتراضية
+    // metallics
     out.push(['#f3c976','#b8862a']);
     out.push(['#e6e9ec','#b9bfc6']);
+    out.push(['#d4b06f','#8b5a2b']);
     return out;
   })();
 
-  // جلب التلبيسات المتوفرة داخل assets/dressup/ (قائمة افتراضية)
-  const DRESSUPS = (function(){
-    // لاحقًا يمكنك تعديل القائمة هنا او وضع ملفات في assets/dressup/
-    return [
-      '../assets/dressup/gold1.jpg',
-      '../assets/dressup/gold2.jpg',
-      '../assets/dressup/silver1.jpg',
-      '../assets/dressup/metal1.jpg'
-    ];
-  })();
+  // --- Sidebar toggle (from right) ---
+  toggleSidebar && toggleSidebar.addEventListener('click', ()=> {
+    siteSidebar.classList.toggle('active');
+  });
+  closeSidebar && closeSidebar.addEventListener('click', ()=> siteSidebar.classList.remove('active'));
 
-  // تفعيل زر الشريط الجانبي
-  function openSidebar(){ siteSidebar.classList.add('open'); siteSidebar.setAttribute('aria-hidden','false'); }
-  function closeSidebarFn(){ siteSidebar.classList.remove('open'); siteSidebar.setAttribute('aria-hidden','true'); }
+  // --- Utility: parse repo from location (for GitHub Pages) ---
+  // expects URL like: <owner>.github.io/<repo>/sections/...
+  function detectGitHubRepo(){
+    try {
+      const host = window.location.hostname; // e.g. abu7amza99-ctrl.github.io
+      const path = window.location.pathname.split('/').filter(Boolean); // ['test963','sections','...']
+      if(!host.includes('github.io')) return null;
+      const owner = host.split('.github.io')[0];
+      const repo = path.length ? path[0] : null;
+      if(owner && repo) return {owner, repo};
+      return null;
+    } catch(e){ return null; }
+  }
 
-  if(toggleSidebar) toggleSidebar.addEventListener('click', openSidebar);
-  if(closeSidebar) closeSidebar.addEventListener('click', closeSidebarFn);
+  const repoInfo = detectGitHubRepo();
+  // fallback: if can't detect, let developer set manually here:
+  const FALLBACK_REPO = { owner: repoInfo ? repoInfo.owner : null, repo: repoInfo ? repoInfo.repo : null };
 
-  // اعداد قائمة الخطوط من مجلد assets/fonts/ (عرض افتراضي)
-  const FONTS = [
-    {name:'Reem Kufi', css:'Reem Kufi'},
-    {name:'Cairo', css:'Cairo'},
-    {name:'Tajawal', css:'Tajawal'},
-    {name:'Amiri', css:'Amiri'}
-  ];
-  function populateFonts(){
-    fontSelect.innerHTML = '';
-    FONTS.forEach(f=>{
-      const opt = document.createElement('option');
-      opt.value = f.css;
-      opt.textContent = f.name;
-      fontSelect.appendChild(opt);
+  // --- GitHub API helpers to list folder files ---
+  async function listGitHubFolder(owner, repo, folderPath){
+    if(!owner || !repo) return null;
+    const api = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(folderPath)}`;
+    try {
+      const res = await fetch(api);
+      if(!res.ok) return null;
+      const json = await res.json();
+      return json; // array of { name, download_url, type, ... }
+    } catch(err){
+      console.warn('GitHub API list error', err);
+      return null;
+    }
+  }
+
+  // --- load fonts dynamically from assets/fonts/ using GitHub raw URLs ---
+  async function loadFontsFromRepo(){
+    const owner = FALLBACK_REPO.owner, repo = FALLBACK_REPO.repo;
+    if(!owner || !repo) return;
+    const list = await listGitHubFolder(owner, repo, 'assets/fonts');
+    if(!list || !Array.isArray(list)) return;
+    const fonts = list.filter(f => f.type === 'file' && /\.(ttf|otf|woff2?|woff)$/i.test(f.name));
+    for(const f of fonts){
+      const fontName = f.name.replace(/\.[^/.]+$/, '');
+      const url = f.download_url;
+      // create @font-face
+      const style = document.createElement('style');
+      style.textContent = `@font-face{ font-family: "${fontName}"; src: url("${url}"); font-display: swap; }`;
+      document.head.appendChild(style);
+      AVAILABLE_FONTS.push({name: fontName, url});
+    }
+    // populate UI list
+    refreshFontListUI();
+  }
+
+  function refreshFontListUI(){
+    fontListPanel.innerHTML = '';
+    if(AVAILABLE_FONTS.length === 0){
+      const p = document.createElement('div'); p.textContent = 'لا توجد خطوط في المجلد assets/fonts/'; p.className='panel-empty';
+      fontListPanel.appendChild(p);
+      return;
+    }
+    AVAILABLE_FONTS.forEach(f=>{
+      const btn = document.createElement('button');
+      btn.className = 'font-item';
+      btn.textContent = f.name;
+      btn.addEventListener('click', ()=>{
+        // عند اختيار الخط نطبقه فوراً على العنصر المختار (أو على النص الافتراضي)
+        applyFontToSelected(f.name);
+        fontListPanel.classList.add('hidden');
+      });
+      fontListPanel.appendChild(btn);
     });
   }
-  populateFonts();
 
-  // مساعدة: انشاء كائن حالة للعنصر
+  // --- load dressups from repo ---
+  async function loadDressupsFromRepo(){
+    const owner = FALLBACK_REPO.owner, repo = FALLBACK_REPO.repo;
+    if(!owner || !repo) return;
+    const list = await listGitHubFolder(owner, repo, 'assets/Dress up');
+    if(!list || !Array.isArray(list)) return;
+    const imgs = list.filter(f => f.type === 'file' && /\.(png|jpe?g|webp|svg)$/i.test(f.name));
+    AVAILABLE_DRESS.length = 0;
+    imgs.forEach(i=> AVAILABLE_DRESS.push(i.download_url));
+  }
+
+  // initialize remote resources
+  (async ()=>{
+    await loadFontsFromRepo();
+    await loadDressupsFromRepo();
+  })();
+
+  // open font list toggle
+  fontListBtn && fontListBtn.addEventListener('click', (e)=>{
+    fontListPanel.classList.toggle('hidden');
+  });
+
+  // --- Editor core: element objects + rendering ---
   function createElementObject(type, data){
-    const id = 'el_' + (Date.now() + Math.floor(Math.random()*999));
-    const obj = Object.assign({
-      id, type, x:50, y:60, rotation:0, scale:1,
-      font: 'Reem Kufi', size: 72, stroke:0, strokeColor:'#000',
-      fillMode: 'solid', gradient: null, dress: null, img: null,
-      displayWidth: null, displayHeight: null, text: ''
-    }, data||{});
+    const id = 'el_'+(Date.now() + Math.floor(Math.random()*999));
+    const base = {
+      id, type, x:80, y:80, rotation:0, scale:1,
+      font: AVAILABLE_FONTS.length?AVAILABLE_FONTS[0].name:'ReemKufiLocalFallback',
+      size: 72, stroke:0, strokeColor:'#000', fillMode:'solid', gradient:null, dress:null, img:null,
+      displayWidth:null, displayHeight:null, text:''
+    };
+    const obj = Object.assign(base, data||{});
     ELEMENTS.push(obj);
     return obj;
   }
 
-  // انشاء DOM للعنصر
   function renderElement(obj){
     let dom;
     if(obj.type === 'text'){
@@ -117,11 +183,10 @@ document.addEventListener('DOMContentLoaded', () => {
       img.src = obj.img;
       img.alt = '';
       img.style.display = 'block';
-      img.style.pointerEvents = 'none'; // مهم: يمنع الصورة من اعتراض النقر ويسمح بتحديد العنصر
+      img.style.pointerEvents = 'none'; // allow wrap to be clicked
 
       const overlayCanvas = document.createElement('canvas');
       overlayCanvas.className = 'img-overlay-canvas';
-      overlayCanvas.style.pointerEvents = 'none';
 
       img.onload = () => {
         const maxw = Math.min(480, img.naturalWidth);
@@ -130,18 +195,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const dispH = Math.round(dispW * aspect);
 
         img.style.width = dispW + 'px';
-        img.style.height = 'auto';
         wrap.style.width = dispW + 'px';
         wrap.style.height = dispH + 'px';
 
-        overlayCanvas.width = dispW;
-        overlayCanvas.height = dispH;
-        overlayCanvas.style.width = dispW + 'px';
-        overlayCanvas.style.height = dispH + 'px';
-
-        obj.displayWidth = dispW;
-        obj.displayHeight = dispH;
-
+        overlayCanvas.width = dispW; overlayCanvas.height = dispH;
+        overlayCanvas.style.width = dispW + 'px'; overlayCanvas.style.height = dispH + 'px';
+        obj.displayWidth = dispW; obj.displayHeight = dispH;
         updateImageOverlay(obj, wrap);
       };
 
@@ -155,114 +214,114 @@ document.addEventListener('DOMContentLoaded', () => {
     return dom;
   }
 
-  // تحديث overlay للصور (تلوين أحرف الاسم داخل الصورة الشفافة فقط)
+  // update overlay for image (gradient/dress applied to alpha only)
   function updateImageOverlay(obj, wrap){
     const imgEl = wrap.querySelector('img');
     const overlayCanvas = wrap.querySelector('.img-overlay-canvas');
     if(!imgEl || !overlayCanvas) return;
-
     const dispW = obj.displayWidth || parseInt(imgEl.style.width) || imgEl.naturalWidth;
     const dispH = obj.displayHeight || Math.round(imgEl.naturalHeight * (dispW / imgEl.naturalWidth));
-
-    overlayCanvas.width = dispW;
-    overlayCanvas.height = dispH;
-    overlayCanvas.style.width = dispW + 'px';
-    overlayCanvas.style.height = dispH + 'px';
-    overlayCanvas.style.left = '0';
-    overlayCanvas.style.top = '0';
-
+    overlayCanvas.width = dispW; overlayCanvas.height = dispH;
+    overlayCanvas.style.width = dispW + 'px'; overlayCanvas.style.height = dispH + 'px';
+    overlayCanvas.style.left = '0px'; overlayCanvas.style.top = '0px';
     const ctx = overlayCanvas.getContext('2d');
     ctx.clearRect(0,0,dispW,dispH);
 
     if(obj.fillMode === 'gradient' && obj.gradient){
       const g = ctx.createLinearGradient(0,0,dispW,0);
-      g.addColorStop(0, obj.gradient[0]);
-      g.addColorStop(1, obj.gradient[1]);
-      ctx.fillStyle = g;
-      ctx.fillRect(0,0,dispW,dispH);
-
+      g.addColorStop(0, obj.gradient[0]); g.addColorStop(1, obj.gradient[1]);
+      ctx.fillStyle = g; ctx.fillRect(0,0,dispW,dispH);
       ctx.globalCompositeOperation = 'destination-in';
       ctx.drawImage(imgEl, 0, 0, dispW, dispH);
       ctx.globalCompositeOperation = 'source-over';
       overlayCanvas.style.opacity = 1;
     } else if(obj.fillMode === 'dress' && obj.dress){
-      const dressImg = new Image();
-      dressImg.crossOrigin = 'anonymous';
-      dressImg.onload = () => {
+      const dimg = new Image(); dimg.crossOrigin = 'anonymous';
+      dimg.onload = ()=>{
         ctx.clearRect(0,0,dispW,dispH);
-        ctx.drawImage(dressImg, 0, 0, dispW, dispH);
+        ctx.drawImage(dimg, 0, 0, dispW, dispH);
         ctx.globalCompositeOperation = 'destination-in';
         ctx.drawImage(imgEl, 0, 0, dispW, dispH);
         ctx.globalCompositeOperation = 'source-over';
         overlayCanvas.style.opacity = 1;
       };
-      dressImg.onerror = ()=> { overlayCanvas.style.opacity = 0; };
-      dressImg.src = obj.dress;
-    } else if(obj.fillMode === 'solid' && obj.color){
-      // لون ثابت للـ alpha فقط — نرسم طبقة باللون ثم نستخدم الصورة كقناع
-      ctx.fillStyle = obj.color || '#000';
-      ctx.fillRect(0,0,dispW,dispH);
-      ctx.globalCompositeOperation = 'destination-in';
-      ctx.drawImage(imgEl, 0, 0, dispW, dispH);
-      ctx.globalCompositeOperation = 'source-over';
-      overlayCanvas.style.opacity = 1;
+      dimg.onerror = ()=> { overlayCanvas.style.opacity = 0; };
+      dimg.src = obj.dress;
     } else {
       overlayCanvas.style.opacity = 0;
-      ctx.clearRect(0,0,dispW,dispH);
     }
   }
 
-  // تطبيق ستايل المعاينة على DOM
+  // apply styles to DOM item
   function applyStyleToDom(obj, dom){
     if(!dom) return;
     dom.style.transform = `rotate(${obj.rotation}rad)`;
     if(obj.type === 'text'){
-      dom.style.fontFamily = obj.font || 'Reem Kufi';
-      dom.style.fontSize = (obj.size || 48) + 'px';
-      if(obj.fillMode === 'gradient' && obj.gradient){
-        dom.style.background = `linear-gradient(90deg, ${obj.gradient[0]}, ${obj.gradient[1]})`;
+      if(obj.fillMode === 'solid' || !obj.gradient){
+        dom.style.color = obj.color || '#000';
+        dom.style.webkitTextFillColor = obj.color || '#000';
+        dom.style.webkitBackgroundClip = 'unset';
+      } else if(obj.fillMode === 'gradient' && obj.gradient){
+        const g = obj.gradient;
+        dom.style.background = `linear-gradient(90deg, ${g[0]}, ${g[1]})`;
         dom.style.webkitBackgroundClip = 'text';
         dom.style.color = 'transparent';
+        dom.style.webkitTextFillColor = 'transparent';
       } else if(obj.fillMode === 'dress' && obj.dress){
-        // بالنسبة للنص: سنعرض معاينة تلبيس عبر canvas في التصدير؛ للمعاينة نجعل النص بلون داكن ثم نترك التصدير للـcanvas
-        dom.style.color = '#000';
-      } else if(obj.fillMode === 'solid'){
-        dom.style.color = obj.color || '#000';
-        dom.style.background = 'none';
-        dom.style.webkitBackgroundClip = 'unset';
+        // Render dress style by creating a temporary canvas and setting as dataURL background
+        const fontSize = obj.size || 72;
+        const text = obj.text || '';
+        const tmp = document.createElement('canvas');
+        const tctx = tmp.getContext('2d');
+        tctx.font = `${fontSize}px "${obj.font}"`;
+        const w = Math.max(1, Math.ceil(tctx.measureText(text).width));
+        const h = Math.max(1, fontSize + 10);
+        tmp.width = w; tmp.height = h;
+        // draw dress onto tmp then mask by text
+        if(obj.dress){
+          const dimg = new Image(); dimg.crossOrigin='anonymous';
+          dimg.onload = ()=>{
+            tctx.drawImage(dimg,0,0,w,h);
+            tctx.globalCompositeOperation = 'destination-in';
+            tctx.fillStyle = '#000';
+            tctx.fillText(text,0,fontSize*0.85);
+            dom.style.backgroundImage = `url(${tmp.toDataURL()})`;
+            dom.style.webkitBackgroundClip = 'text';
+            dom.style.color = 'transparent';
+          };
+          dimg.onerror = ()=> {
+            dom.style.color = '#000';
+          };
+          dimg.src = obj.dress;
+        }
       }
     } else if(obj.type === 'image'){
-      // تحديث طبقة overlay
       updateImageOverlay(obj, dom);
     }
   }
 
-  // التفاعل: تحديد، سحب، تدوير
+  // attach interaction: select, drag, rotate
   function attachInteraction(dom, obj){
-    dom.style.position = 'absolute';
     dom.style.left = (obj.x||50) + 'px';
-    dom.style.top  = (obj.y||60) + 'px';
+    dom.style.top = (obj.y||50) + 'px';
+    dom.style.position = 'absolute';
 
-    // ازالة قبلاً
-    const oldHandle = dom.querySelector('.rotate-handle');
-    if(oldHandle) oldHandle.remove();
-
-    const handle = document.createElement('div');
-    handle.className = 'rotate-handle';
-    handle.innerHTML = '⤾';
+    // remove old handle if any
+    const old = dom.querySelector('.rotate-handle'); if(old) old.remove();
+    const handle = document.createElement('div'); handle.className='rotate-handle'; handle.textContent='⤾';
     dom.appendChild(handle);
 
-    // تحديد العنصر حتى لو نقرنا على الصورة (لأن الصورة pointer-events = none)
-    dom.addEventListener('mousedown', (e)=>{
+    // select on mousedown (even when clicking image because img has pointer-events none)
+    dom.addEventListener('mousedown', (e)=> {
       e.stopPropagation();
       selectElement(dom, obj);
     });
 
-    // سحب
+    // drag
     let dragging=false, sx=0, sy=0, sl=0, st=0;
     dom.addEventListener('pointerdown', (ev)=>{
       if(ev.target === handle) return;
-      dragging = true;
+      dragging=true;
       sx = ev.clientX; sy = ev.clientY;
       sl = parseFloat(dom.style.left) || 0;
       st = parseFloat(dom.style.top) || 0;
@@ -273,38 +332,40 @@ document.addEventListener('DOMContentLoaded', () => {
       if(!dragging) return;
       const nx = sl + (ev.clientX - sx);
       const ny = st + (ev.clientY - sy);
-      dom.style.left = nx + 'px';
-      dom.style.top = ny + 'px';
+      dom.style.left = nx + 'px'; dom.style.top = ny + 'px';
       obj.x = nx; obj.y = ny;
     });
     window.addEventListener('pointerup', ()=> dragging=false);
 
-    // تدوير
+    // rotate via handle
     handle.addEventListener('pointerdown', (ev)=>{
       ev.stopPropagation();
       const rect = dom.getBoundingClientRect();
       const cx = rect.left + rect.width/2;
       const cy = rect.top + rect.height/2;
-      const startAngle = Math.atan2(ev.clientY - cy, ev.clientX - cx) - (obj.rotation || 0);
-      function onMove(e2){
-        const ang = Math.atan2(e2.clientY - cy, e2.clientX - cx) - startAngle;
-        obj.rotation = ang;
-        dom.style.transform = `rotate(${ang}rad)`;
+      const startAngle = Math.atan2(ev.clientY - cy, ev.clientX - cx) - (obj.rotation||0);
+      function move(e2){
+        const angle = Math.atan2(e2.clientY - cy, e2.clientX - cx) - startAngle;
+        obj.rotation = angle;
+        dom.style.transform = `rotate(${angle}rad)`;
       }
-      function onUp(){ window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); }
-      window.addEventListener('pointermove', onMove);
-      window.addEventListener('pointerup', onUp);
+      function up(){
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+      }
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
     });
   }
 
-  // تحديد عنصر
+  // select element visually
   function selectElement(dom, obj){
-    document.querySelectorAll('.canvas-item.selected').forEach(el=>el.classList.remove('selected'));
+    document.querySelectorAll('.canvas-item.selected').forEach(e=>e.classList.remove('selected'));
     dom.classList.add('selected');
     SELECTED = {dom,obj};
   }
 
-  // إلغاء التحديد عند النقر على المساحة الفارغة
+  // deselect all on canvas click
   editorCanvas.addEventListener('mousedown', (e)=>{
     if(e.target === editorCanvas){
       document.querySelectorAll('.canvas-item.selected').forEach(el=>el.classList.remove('selected'));
@@ -312,14 +373,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // زر إضافة النص/الصورة
+  // add element
   btnAdd.addEventListener('click', ()=>{
     if(modeSelect.value === 'text'){
       const txt = textInput.value.trim();
       if(!txt) return alert('أدخل نصًا أولاً');
-      const obj = createElementObject('text',{ text: txt, font: fontSelect.value });
+      const obj = createElementObject('text',{ text: txt, font: (AVAILABLE_FONTS[0] ? AVAILABLE_FONTS[0].name : 'ReemKufiLocalFallback')});
       renderElement(obj);
-      textInput.value = '';
+      // auto-select newly added
+      const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
+      if(lastDom) selectElement(lastDom,obj);
+      textInput.value='';
     } else {
       const f = fileImage.files && fileImage.files[0];
       if(!f) return alert('اختر صورة شفافة من جهازك');
@@ -327,43 +391,41 @@ document.addEventListener('DOMContentLoaded', () => {
       reader.onload = (ev)=>{
         const obj = createElementObject('image',{ img: ev.target.result });
         renderElement(obj);
+        const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
+        if(lastDom) selectElement(lastDom,obj);
       };
       reader.readAsDataURL(f);
       fileImage.value = '';
     }
   });
 
-  // تغيير ظهور حقول حسب اختيار النص/الصورة
-  modeSelect.addEventListener('change', ()=>{
-    if(modeSelect.value === 'text'){
-      textInputWrap.style.display = '';
-      fileInputWrap.style.display = 'none';
-    } else {
-      textInputWrap.style.display = 'none';
-      fileInputWrap.style.display = '';
-    }
+  // delete selected
+  deleteSelected.addEventListener('click', ()=>{
+    if(!SELECTED) return alert('اختر عنصراً أولاً');
+    const {dom,obj} = SELECTED;
+    dom.remove();
+    const idx = ELEMENTS.findIndex(e=>e.id===obj.id);
+    if(idx!==-1) ELEMENTS.splice(idx,1);
+    SELECTED = null;
   });
 
-  // فتح الشبكة (تدرجات / تلبيسات) حسب الاختيار
-  btnShowPalette.addEventListener('click', ()=>{
-    openPopup(colorMode.value);
-  });
-
-  function openPopup(type){
+  // OPEN POPUPS: gradients or dress list
+  function openPopup(type, targetObj){
     popupContainer.innerHTML = '';
     popupContainer.classList.add('open');
-    popupContainer.style.display = 'flex';
+    popupContainer.setAttribute('aria-hidden','false');
     const pop = document.createElement('div'); pop.className='popup';
     const head = document.createElement('div'); head.className='popup-head';
-    const title = document.createElement('h3'); title.textContent = type === 'gradient' ? 'اختر تدرجاً' : 'اختر تلبيسة';
+    const title = document.createElement('h3'); title.textContent = type==='grad' ? 'اختر تدرج' : 'اختر تلبيسة';
     const close = document.createElement('button'); close.className='btn'; close.textContent='إغلاق';
     close.addEventListener('click', closePopup);
-    head.appendChild(title); head.appendChild(close); pop.appendChild(head);
+    head.appendChild(title); head.appendChild(close);
+    pop.appendChild(head);
 
-    const body = document.createElement('div');
+    const body = document.createElement('div'); body.className='popup-body';
+    const grid = document.createElement('div'); grid.className = (type==='grad' ? 'grad-grid' : 'dress-grid');
 
-    if(type === 'gradient'){
-      const grid = document.createElement('div'); grid.className = 'grad-grid';
+    if(type === 'grad'){
       GRADIENTS.forEach(g=>{
         const s = document.createElement('div'); s.className='grad-sample';
         s.style.background = `linear-gradient(90deg, ${g[0]}, ${g[1]})`;
@@ -373,43 +435,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         grid.appendChild(s);
       });
-      body.appendChild(grid);
-    } else if(type === 'dress'){
-      const grid = document.createElement('div'); grid.className = 'dress-grid';
-      DRESSUPS.forEach(url=>{
-        const d = document.createElement('div'); d.className='dress-item';
-        const im = document.createElement('img'); im.src = url;
-        d.appendChild(im);
-        d.addEventListener('click', ()=>{
-          applyDressToSelected(url);
-          closePopup();
+    } else {
+      // dressups from AVAILABLE_DRESS
+      if(AVAILABLE_DRESS.length === 0){
+        const p = document.createElement('div'); p.textContent = 'لا توجد تلبيسات في assets/Dress up/'; p.style.padding='12px';
+        body.appendChild(p);
+      } else {
+        AVAILABLE_DRESS.forEach(url=>{
+          const d = document.createElement('div'); d.className='dress-item';
+          const img = document.createElement('img'); img.src = url;
+          d.appendChild(img);
+          d.addEventListener('click', ()=>{
+            applyDressToSelected(url);
+            closePopup();
+          });
+          grid.appendChild(d);
         });
-        grid.appendChild(d);
-      });
-      body.appendChild(grid);
-    } else if(type === 'solid'){
-      const info = document.createElement('div');
-      info.textContent = 'اختر لون ثابت (سيطبق على أحرف النص أو على أحرف الاسم داخل الصورة الشفافة).';
-      body.appendChild(info);
-      // يمكن اضافة color picker هنا إذا رغبت لاحقًا
+      }
     }
 
-    pop.appendChild(body);
-    popupContainer.appendChild(pop);
+    body.appendChild(grid); pop.appendChild(body); popupContainer.appendChild(pop);
   }
-  function closePopup(){ popupContainer.classList.remove('open'); popupContainer.style.display='none'; popupContainer.innerHTML=''; }
 
-  // تطبيق تدرج/تلبيس على المحدد (أو على العنصر الجاري اضافته)
+  function closePopup(){ popupContainer.classList.remove('open'); popupContainer.innerHTML=''; popupContainer.setAttribute('aria-hidden','true'); }
+
+  // apply gradient/dress
   function applyGradientToSelected(g){
-    if(!SELECTED){ alert('اختر العنصر أولاً'); return; }
+    if(!SELECTED){ alert('اختر عنصرًا أولاً'); return; }
     const {obj,dom} = SELECTED;
     obj.fillMode = 'gradient';
     obj.gradient = g;
     applyStyleToDom(obj, dom);
+    // if image: update overlay
     if(obj.type === 'image') updateImageOverlay(obj, dom);
   }
   function applyDressToSelected(url){
-    if(!SELECTED){ alert('اختر العنصر أولاً'); return; }
+    if(!SELECTED){ alert('اختر عنصرًا أولاً'); return; }
     const {obj,dom} = SELECTED;
     obj.fillMode = 'dress';
     obj.dress = url;
@@ -417,28 +478,42 @@ document.addEventListener('DOMContentLoaded', () => {
     if(obj.type === 'image') updateImageOverlay(obj, dom);
   }
 
-  // حذف المحدد
-  deleteSelected.addEventListener('click', ()=>{
-    if(!SELECTED) return;
-    const {dom,obj} = SELECTED;
-    dom.remove();
-    const idx = ELEMENTS.findIndex(e=>e.id===obj.id);
-    if(idx !== -1) ELEMENTS.splice(idx,1);
-    SELECTED = null;
-  });
+  // handlers to open popups from toolbar (text and image)
+  btnGradients && btnGradients.addEventListener('click', ()=> openPopup('grad'));
+  btnDressups && btnDressups.addEventListener('click', ()=> openPopup('dress'));
+  btnGradientsImg && btnGradientsImg.addEventListener('click', ()=> openPopup('grad'));
+  btnDressupsImg && btnDressupsImg.addEventListener('click', ()=> openPopup('dress'));
 
-  // التصدير: رسم دقيق على Canvas مطابق للمعاينة
+  // apply font to selected or last text
+  function applyFontToSelected(fontName){
+    if(!SELECTED){
+      // apply to last text element if exists
+      const lastText = [...ELEMENTS].reverse().find(e=>e.type==='text');
+      if(lastText){
+        lastText.font = fontName;
+        const dom = editorCanvas.querySelector(`[data-id="${lastText.id}"]`);
+        if(dom) dom.style.fontFamily = fontName;
+      }
+      return;
+    }
+    const {obj,dom} = SELECTED;
+    obj.font = fontName;
+    if(obj.type === 'text' && dom) dom.style.fontFamily = fontName;
+    // if dress-on-text, reapply rendering
+    if(obj.type === 'text' && obj.fillMode === 'dress') applyStyleToDom(obj, dom);
+  }
+
+  // download/export final as PNG (draw to canvas)
   downloadImage.addEventListener('click', async ()=>{
     try {
       const rect = editorCanvas.getBoundingClientRect();
       const W = Math.max(800, Math.round(rect.width));
       const H = Math.max(400, Math.round(rect.height));
-      const out = document.createElement('canvas');
-      out.width = W; out.height = H;
+      const out = document.createElement('canvas'); out.width = W; out.height = H;
       const ctx = out.getContext('2d');
       ctx.clearRect(0,0,W,H);
 
-      // ارسم كل العناصر بترتيب الDOM
+      // iterate elements in DOM order
       const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
       for(const dom of domChildren){
         const id = dom.dataset.id;
@@ -450,131 +525,156 @@ document.addEventListener('DOMContentLoaded', () => {
           const y = Math.round(parseFloat(dom.style.top) || obj.y || 0);
           const fontSize = obj.size || 72;
           ctx.save();
-          const bboxW = dom.offsetWidth || (fontSize * (obj.text ? obj.text.length : 1) / 1.6);
+          const bboxW = dom.offsetWidth || (fontSize*(obj.text?obj.text.length:1));
           const bboxH = dom.offsetHeight || fontSize;
-          const cx = x + bboxW/2, cy = y + bboxH/2;
-          ctx.translate(cx, cy);
-          ctx.rotate(obj.rotation || 0);
-          ctx.translate(-cx, -cy);
-
-          ctx.font = `${fontSize}px "${obj.font || 'Reem Kufi'}"`;
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'top';
+          const cx = x + bboxW/2; const cy = y + bboxH/2;
+          ctx.translate(cx,cy); ctx.rotate(obj.rotation||0); ctx.translate(-cx,-cy);
+          ctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
+          ctx.textAlign = 'left'; ctx.textBaseline = 'top';
 
           if(obj.fillMode === 'solid' || !obj.gradient){
             ctx.fillStyle = obj.color || '#000';
+            if(obj.stroke && obj.stroke>0){ ctx.lineWidth = obj.stroke; ctx.strokeStyle = obj.strokeColor || '#000'; ctx.strokeText(obj.text, x, y); }
             ctx.fillText(obj.text, x, y);
           } else if(obj.fillMode === 'gradient' && obj.gradient){
-            const g = ctx.createLinearGradient(x, y, x + bboxW, y);
-            g.addColorStop(0, obj.gradient[0]);
-            g.addColorStop(1, obj.gradient[1]);
+            const g = ctx.createLinearGradient(x,y,x+bboxW,y);
+            g.addColorStop(0,obj.gradient[0]); g.addColorStop(1,obj.gradient[1]);
             ctx.fillStyle = g;
+            if(obj.stroke && obj.stroke>0){ ctx.lineWidth = obj.stroke; ctx.strokeStyle = obj.strokeColor || '#000'; ctx.strokeText(obj.text,x,y); }
             ctx.fillText(obj.text, x, y);
           } else if(obj.fillMode === 'dress' && obj.dress){
-            // نص -> نرسم القناع ثم نضع التلبيسة عليه
-            const tmp = document.createElement('canvas');
-            tmp.width = Math.max(1, Math.round(bboxW));
-            tmp.height = Math.max(1, Math.round(bboxH));
+            // render dress mask
+            const tmp = document.createElement('canvas'); tmp.width = Math.max(1,Math.round(bboxW)); tmp.height = Math.max(1,Math.round(bboxH));
             const tctx = tmp.getContext('2d');
             tctx.clearRect(0,0,tmp.width,tmp.height);
-            tctx.font = `${fontSize}px "${obj.font || 'Reem Kufi'}"`;
-            tctx.textAlign = 'left';
-            tctx.textBaseline = 'top';
-            tctx.fillStyle = '#000';
-            tctx.fillText(obj.text, 0, 0);
+            tctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
+            tctx.textAlign = 'left'; tctx.textBaseline = 'top';
+            tctx.fillStyle = '#000'; tctx.fillText(obj.text,0,0);
             await new Promise((res)=>{
-              const img = new Image();
-              img.crossOrigin = 'anonymous';
+              const img = new Image(); img.crossOrigin='anonymous';
               img.onload = ()=>{
-                const t2 = document.createElement('canvas');
-                t2.width = tmp.width; t2.height = tmp.height;
+                const t2 = document.createElement('canvas'); t2.width = tmp.width; t2.height = tmp.height;
                 const t2ctx = t2.getContext('2d');
-                t2ctx.drawImage(img, 0, 0, t2.width, t2.height);
-                t2ctx.globalCompositeOperation = 'destination-in';
-                t2ctx.drawImage(tmp, 0, 0);
+                t2ctx.drawImage(img,0,0,t2.width,t2.height);
+                t2ctx.globalCompositeOperation='destination-in';
+                t2ctx.drawImage(tmp,0,0);
                 ctx.drawImage(t2, x, y);
                 res();
               };
-              img.onerror = ()=> { ctx.fillStyle = '#000'; ctx.fillText(obj.text, x, y); res(); };
+              img.onerror = ()=> { ctx.fillStyle = '#000'; ctx.fillText(obj.text,x,y); res(); };
               img.src = obj.dress;
             });
           }
+
           ctx.restore();
         } else if(obj.type === 'image'){
           const wrap = dom;
           const imgEl = wrap.querySelector('img');
           if(!imgEl) continue;
           await new Promise((res)=>{
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.onload = ()=>{
+            const img = new Image(); img.crossOrigin='anonymous';
+            img.onload = async ()=>{
               const left = Math.round(parseFloat(wrap.style.left)||obj.x||0);
               const top = Math.round(parseFloat(wrap.style.top)||obj.y||0);
               const drawW = obj.displayWidth || parseInt(imgEl.style.width) || img.naturalWidth;
               const drawH = obj.displayHeight || Math.round(img.naturalHeight * (drawW / img.naturalWidth));
 
               if(obj.fillMode === 'gradient' && obj.gradient){
-                const tmp = document.createElement('canvas');
-                tmp.width = drawW; tmp.height = drawH;
+                const tmp = document.createElement('canvas'); tmp.width = drawW; tmp.height = drawH;
                 const tctx = tmp.getContext('2d');
                 const g = tctx.createLinearGradient(0,0,tmp.width,0);
-                g.addColorStop(0, obj.gradient[0]);
-                g.addColorStop(1, obj.gradient[1]);
-                tctx.fillStyle = g;
-                tctx.fillRect(0,0,tmp.width,tmp.height);
-                tctx.globalCompositeOperation = 'destination-in';
-                tctx.drawImage(img, 0, 0, tmp.width, tmp.height);
-                ctx.drawImage(tmp, left, top, tmp.width, tmp.height);
+                g.addColorStop(0,obj.gradient[0]); g.addColorStop(1,obj.gradient[1]);
+                tctx.fillStyle = g; tctx.fillRect(0,0,tmp.width,tmp.height);
+                tctx.globalCompositeOperation='destination-in';
+                tctx.drawImage(img,0,0,tmp.width,tmp.height);
+                ctx.drawImage(tmp,left,top,tmp.width,tmp.height);
                 res();
               } else if(obj.fillMode === 'dress' && obj.dress){
-                const dressImg = new Image();
-                dressImg.crossOrigin = 'anonymous';
+                const dressImg = new Image(); dressImg.crossOrigin='anonymous';
                 dressImg.onload = ()=>{
-                  const tmp = document.createElement('canvas');
-                  tmp.width = drawW; tmp.height = drawH;
+                  const tmp = document.createElement('canvas'); tmp.width = drawW; tmp.height = drawH;
                   const tctx = tmp.getContext('2d');
-                  tctx.drawImage(dressImg, 0, 0, tmp.width, tmp.height);
-                  tctx.globalCompositeOperation = 'destination-in';
-                  tctx.drawImage(img, 0, 0, tmp.width, tmp.height);
-                  ctx.drawImage(tmp, left, top, tmp.width, tmp.height);
+                  tctx.drawImage(dressImg,0,0,tmp.width,tmp.height);
+                  tctx.globalCompositeOperation='destination-in';
+                  tctx.drawImage(img,0,0,tmp.width,tmp.height);
+                  ctx.drawImage(tmp,left,top,tmp.width,tmp.height);
                   res();
                 };
-                dressImg.onerror = ()=> { ctx.drawImage(img, left, top, drawW, drawH); res(); };
+                dressImg.onerror = ()=> { ctx.drawImage(img,left,top,drawW,drawH); res(); };
                 dressImg.src = obj.dress;
               } else {
-                // رسم الصورة كما هي (الخلفية تبقى شفافة)
-                ctx.drawImage(img, left, top, drawW, drawH);
-                res();
+                ctx.drawImage(img,left,top,drawW,drawH); res();
               }
             };
             img.onerror = ()=> res();
             img.src = imgEl.src;
           });
         }
-      } // end loop
-
-      // حفظ الصورة
-      const dataUrl = out.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = dataUrl;
-      a.download = 'design.png';
-      a.click();
+      }
+      // download
+      const url = out.toDataURL('image/png');
+      const a = document.createElement('a'); a.href = url; a.download = 'design.png'; a.click();
     } catch(err){
       console.error(err);
-      alert('خطأ أثناء التصدير: '+err.message);
+      alert('حدث خطأ أثناء التصدير: ' + (err.message||err));
     }
   });
 
-  // عند تحميل صفحة: اربط الحدث لاختيار نوع اللون الافتراضي
-  colorMode.addEventListener('change', ()=>{ /* يمكن اضافة منطق هنا */ });
+  // helper: apply selected gradient (text-only)
+  function applyGradientToText(g){
+    if(!SELECTED || SELECTED.obj.type !== 'text') { alert('اختر نصاً أولاً'); return; }
+    const {obj,dom} = SELECTED;
+    obj.fillMode = 'gradient';
+    obj.gradient = g;
+    applyStyleToDom(obj, dom);
+  }
 
-  // إخراج: فتح popup / اغلاق
-  popupContainer.addEventListener('click', (e)=>{
-    if(e.target === popupContainer) closePopup();
+  // apply dress to text
+  function applyDressToText(url){
+    if(!SELECTED || SELECTED.obj.type !== 'text') { alert('اختر نصاً أولاً'); return; }
+    const {obj,dom} = SELECTED;
+    obj.fillMode = 'dress';
+    obj.dress = url;
+    applyStyleToDom(obj, dom);
+  }
+
+  // exposed quick actions for UI (open color/dress grids)
+  // color grid for text (reuses popup and when clicked applies to selected)
+  // already bound above to buttons
+
+  // small UX: when mode changes show/hide controls
+  modeSelect.addEventListener('change', ()=>{
+    if(modeSelect.value === 'text'){
+      textControls.classList.remove('hidden');
+      if(imageControls) imageControls.classList.add('hidden');
+    } else {
+      textControls.classList.add('hidden');
+      if(imageControls) imageControls.classList.remove('hidden');
+    }
   });
 
-  // وظيفة مساعدة لاظهار رسالة في السجل (debug)
-  function log(...r){ /* console.log(...r); */ }
+  // make popup clicks (apply gradient for selected text)
+  // but we already implemented openPopup with applyGradientToSelected which targets selected.
 
-  // جاهز - نهاية DOMContentLoaded
-});
+  // allow clicking font list items outside overlay to close
+  document.addEventListener('click', (e)=>{
+    if(!fontListPanel.contains(e.target) && e.target !== fontListBtn) fontListPanel.classList.add('hidden');
+  });
+
+  // ensure clicking image's area selects the wrap (img pointer-events none set)
+  // also allow tapping from mobile: add global click to map to mousedown on closest .canvas-item
+  document.addEventListener('click', (e)=>{
+    const item = e.target.closest('.canvas-item');
+    if(item && editorCanvas.contains(item)){
+      item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    }
+  });
+
+  // expose opening popup functions for toolbar buttons
+  window.__openColorPopup = ()=> openPopup('grad');
+  window.__openDressPopup = ()=> openPopup('dress');
+
+  // initial small demo: if user wants to open fonts panel but nothing loaded yet -> show message (handled in refresh)
+  refreshFontListUI();
+
+}); // DOMContentLoaded end
