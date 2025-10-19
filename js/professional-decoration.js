@@ -1,10 +1,12 @@
-/* professional-decoration.js - Final complete (modified)
-   - Fixes for "مشاكل النص" (file 980):
-     1) Text "dress" rendering in preview no longer appears intermittent: generate a high-DPR dress texture
-        for text, wait for fonts to be ready, and apply as CSS background-image (with background-clip:text).
-     2) Image dress/gradient preview now rendered on an overlay canvas with devicePixelRatio scaling so the
-        preview matches the downloaded PNG (size, color, pattern). Base <img> is hidden while overlay is active.
-   - Other logic preserved; kept compatible with existing HTML structure.
+/* professional-decoration.js - Final complete (merged & fixed)
+   - Fixes:
+     1) Text "dress" (pattern fill) now rendered reliably (no patchy/fragmented rendering).
+     2) Image dress/gradient preview matches exported PNG; duplicate image in preview avoided (base <img> hidden when overlay active).
+     3) Re-draw overlay after transforms (scale/rotate) to keep preview in sync.
+   - Notes:
+     - overlay canvas cleared before every draw.
+     - overlay canvas pixel size matches displayed size (taking scale into account).
+     - when applying dress to text we compute a properly sized canvas background (no cover gaps).
 */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -223,6 +225,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return obj;
   }
 
+  // Helper: safe parse int
+  function parsePx(v){ return v ? parseInt(String(v).replace('px','')) : 0; }
+
+  // Render element to DOM (text or image)
   function renderElement(obj){
     let dom;
     if(obj.type === 'text'){
@@ -245,6 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
       wrap.style.top = obj.y + 'px';
       wrap.dataset.id = obj.id;
       wrap.tabIndex = 0;
+      wrap.style.position = 'absolute';
 
       const img = document.createElement('img');
       img.src = obj.img;
@@ -253,8 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
       img.style.pointerEvents = 'none';
       img.style.userSelect = 'none';
       img.style.touchAction = 'none';
-      // ensure default visible
-      img.style.opacity = '1';
+      img.style.opacity = '1'; // visible by default
 
       const overlayCanvas = document.createElement('canvas');
       overlayCanvas.className = 'img-overlay-canvas';
@@ -264,7 +270,11 @@ document.addEventListener('DOMContentLoaded', () => {
       overlayCanvas.style.pointerEvents = 'none';
       overlayCanvas.style.opacity = 0;
       overlayCanvas.style.display = 'none';
+      // ensure overlays paint smoothly
+      overlayCanvas.style.willChange = 'transform, opacity';
+      overlayCanvas.style.transformOrigin = '0 0';
 
+      // finalize layout (set display dims for image & overlay)
       const finalizeImageLayout = ()=>{
         const canvasPadding = 40;
         const editorW = Math.max(200, editorCanvas.clientWidth || 300);
@@ -277,15 +287,23 @@ document.addEventListener('DOMContentLoaded', () => {
         wrap.style.width = dispW + 'px';
         wrap.style.height = dispH + 'px';
 
-        // set overlay canvas to match display dims (use DPR scaling inside updateImageOverlay)
-        overlayCanvas.width = Math.max(1, dispW);
-        overlayCanvas.height = Math.max(1, dispH);
+        // sync overlay canvas sizing (CSS and pixel)
+        overlayCanvas.width = Math.max(1, Math.round(dispW * window.devicePixelRatio));
+        overlayCanvas.height = Math.max(1, Math.round(dispH * window.devicePixelRatio));
         overlayCanvas.style.width = dispW + 'px';
         overlayCanvas.style.height = dispH + 'px';
-        obj.displayWidth = dispW; obj.displayHeight = dispH;
+        // scale canvas drawing to device pixel ratio for sharpness
+        const ctx = overlayCanvas.getContext('2d');
+        ctx.setTransform(window.devicePixelRatio,0,0,window.devicePixelRatio,0,0);
+
+        obj.displayWidth = dispW;
+        obj.displayHeight = dispH;
+
+        // update overlay content based on mode
         updateImageOverlay(obj, wrap);
       };
 
+      // load handling
       if(img.complete && img.naturalWidth && img.naturalWidth > 0){
         setTimeout(finalizeImageLayout, 0);
       } else {
@@ -299,10 +317,12 @@ document.addEventListener('DOMContentLoaded', () => {
           const fallbackH = Math.round((obj.displayWidth || 300) * 0.75);
           wrap.style.width = (obj.displayWidth || 300) + 'px';
           wrap.style.height = fallbackH + 'px';
-          overlayCanvas.width = obj.displayWidth || 300;
-          overlayCanvas.height = fallbackH;
+          overlayCanvas.width = Math.max(1, Math.round((obj.displayWidth || 300) * window.devicePixelRatio));
+          overlayCanvas.height = Math.max(1, Math.round(fallbackH * window.devicePixelRatio));
           overlayCanvas.style.width = (obj.displayWidth || 300) + 'px';
           overlayCanvas.style.height = fallbackH + 'px';
+          const ctx = overlayCanvas.getContext('2d');
+          ctx.setTransform(window.devicePixelRatio,0,0,window.devicePixelRatio,0,0);
         });
       }
 
@@ -321,84 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return dom;
   }
 
-  // generate high-DPR dress texture for a given text and font (returns dataURL)
-  async function generateDressTextureDataURL(text, fontFamily, fontSizePx, dressUrl){
-    const dpr = window.devicePixelRatio || 1;
-    // estimate width via temporary canvas measuring
-    const measCanvas = document.createElement('canvas');
-    const mctx = measCanvas.getContext('2d');
-    mctx.font = `${fontSizePx}px "${fontFamily}"`;
-    const textWidth = Math.ceil(mctx.measureText(text).width) + 8;
-    const textHeight = Math.ceil(fontSizePx * 1.15) + 8;
-    const w = Math.max(1, Math.ceil(textWidth));
-    const h = Math.max(1, Math.ceil(textHeight));
-
-    const tmp = document.createElement('canvas');
-    tmp.width = Math.max(1, Math.ceil(w * dpr));
-    tmp.height = Math.max(1, Math.ceil(h * dpr));
-    tmp.style.width = w + 'px';
-    tmp.style.height = h + 'px';
-    const ctx = tmp.getContext('2d');
-    ctx.setTransform(dpr,0,0,dpr,0,0); // scale for DPR
-
-    // load dress image, draw cover to tmp then mask by text
-    return new Promise((resolve) => {
-      const dimg = new Image();
-      dimg.crossOrigin = 'anonymous';
-      dimg.onload = () => {
-        try {
-          // draw dress image to cover area
-          // keep aspect by drawing to fill (cover)
-          const sx = 0, sy = 0, sw = dimg.naturalWidth, sh = dimg.naturalHeight;
-          // draw in a way that covers tmp: scale to tmp dims
-          ctx.clearRect(0,0,w,h);
-          try { ctx.drawImage(dimg, 0, 0, w, h); } catch(e){ /* ignore cross-origin */ }
-
-          // mask by text
-          ctx.globalCompositeOperation = 'destination-in';
-          ctx.fillStyle = '#000';
-          ctx.font = `${fontSizePx}px "${fontFamily}"`;
-          ctx.textBaseline = 'top';
-          ctx.fillText(text, 4, 4);
-          ctx.globalCompositeOperation = 'source-over';
-
-          // produce dataURL
-          try {
-            const url = tmp.toDataURL('image/png');
-            resolve(url);
-            return;
-          } catch(e){
-            // fallback to original dress URL (not masked)
-            resolve(dressUrl);
-            return;
-          }
-        } catch(e){
-          resolve(dressUrl);
-        }
-      };
-      dimg.onerror = ()=> {
-        // if dress fails, fallback: create simple black text PNG
-        try {
-          ctx.clearRect(0,0,w,h);
-          ctx.fillStyle = '#000';
-          ctx.font = `${fontSizePx}px "${fontFamily}"`;
-          ctx.textBaseline = 'top';
-          ctx.fillText(text, 4, 4);
-          const url = tmp.toDataURL('image/png');
-          resolve(url);
-        } catch(e){
-          resolve(null);
-        }
-      };
-      dimg.src = dressUrl;
-      // If dressUrl is not provided, draw plain text onto tmp and return
-      if(!dressUrl){
-        dimg.onerror();
-      }
-    });
-  }
-
-  // update overlay for image (clears before draw) — improved: use DPR scaling for crisp preview
+  // update overlay for image (clears before draw)
   function updateImageOverlay(obj, wrap){
     if(!wrap) return;
     const imgEl = wrap.querySelector('img');
@@ -418,29 +361,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // compute displayed width/height (consider scale)
-    const baseDispW = (obj.displayWidth || parseInt(imgEl.style.width) || imgEl.naturalWidth) || 1;
+    const baseDispW = (obj.displayWidth || parsePx(imgEl.style.width) || imgEl.naturalWidth);
     const dispW = Math.max(1, Math.round(baseDispW * (obj.scale || 1)));
-    const baseDispH = (obj.displayHeight || Math.round(imgEl.naturalHeight * (baseDispW / (imgEl.naturalWidth || baseDispW)))) || 1;
+    const baseDispH = (obj.displayHeight || Math.round(imgEl.naturalHeight * (baseDispW / (imgEl.naturalWidth || baseDispW))));
     const dispH = Math.max(1, Math.round(baseDispH * (obj.scale || 1)));
 
-    // device pixel ratio handling
+    // set overlay canvas pixel dims and css dims (account for devicePixelRatio)
     const dpr = window.devicePixelRatio || 1;
     const pixelW = Math.max(1, Math.round(dispW * dpr));
     const pixelH = Math.max(1, Math.round(dispH * dpr));
-
-    // update overlay canvas pixel dims and css dims
     if (overlayCanvas.width !== pixelW || overlayCanvas.height !== pixelH) {
       overlayCanvas.width = pixelW;
       overlayCanvas.height = pixelH;
-      overlayCanvas.style.width = dispW + 'px';
-      overlayCanvas.style.height = dispH + 'px';
     }
-    overlayCanvas.style.left = '0px';
-    overlayCanvas.style.top = '0px';
+    overlayCanvas.style.width = dispW + 'px';
+    overlayCanvas.style.height = dispH + 'px';
 
+    // ensure correct transform for crisp drawing
     const ctx = overlayCanvas.getContext('2d');
-    // Reset transform and clear to avoid duplicates
-    ctx.setTransform(dpr,0,0,dpr,0,0); // scale down drawing ops by dpr so drawImage uses CSS pixels
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    // clear
     ctx.clearRect(0,0,dispW,dispH);
 
     // determine whether overlay should be active
@@ -456,32 +396,46 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       imgEl.style.opacity = '1';
       overlayCanvas.style.opacity = '0';
-      // hide from layout/paint to avoid accidental stacking
       overlayCanvas.style.display = 'none';
       return;
     }
 
+    // draw according to type
     if(hasGradient){
-      // draw gradient then mask by image (on overlayCanvas)
+      // draw gradient then mask by image
       const g = ctx.createLinearGradient(0,0,dispW,0);
       g.addColorStop(0, obj.gradient[0]); g.addColorStop(1, obj.gradient[1]);
       ctx.fillStyle = g;
       ctx.fillRect(0,0,dispW,dispH);
 
       ctx.globalCompositeOperation = 'destination-in';
-      try { ctx.drawImage(imgEl, 0, 0, dispW, dispH); } catch(e){ /* ignore cross-origin draw errors gracefully */ }
+      try {
+        // draw the image into canvas as mask (scaled to dispW/dispH)
+        ctx.drawImage(imgEl, 0, 0, dispW, dispH);
+      } catch(e){
+        // cross-origin may fail; in that case fall back to showing base image
+        console.warn('drawImage failed (gradient mask) - possible cross-origin', e);
+        overlayCanvas.style.display = 'none';
+        imgEl.style.opacity = '1';
+      }
       ctx.globalCompositeOperation = 'source-over';
     } else if(hasDress){
+      // draw dress pattern image then mask by original image
       const dimg = new Image();
       dimg.crossOrigin = 'anonymous';
       dimg.onload = ()=>{
-        // clear then draw dress image sized to overlay
-        ctx.setTransform(dpr,0,0,dpr,0,0);
-        ctx.clearRect(0,0,dispW,dispH);
-        try { ctx.drawImage(dimg, 0, 0, dispW, dispH); } catch(e){}
-        ctx.globalCompositeOperation = 'destination-in';
-        try { ctx.drawImage(imgEl, 0, 0, dispW, dispH); } catch(e){}
-        ctx.globalCompositeOperation = 'source-over';
+        try {
+          // clear then draw dress scaled to overlay dims
+          ctx.clearRect(0,0,dispW,dispH);
+          ctx.drawImage(dimg, 0, 0, dispW, dispH);
+          ctx.globalCompositeOperation = 'destination-in';
+          ctx.drawImage(imgEl, 0, 0, dispW, dispH);
+          ctx.globalCompositeOperation = 'source-over';
+        } catch(e){
+          console.warn('dress draw error', e);
+          overlayCanvas.style.display = 'none';
+          imgEl.style.opacity = '1';
+        }
       };
       dimg.onerror = ()=> {
         // if dress image fails, hide overlay and show base image
@@ -491,7 +445,6 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       dimg.src = obj.dress;
     } else {
-      // nothing active
       overlayCanvas.style.opacity = 0;
       overlayCanvas.style.display = 'none';
       imgEl.style.opacity = '1';
@@ -506,13 +459,13 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.style.transform = `rotate(${rot}rad) scale(${sc})`;
 
     if(obj.type === 'text'){
+      // reset text style
       dom.style.webkitBackgroundClip = 'unset';
       dom.style.backgroundImage = '';
-      dom.style.backgroundSize = '';
-      dom.style.backgroundRepeat = '';
-      dom.style.backgroundPosition = '';
+      dom.style.background = '';
       dom.style.color = obj.color || '#000';
       dom.style.webkitTextFillColor = obj.color || '#000';
+      dom.style.filter = '';
 
       if(obj.fillMode === 'solid' || (!obj.gradient && obj.fillMode !== 'dress')){
         dom.style.color = obj.color || '#000';
@@ -524,42 +477,85 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.style.backgroundClip = 'text';
         dom.style.color = 'transparent';
         dom.style.webkitTextFillColor = 'transparent';
-        // ensure background-size/position to look consistent
-        dom.style.backgroundSize = '100% 100%';
       } else if(obj.fillMode === 'dress' && obj.dress){
+        // Reliable dress for text: render to a canvas sized to text bounding box, then use as background-image
         const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
         const text = obj.text || '';
 
-        // Generate a robust dress texture and apply as background-image
-        (async ()=>{
+        const drawDress = ()=>{
           try {
-            // ensure fonts loaded before generating texture (prevents flicker)
-            if(document.fonts && document.fonts.ready){
-              await document.fonts.ready;
-              if(obj.font) await document.fonts.load(`${fontSize}px "${obj.font}"`);
-            }
-          } catch(e){}
-          try {
-            const dataUrl = await generateDressTextureDataURL(text, obj.font || 'sans-serif', fontSize, obj.dress);
-            if(dataUrl){
-              dom.style.backgroundImage = `url(${dataUrl})`;
-              dom.style.webkitBackgroundClip = 'text';
-              dom.style.backgroundClip = 'text';
-              dom.style.color = 'transparent';
-              dom.style.webkitTextFillColor = 'transparent';
-              dom.style.backgroundSize = 'cover';
-              dom.style.backgroundRepeat = 'no-repeat';
-              dom.style.backgroundPosition = 'center';
-              dom.classList.add('dressed');
-            } else {
-              dom.style.color = obj.color || '#000';
-            }
+            // create measuring canvas to compute text width precisely
+            const measure = document.createElement('canvas');
+            const mctx = measure.getContext('2d');
+            mctx.font = `${fontSize}px "${obj.font}"`;
+            const textMetrics = mctx.measureText(text || '');
+            const w = Math.max(1, Math.ceil(textMetrics.width) + 8);
+            const h = Math.max(1, Math.ceil(fontSize * 1.2) + 8);
+
+            const tmp = document.createElement('canvas');
+            tmp.width = Math.max(1, Math.round(w * (window.devicePixelRatio || 1)));
+            tmp.height = Math.max(1, Math.round(h * (window.devicePixelRatio || 1)));
+            const tctx = tmp.getContext('2d');
+            // scale for DPR
+            const dpr = window.devicePixelRatio || 1;
+            tctx.setTransform(dpr,0,0,dpr,0,0);
+
+            // draw dress image (pattern) scaled to tmp dims
+            const dimg = new Image();
+            dimg.crossOrigin = 'anonymous';
+            dimg.onload = ()=>{
+              try {
+                // fill pattern covering whole tmp canvas
+                // Use drawImage to fill; we simply stretch the dress to the text bounding area for consistent fill
+                tctx.clearRect(0,0,w,h);
+                tctx.drawImage(dimg, 0, 0, w, h);
+
+                // mask by text shapes
+                tctx.globalCompositeOperation = 'destination-in';
+                tctx.fillStyle = '#000';
+                tctx.font = `${fontSize}px "${obj.font}"`;
+                tctx.textBaseline = 'top';
+                tctx.fillText(text, 4, 4);
+
+                // set as background-image
+                const dataUrl = tmp.toDataURL();
+                dom.style.backgroundImage = `url(${dataUrl})`;
+                dom.style.backgroundSize = `${w}px ${h}px`;
+                dom.style.backgroundRepeat = 'no-repeat';
+                dom.style.backgroundPosition = 'left top';
+                dom.style.webkitBackgroundClip = 'text';
+                dom.style.backgroundClip = 'text';
+                dom.style.color = 'transparent';
+                dom.style.webkitTextFillColor = 'transparent';
+                dom.style.filter = 'drop-shadow(0 1px 1px rgba(0,0,0,0.25))';
+              } catch(e){
+                console.warn('drawDress text failed', e);
+                dom.style.color = obj.color || '#000';
+              } finally {
+                tctx.globalCompositeOperation = 'source-over';
+              }
+            };
+            dimg.onerror = ()=> { dom.style.color = obj.color || '#000'; };
+            dimg.src = obj.dress;
           } catch(e){
+            console.warn('drawDress fallback', e);
             dom.style.color = obj.color || '#000';
           }
-        })();
+        };
+
+        // ensure font is ready before measuring/drawing
+        if(document.fonts && document.fonts.ready){
+          document.fonts.ready.then(()=>{
+            if(obj.font){
+              document.fonts.load(`${fontSize}px "${obj.font}"`).finally(drawDress);
+            } else drawDress();
+          }).catch(drawDress);
+        } else {
+          drawDress();
+        }
       }
     } else if(obj.type === 'image'){
+      // for images, ensure overlay is updated (in case transform changed)
       updateImageOverlay(obj, dom);
     }
   }
@@ -583,6 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
       selectElement(dom, obj);
     });
 
+    // pointer drag
     let dragging=false, sx=0, sy=0, sl=0, st=0;
     dom.addEventListener('pointerdown', (ev)=>{
       if(ev.target === handle) return;
@@ -599,9 +596,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const ny = st + (ev.clientY - sy);
       dom.style.left = nx + 'px'; dom.style.top = ny + 'px';
       obj.x = nx; obj.y = ny;
+      // if it's an image, ensure overlay remains in sync
+      if(obj.type === 'image') updateImageOverlay(obj, dom);
     });
     window.addEventListener('pointerup', ()=> dragging=false);
 
+    // rotate handle drag
     handle.addEventListener('pointerdown', (ev)=>{
       ev.stopPropagation();
       const rect = dom.getBoundingClientRect();
@@ -612,6 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const angle = Math.atan2(e2.clientY - cy, e2.clientX - cx) - startAngle;
         obj.rotation = angle;
         dom.style.transform = `rotate(${angle}rad) scale(${obj.scale || 1})`;
+        if(obj.type === 'image') updateImageOverlay(obj, dom);
       }
       function up(){
         window.removeEventListener('pointermove', move);
@@ -621,7 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
       window.addEventListener('pointerup', up);
     });
 
-    // pinch gestures
+    // pinch gestures for touch (scale + rotate)
     let gesture = { active:false, startDist:0, startAngle:0, origScale: obj.scale||1, origRotation: obj.rotation||0 };
     dom.addEventListener('touchstart', (ev)=>{
       if(ev.touches.length === 1){
@@ -650,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
       obj.rotation = gesture.origRotation + deltaAngle;
       dom.style.transform = `rotate(${obj.rotation}rad) scale(${obj.scale})`;
       if(obj.type === 'image') updateImageOverlay(obj, dom);
-      if(obj.type === 'text') applyStyleToDom(obj, dom); // update text dress texture size when pinching
+      if(obj.type === 'text') applyStyleToDom(obj, dom); // re-render text dress if any
     }, { passive: false });
 
     dom.addEventListener('touchend', (ev)=>{
@@ -789,24 +790,21 @@ document.addEventListener('DOMContentLoaded', () => {
     obj.fillMode = 'gradient';
     obj.gradient = g;
 
-    // remove any dress class or background previously set
     if(dom.classList.contains('dressed')) dom.classList.remove('dressed');
 
-    // If text: use background-clip text
     if(obj.type === 'text'){
       dom.style.background = `linear-gradient(90deg, ${g[0]}, ${g[1]})`;
       dom.style.webkitBackgroundClip = 'text';
       dom.style.backgroundClip = 'text';
       dom.style.color = 'transparent';
       dom.style.webkitTextFillColor = 'transparent';
-      dom.style.backgroundSize = '100% 100%';
     } else if(obj.type === 'image'){
-      // For images: set the obj.gradient then redraw overlay (overlay cleared inside updateImageOverlay)
+      // For images: redraw overlay
       updateImageOverlay(obj, dom);
     }
   }
 
-  async function applyDressToSelected(url){
+  function applyDressToSelected(url){
     if(!SELECTED){ alert('اختر عنصرًا أولاً'); return; }
     const {obj,dom} = SELECTED;
     obj.fillMode = 'dress';
@@ -814,7 +812,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(obj.type === 'text'){
       dom.classList.add('dressed');
-      // Use applyStyleToDom to generate and apply the high-DPR background mask
       applyStyleToDom(obj, dom);
     } else if(obj.type === 'image'){
       dom.classList.add('dressed');
@@ -878,7 +875,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(obj.stroke && obj.stroke>0){ ctx.lineWidth = obj.stroke; ctx.strokeStyle = obj.strokeColor || '#000'; ctx.strokeText(obj.text,x,y); }
             ctx.fillText(obj.text, x, y);
           } else if(obj.fillMode === 'dress' && obj.dress){
-            // Create temporary canvas for text mask then fill with dress image and draw into main ctx
+            // create tmp canvas sized to text bbox and mask with dress
             const tmp = document.createElement('canvas'); tmp.width = Math.max(1,Math.round(bboxW)); tmp.height = Math.max(1,Math.round(bboxH));
             const tctx = tmp.getContext('2d');
             tctx.clearRect(0,0,tmp.width,tmp.height);
@@ -909,36 +906,42 @@ document.addEventListener('DOMContentLoaded', () => {
           await new Promise((res)=>{
             const img = new Image(); img.crossOrigin='anonymous';
             img.onload = async ()=>{
-              const left = Math.round(parseFloat(wrap.style.left)||obj.x||0);
-              const top = Math.round(parseFloat(wrap.style.top)||obj.y||0);
-              const drawW = (obj.displayWidth || parseInt(imgEl.style.width) || img.naturalWidth) * (obj.scale || 1);
-              const drawH = (obj.displayHeight || Math.round(img.naturalHeight * (drawW / img.naturalWidth))) * (obj.scale || 1);
+              try {
+                const left = Math.round(parseFloat(wrap.style.left)||obj.x||0);
+                const top = Math.round(parseFloat(wrap.style.top)||obj.y||0);
+                const drawW = (obj.displayWidth || parseInt(imgEl.style.width) || img.naturalWidth) * (obj.scale || 1);
+                const drawH = (obj.displayHeight || Math.round(img.naturalHeight * (drawW / img.naturalWidth))) * (obj.scale || 1);
 
-              if(obj.fillMode === 'gradient' && obj.gradient){
-                const tmp = document.createElement('canvas'); tmp.width = Math.max(1,Math.round(drawW)); tmp.height = Math.max(1,Math.round(drawH));
-                const tctx = tmp.getContext('2d');
-                const g = tctx.createLinearGradient(0,0,tmp.width,0);
-                g.addColorStop(0,obj.gradient[0]); g.addColorStop(1,obj.gradient[1]);
-                tctx.fillStyle = g; tctx.fillRect(0,0,tmp.width,tmp.height);
-                tctx.globalCompositeOperation='destination-in';
-                try { tctx.drawImage(img,0,0,tmp.width,tmp.height); } catch(e){}
-                ctx.drawImage(tmp,left,top,tmp.width,tmp.height);
-                res();
-              } else if(obj.fillMode === 'dress' && obj.dress){
-                const dressImg = new Image(); dressImg.crossOrigin='anonymous';
-                dressImg.onload = ()=>{
+                if(obj.fillMode === 'gradient' && obj.gradient){
                   const tmp = document.createElement('canvas'); tmp.width = Math.max(1,Math.round(drawW)); tmp.height = Math.max(1,Math.round(drawH));
                   const tctx = tmp.getContext('2d');
-                  try { tctx.drawImage(dressImg,0,0,tmp.width,tmp.height); } catch(e){}
+                  const g = tctx.createLinearGradient(0,0,tmp.width,0);
+                  g.addColorStop(0,obj.gradient[0]); g.addColorStop(1,obj.gradient[1]);
+                  tctx.fillStyle = g; tctx.fillRect(0,0,tmp.width,tmp.height);
                   tctx.globalCompositeOperation='destination-in';
                   try { tctx.drawImage(img,0,0,tmp.width,tmp.height); } catch(e){}
                   ctx.drawImage(tmp,left,top,tmp.width,tmp.height);
                   res();
-                };
-                dressImg.onerror = ()=> { ctx.drawImage(img,left,top,drawW,drawH); res(); };
-                dressImg.src = obj.dress;
-              } else {
-                ctx.drawImage(img,left,top,drawW,drawH); res();
+                } else if(obj.fillMode === 'dress' && obj.dress){
+                  const dressImg = new Image(); dressImg.crossOrigin='anonymous';
+                  dressImg.onload = ()=>{
+                    const tmp = document.createElement('canvas'); tmp.width = Math.max(1,Math.round(drawW)); tmp.height = Math.max(1,Math.round(drawH));
+                    const tctx = tmp.getContext('2d');
+                    try { tctx.drawImage(dressImg,0,0,tmp.width,tmp.height); } catch(e){}
+                    tctx.globalCompositeOperation='destination-in';
+                    try { tctx.drawImage(img,0,0,tmp.width,tmp.height); } catch(e){}
+                    ctx.drawImage(tmp,left,top,tmp.width,tmp.height);
+                    res();
+                  };
+                  dressImg.onerror = ()=> { ctx.drawImage(img,left,top,drawW,drawH); res(); };
+                  dressImg.src = obj.dress;
+                } else {
+                  ctx.drawImage(img,left,top,drawW,drawH);
+                  res();
+                }
+              } catch(e){
+                console.warn('Export draw image failed', e);
+                res();
               }
             };
             img.onerror = ()=> res();
@@ -954,7 +957,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Helper for text/dress apply (text-specific gradient)
+  // Helper for text/dress apply (convenience)
   function applyGradientToText(g){
     if(!SELECTED || SELECTED.obj.type !== 'text') { alert('اختر نصاً أولاً'); return; }
     const {obj,dom} = SELECTED;
@@ -966,35 +969,23 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.style.backgroundClip = 'text';
     dom.style.color = 'transparent';
     dom.style.webkitTextFillColor = 'transparent';
-    dom.style.backgroundSize = '100% 100%';
   }
 
-  // Reuse applyDressToSelected (kept for external calls)
-  // applyDressToSelected defined above (async)
+  // Unified apply dress function (used in multiple places)
+  function applyDressToSelected(url){
+    if(!SELECTED){ alert('اختر عنصرًا أولاً'); return; }
+    const {obj, dom} = SELECTED;
+    obj.fillMode = 'dress';
+    obj.dress = url;
 
-  // show/hide controls on mode change
-  modeSelect.addEventListener('change', ()=>{
-    if(modeSelect.value === 'text'){
-      textControls.classList.remove('hidden');
-      if(imageControls) imageControls.classList.add('hidden');
-    } else {
-      textControls.classList.add('hidden');
-      if(imageControls) imageControls.classList.remove('hidden');
+    if(obj.type === 'text'){
+      dom.classList.add('dressed');
+      applyStyleToDom(obj, dom);
+    } else if(obj.type === 'image'){
+      dom.classList.add('dressed');
+      updateImageOverlay(obj, dom);
     }
-  });
-
-  // click outside font panel closes it
-  document.addEventListener('click', (e)=>{
-    if(fontListPanel && !fontListPanel.contains(e.target) && e.target !== fontListBtn) fontListPanel.classList.add('hidden');
-  });
-
-  // clicking item selects it
-  document.addEventListener('click', (e)=>{
-    const item = e.target.closest('.canvas-item');
-    if(item && editorCanvas.contains(item)){
-      item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-    }
-  });
+  }
 
   // Expose popup openers (used by HTML)
   window.__openColorPopup = ()=> openPopup('grad');
