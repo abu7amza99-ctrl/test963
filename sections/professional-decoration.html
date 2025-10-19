@@ -2,11 +2,95 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>عالم التصاميم والزخرفة — الزخرفة الاحترافية</title>
 
   <!-- الروابط -->
   <link rel="stylesheet" href="../css/professional-decoration.css">
+
+  <style>
+    /* تحسين العرض على الموبايل */
+    @media (max-width: 768px) {
+      .topbar-inner {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 6px 10px;
+      }
+      .brand {
+        transform: none;
+        gap: 8px;
+      }
+      .app-logo {
+        width: 40px;
+        height: 40px;
+      }
+      .app-title {
+        font-size: 16px;
+      }
+
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .toolbar label,
+      .toolbar select,
+      .toolbar input,
+      .toolbar button {
+        width: 100%;
+      }
+
+      .editor-container {
+        padding: 10px;
+      }
+
+      .editor-title {
+        font-size: 22px;
+      }
+
+      .editor-canvas {
+        min-height: 300px;
+        padding: 8px;
+      }
+
+      .bottom-bar {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .sidebar {
+        width: 260px;
+      }
+
+      .dress-grid, .grad-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .popup {
+        width: 95%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .topbar {
+        height: 60px;
+      }
+      .app-title {
+        font-size: 15px;
+      }
+      .toolbar select,
+      .toolbar input {
+        font-size: 14px;
+        padding: 6px;
+      }
+      .btn {
+        font-size: 14px;
+        padding: 6px 8px;
+      }
+      .editor-title {
+        font-size: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
   <!-- شريط علوي -->
@@ -108,4 +192,4 @@
   <!-- السكربت -->
   <script src="../js/professional-decoration.js" defer></script>
 </body>
-          </html>
+      </html>
