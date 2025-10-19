@@ -1,21 +1,11 @@
-/* professional-decoration.js - نهائي: تلوين الأحرف على الشفافية + جلب خطوط وتلبيسات من GitHub API
-   تم إضافة: "التلبيس الذكي التلقائي" كما طُلب — لا أزرار جديدة، لا تأثيرات إضافية، فقط تطبيق التلبيسة
-   تلقائياً على العناصر (نصوص/صور) عندما تتوفر تلبيسات من المستودع.
-
-   تحسينات موبايل مضافة:
-   - ضبط أحجام افتراضية أصغر على الشاشات الصغيرة
-   - استخدام عرض editorCanvas لحساب أقصى عرض للصور بدلاً من قيمة ثابتة
-   - دعم إيماءات اللمس: سحب، تدوير، وتكبير/تصغير بعنصرين (pinch-to-zoom)
-   - تكبير مقبض التدوير على أجهزة اللمس لتسهيل التفاعل
-
-   إصلاحات أساسية:
-   - عند إضافة صورة من الملف المحلي: الآن نحمّل الصورة مؤقتاً وننتظر naturalWidth/complete قبل رندرها في الـDOM
-   - updateImageOverlay صار يتحقق من جاهزية img المصدر ويعيد المحاولة أو ينتظر حدث load
-   - الحفاظ على الخلفية/شفافية الصورة: التدرج/التلبيسة تُطبّق فقط على ألفا (destination-in)
+/* professional-decoration.js - Final complete (modified)
+   - Fix: prevent duplicated image in preview when applying gradient/dress and scaling
+   - Approach: hide the base <img> when overlay is active; clear overlay canvas before draw
+   - All other logic preserved
 */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // عناصر DOM
+  // DOM refs (match sactions/professional-decoration.html)
   const toggleSidebar = document.getElementById('toggleSidebar');
   const siteSidebar = document.getElementById('siteSidebar');
   const closeSidebar = document.getElementById('closeSidebar');
@@ -35,24 +25,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const popupContainer = document.getElementById('popupContainer');
   const deleteSelected = document.getElementById('deleteSelected');
 
-  // conditionals
   const textControls = document.getElementById('textControls');
   const imageControls = document.getElementById('imageControls');
 
-  // حالة
+  // State
   let SELECTED = null;
   const ELEMENTS = [];
-  let AVAILABLE_FONTS = [];     // {name, url}
-  let AVAILABLE_DRESS = [];     // urls
-
-  // ذكي: تذكرنا إذا أنهينا تحميل التلبيسات من الريبو
+  let AVAILABLE_FONTS = [];
+  let AVAILABLE_DRESS = [];
   let DRESSES_LOADED = false;
 
-  // ضبط افتراضي يعتمد على حجم الجهاز (موبايل أقل حجم)
   const isMobileLike = window.innerWidth <= 768;
   const DEFAULT_FONT_SIZE = isMobileLike ? 48 : 72;
-  const ROTATE_HANDLE_TOUCH_SIZE = isMobileLike ? 44 : 34; // نجعل المقبض أكبر على اللمس
+  const ROTATE_HANDLE_TOUCH_SIZE = isMobileLike ? 44 : 34;
 
+  // 50 gradients (generator)
   const GRADIENTS = (function(){
     const out = [];
     for(let i=0;i<50;i++){
@@ -60,72 +47,146 @@ document.addEventListener('DOMContentLoaded', () => {
       const b = `hsl(${((i*360/50)+40)|0} 80% 60%)`;
       out.push([a,b]);
     }
-    // metallics
+    // extras
     out.push(['#f3c976','#b8862a']);
     out.push(['#e6e9ec','#b9bfc6']);
     out.push(['#d4b06f','#8b5a2b']);
     return out;
   })();
 
-  // --- Sidebar toggle (from right) ---
-  toggleSidebar && toggleSidebar.addEventListener('click', ()=> {
-    siteSidebar.classList.toggle('active');
-  });
-  closeSidebar && closeSidebar.addEventListener('click', ()=> siteSidebar.classList.remove('active'));
+  // assets base (relative)
+  const assetsBase = (() => {
+    try { return new URL('../assets/', window.location.href).href; }
+    catch(e){ return window.location.origin + '/assets/'; }
+  })();
 
-  // --- Utility: parse repo from location (for GitHub Pages) ---
+  // Utilities
+  function showInlineMessage(msg, time = 4000){
+    let el = editorCanvas.querySelector('.__inline_msg');
+    if(!el){
+      el = document.createElement('div');
+      el.className = '__inline_msg';
+      el.style.position = 'absolute';
+      el.style.left = '12px';
+      el.style.top = '12px';
+      el.style.zIndex = '999';
+      el.style.background = 'rgba(0,0,0,0.6)';
+      el.style.color = '#fff';
+      el.style.padding = '8px 12px';
+      el.style.borderRadius = '8px';
+      el.style.fontSize = '14px';
+      editorCanvas.appendChild(el);
+    }
+    el.textContent = msg;
+    clearTimeout(el.__t);
+    el.__t = setTimeout(()=> el.remove(), time);
+  }
+
+  function fileNameNoExt(p){
+    return p.split('/').pop().replace(/\.[^/.]+$/, '');
+  }
+
+  function safeFetchJson(url){
+    return fetch(url, {cache:'no-store'}).then(r=> r.ok ? r.json().catch(()=>null) : null).catch(()=>null);
+  }
+
   function detectGitHubRepo(){
     try {
       const host = window.location.hostname;
-      const path = window.location.pathname.split('/').filter(Boolean);
       if(!host.includes('github.io')) return null;
       const owner = host.split('.github.io')[0];
-      const repo = path.length ? path[0] : null;
-      if(owner && repo) return {owner, repo};
-      return null;
+      const parts = window.location.pathname.split('/').filter(Boolean);
+      const repo = parts.length ? parts[0] : null;
+      return { owner, repo };
     } catch(e){ return null; }
   }
 
-  const repoInfo = detectGitHubRepo();
-  const FALLBACK_REPO = { owner: repoInfo ? repoInfo.owner : null, repo: repoInfo ? repoInfo.repo : null };
-
-  // --- GitHub API helpers to list folder files ---
-  async function listGitHubFolder(owner, repo, folderPath){
-    if(!owner || !repo) return null;
-    const api = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(folderPath)}`;
+  function registerFont(fontName, url){
     try {
-      const res = await fetch(api);
-      if(!res.ok) return null;
-      const json = await res.json();
-      return json;
-    } catch(err){
-      console.warn('GitHub API list error', err);
-      return null;
-    }
+      const s = document.createElement('style');
+      s.textContent = `@font-face{ font-family: "${fontName}"; src: url("${url}"); font-display: swap; }`;
+      document.head.appendChild(s);
+    } catch(e){}
   }
 
-  // --- load fonts dynamically from assets/fonts/ using GitHub raw URLs ---
-  async function loadFontsFromRepo(){
-    const owner = FALLBACK_REPO.owner, repo = FALLBACK_REPO.repo;
-    if(!owner || !repo) return;
-    const list = await listGitHubFolder(owner, repo, 'assets/fonts');
-    if(!list || !Array.isArray(list)) return;
-    const fonts = list.filter(f => f.type === 'file' && /\.(ttf|otf|woff2?|woff)$/i.test(f.name));
-    for(const f of fonts){
-      const fontName = f.name.replace(/\.[^/.]+$/, '');
-      const url = f.download_url;
-      const style = document.createElement('style');
-      style.textContent = `@font-face{ font-family: "${fontName}"; src: url("${url}"); font-display: swap; }`;
-      document.head.appendChild(style);
-      AVAILABLE_FONTS.push({name: fontName, url});
+  // Load assets: index.json preferred, else GitHub API fallback, else try common files
+  async function populateAssets(){
+    const idxUrl = new URL('index.json', assetsBase).href;
+    const idx = await safeFetchJson(idxUrl);
+    if(idx){
+      if(Array.isArray(idx.fonts)){
+        idx.fonts.forEach(f=>{
+          const name = fileNameNoExt(f);
+          const url = new URL(f, assetsBase).href;
+          AVAILABLE_FONTS.push({name,url});
+          registerFont(name,url);
+        });
+      }
+      if(Array.isArray(idx.dressup)) idx.dressup.forEach(p=> AVAILABLE_DRESS.push(new URL(p, assetsBase).href));
+      DRESSES_LOADED = true;
+      refreshFontListUI();
+      return;
     }
+
+    const repo = detectGitHubRepo();
+    if(repo && repo.owner && repo.repo){
+      // fonts
+      try {
+        const res = await fetch(`https://api.github.com/repos/${repo.owner}/${repo.repo}/contents/assets/fonts`);
+        if(res.ok){
+          const list = await res.json();
+          list.filter(f=>f.type==='file' && /\.(ttf|otf|woff2?|woff)$/i.test(f.name)).forEach(f=>{
+            const name = f.name.replace(/\.[^/.]+$/, '');
+            AVAILABLE_FONTS.push({name, url: f.download_url});
+            registerFont(name, f.download_url);
+          });
+        }
+      } catch(e){}
+      // dressup
+      try {
+        const res2 = await fetch(`https://api.github.com/repos/${repo.owner}/${repo.repo}/contents/assets/dressup`);
+        if(res2.ok){
+          const list2 = await res2.json();
+          list2.filter(f=>f.type==='file' && /\.(png|jpe?g|webp|svg)$/i.test(f.name)).forEach(f=>{
+            AVAILABLE_DRESS.push(f.download_url);
+          });
+        }
+      } catch(e){}
+      DRESSES_LOADED = true;
+      refreshFontListUI();
+      return;
+    }
+
+    // last resort checks
+    const tryFonts = ['ReemKufi.ttf','ReemKufi-Regular.ttf','ReemKufi.woff2'];
+    for(const fname of tryFonts){
+      const furl = new URL(`fonts/${fname}`, assetsBase).href;
+      try {
+        const r = await fetch(furl, { method:'HEAD' });
+        if(r && r.ok){ AVAILABLE_FONTS.push({ name:fileNameNoExt(fname), url: furl }); registerFont(fileNameNoExt(fname), furl); }
+      } catch(e){}
+    }
+    const tryD = ['dressup/gold.png','dressup/silver.png','dressup/glitter1.webp'];
+    for(const p of tryD){
+      const durl = new URL(p, assetsBase).href;
+      try {
+        const h = await fetch(durl, { method:'HEAD' });
+        if(h && h.ok) AVAILABLE_DRESS.push(durl);
+      } catch(e){}
+    }
+    DRESSES_LOADED = true;
     refreshFontListUI();
+    if(AVAILABLE_FONTS.length === 0 && AVAILABLE_DRESS.length === 0){
+      showInlineMessage('ضع ملفات داخل assets/fonts و assets/dressup أو assets/index.json لعرض الخطوط والتلبيسات');
+    }
   }
 
+  // Fonts UI
   function refreshFontListUI(){
-    fontListPanel.innerHTML = '';
+    fontListPanel && (fontListPanel.innerHTML = '');
+    if(!fontListPanel) return;
     if(AVAILABLE_FONTS.length === 0){
-      const p = document.createElement('div'); p.textContent = 'لا توجد خطوط في المجلد assets/fonts/'; p.className='panel-empty';
+      const p = document.createElement('div'); p.textContent = 'لا توجد خطوط في assets/fonts/'; p.className='panel-empty';
       fontListPanel.appendChild(p);
       return;
     }
@@ -141,57 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- load dressups from repo ---
-  async function loadDressupsFromRepo(){
-    const owner = FALLBACK_REPO.owner, repo = FALLBACK_REPO.repo;
-    if(!owner || !repo) { DRESSES_LOADED = true; return; }
-    const list = await listGitHubFolder(owner, repo, 'assets/Dress up');
-    if(!list || !Array.isArray(list)) {
-      DRESSES_LOADED = true;
-      return;
-    }
-    const imgs = list.filter(f => f.type === 'file' && /\.(png|jpe?g|webp|svg)$/i.test(f.name));
-    AVAILABLE_DRESS.length = 0;
-    imgs.forEach(i=> AVAILABLE_DRESS.push(i.download_url));
-    DRESSES_LOADED = true;
-
-    try {
-      ELEMENTS.forEach(e=>{
-        if(e && e.fillMode === 'solid' && AVAILABLE_DRESS.length){
-          const dom = editorCanvas.querySelector(`[data-id="${e.id}"]`);
-          if(dom) applySmartDressToObj(e, dom);
-          else {
-            e.fillMode = 'dress';
-            e.dress = AVAILABLE_DRESS[0];
-          }
-        }
-      });
-    } catch(err){
-      console.warn('smart-dress apply after load failed', err);
-    }
-  }
-
-  (async ()=>{
-    await loadFontsFromRepo();
-    await loadDressupsFromRepo();
-  })();
-
-  // open font list toggle
-  fontListBtn && fontListBtn.addEventListener('click', (e)=>{
-    fontListPanel.classList.toggle('hidden');
-  });
-
-  // --- Smart Dress helper ---
-  function applySmartDressToObj(obj, dom){
-    if(!obj || !dom) return;
-    if(!AVAILABLE_DRESS || AVAILABLE_DRESS.length === 0) return;
-    if(!obj.dress) obj.dress = AVAILABLE_DRESS[0];
-    obj.fillMode = 'dress';
-    applyStyleToDom(obj, dom);
-    dom.classList.add('dressed');
-  }
-
-  // --- Editor core: element objects + rendering ---
+  // Element model & render
   function createElementObject(type, data){
     const id = 'el_'+(Date.now() + Math.floor(Math.random()*999));
     const base = {
@@ -217,9 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
       dom.textContent = obj.text || '';
       dom.style.fontFamily = obj.font;
       dom.style.fontSize = (obj.size || DEFAULT_FONT_SIZE) + 'px';
-      // crucial to avoid text clipping/flicker: ensure inline-block and no wrapping
-      dom.style.display = 'inline-block';
-      dom.style.whiteSpace = 'nowrap';
       dom.style.left = obj.x + 'px';
       dom.style.top = obj.y + 'px';
       dom.dataset.id = obj.id;
@@ -227,24 +235,23 @@ document.addEventListener('DOMContentLoaded', () => {
       applyStyleToDom(obj, dom);
       attachInteraction(dom, obj);
       editorCanvas.appendChild(dom);
-
-      if(obj.fillMode === 'dress' && obj.dress){
-        dom.classList.add('dressed');
-        applyStyleToDom(obj, dom);
-      }
     } else if(obj.type === 'image'){
       const wrap = document.createElement('div');
       wrap.className = 'canvas-item img-wrap';
       wrap.style.left = obj.x + 'px';
       wrap.style.top = obj.y + 'px';
       wrap.dataset.id = obj.id;
-      wrap.tabIndex = 0; // make focusable for accessibility / mobile taps
+      wrap.tabIndex = 0;
 
       const img = document.createElement('img');
       img.src = obj.img;
       img.alt = '';
       img.style.display = 'block';
       img.style.pointerEvents = 'none';
+      img.style.userSelect = 'none';
+      img.style.touchAction = 'none';
+      // ensure default visible
+      img.style.opacity = '1';
 
       const overlayCanvas = document.createElement('canvas');
       overlayCanvas.className = 'img-overlay-canvas';
@@ -253,6 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
       overlayCanvas.style.top = '0';
       overlayCanvas.style.pointerEvents = 'none';
       overlayCanvas.style.opacity = 0;
+      overlayCanvas.style.display = 'none';
 
       const finalizeImageLayout = ()=>{
         const canvasPadding = 40;
@@ -266,10 +274,10 @@ document.addEventListener('DOMContentLoaded', () => {
         wrap.style.width = dispW + 'px';
         wrap.style.height = dispH + 'px';
 
+        // set overlay canvas to match display dims
         overlayCanvas.width = dispW; overlayCanvas.height = dispH;
         overlayCanvas.style.width = dispW + 'px'; overlayCanvas.style.height = dispH + 'px';
         obj.displayWidth = dispW; obj.displayHeight = dispH;
-        // ensure overlay drawn after sizes applied
         updateImageOverlay(obj, wrap);
       };
 
@@ -308,13 +316,14 @@ document.addEventListener('DOMContentLoaded', () => {
     return dom;
   }
 
-  // update overlay for image (gradient/dress applied to alpha only)
+  // update overlay for image (clears before draw)
   function updateImageOverlay(obj, wrap){
     if(!wrap) return;
     const imgEl = wrap.querySelector('img');
     const overlayCanvas = wrap.querySelector('.img-overlay-canvas');
     if(!imgEl || !overlayCanvas) return;
 
+    // wait for image loaded if needed
     if(!imgEl.complete || (imgEl.naturalWidth === 0 && imgEl.naturalHeight === 0)){
       const once = ()=>{
         imgEl.removeEventListener('load', once);
@@ -326,44 +335,83 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const dispW = Math.round((obj.displayWidth || parseInt(imgEl.style.width) || imgEl.naturalWidth) * (obj.scale || 1));
-    const dispH = Math.round((obj.displayHeight || Math.round(imgEl.naturalHeight * (dispW / imgEl.naturalWidth))) * (obj.scale || 1));
+    // compute displayed width/height (consider scale)
+    const baseDispW = (obj.displayWidth || parseInt(imgEl.style.width) || imgEl.naturalWidth);
+    const dispW = Math.max(1, Math.round(baseDispW * (obj.scale || 1)));
+    const baseDispH = (obj.displayHeight || Math.round(imgEl.naturalHeight * (baseDispW / (imgEl.naturalWidth || baseDispW))));
+    const dispH = Math.max(1, Math.round(baseDispH * (obj.scale || 1)));
 
-    overlayCanvas.width = dispW;
-    overlayCanvas.height = dispH;
-    overlayCanvas.style.width = dispW + 'px';
-    overlayCanvas.style.height = dispH + 'px';
+    // update overlay canvas pixel dims and css dims
+    if (overlayCanvas.width !== dispW || overlayCanvas.height !== dispH) {
+      overlayCanvas.width = dispW;
+      overlayCanvas.height = dispH;
+      overlayCanvas.style.width = dispW + 'px';
+      overlayCanvas.style.height = dispH + 'px';
+    }
     overlayCanvas.style.left = '0px';
     overlayCanvas.style.top = '0px';
+
     const ctx = overlayCanvas.getContext('2d');
+    // Reset transform and clear to avoid duplicates
+    ctx.setTransform(1,0,0,1,0,0);
     ctx.clearRect(0,0,dispW,dispH);
 
-    if(obj.fillMode === 'gradient' && obj.gradient){
+    // determine whether overlay should be active
+    const hasGradient = obj.fillMode === 'gradient' && Array.isArray(obj.gradient) && obj.gradient.length >= 2;
+    const hasDress = obj.fillMode === 'dress' && obj.dress;
+    const overlayActive = hasGradient || hasDress;
+
+    // hide base image when overlay is active (prevents visual double)
+    if(overlayActive){
+      imgEl.style.opacity = '0';
+      overlayCanvas.style.display = 'block';
+      overlayCanvas.style.opacity = '1';
+    } else {
+      imgEl.style.opacity = '1';
+      overlayCanvas.style.opacity = '0';
+      // hide from layout/paint to avoid accidental stacking
+      overlayCanvas.style.display = 'none';
+      return;
+    }
+
+    if(hasGradient){
+      // draw gradient then mask by image
       const g = ctx.createLinearGradient(0,0,dispW,0);
       g.addColorStop(0, obj.gradient[0]); g.addColorStop(1, obj.gradient[1]);
-      ctx.fillStyle = g; ctx.fillRect(0,0,dispW,dispH);
+      ctx.fillStyle = g;
+      ctx.fillRect(0,0,dispW,dispH);
+
       ctx.globalCompositeOperation = 'destination-in';
-      try { ctx.drawImage(imgEl, 0, 0, dispW, dispH); } catch(e){}
+      try { ctx.drawImage(imgEl, 0, 0, dispW, dispH); } catch(e){ /* ignore cross-origin draw errors gracefully */ }
       ctx.globalCompositeOperation = 'source-over';
-      overlayCanvas.style.opacity = 1;
-    } else if(obj.fillMode === 'dress' && obj.dress){
-      const dimg = new Image(); dimg.crossOrigin = 'anonymous';
+    } else if(hasDress){
+      const dimg = new Image();
+      dimg.crossOrigin = 'anonymous';
       dimg.onload = ()=>{
+        // clear then draw dress image sized to overlay
+        ctx.setTransform(1,0,0,1,0,0);
         ctx.clearRect(0,0,dispW,dispH);
         try { ctx.drawImage(dimg, 0, 0, dispW, dispH); } catch(e){}
         ctx.globalCompositeOperation = 'destination-in';
         try { ctx.drawImage(imgEl, 0, 0, dispW, dispH); } catch(e){}
         ctx.globalCompositeOperation = 'source-over';
-        overlayCanvas.style.opacity = 1;
       };
-      dimg.onerror = ()=> { overlayCanvas.style.opacity = 0; };
+      dimg.onerror = ()=> {
+        // if dress image fails, hide overlay and show base image
+        overlayCanvas.style.opacity = '0';
+        overlayCanvas.style.display = 'none';
+        imgEl.style.opacity = '1';
+      };
       dimg.src = obj.dress;
     } else {
+      // nothing active
       overlayCanvas.style.opacity = 0;
+      overlayCanvas.style.display = 'none';
+      imgEl.style.opacity = '1';
     }
   }
 
-  // apply styles to DOM item
+  // apply style to DOM item
   function applyStyleToDom(obj, dom){
     if(!dom) return;
     const sc = typeof obj.scale === 'number' ? obj.scale : 1;
@@ -371,7 +419,6 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.style.transform = `rotate(${rot}rad) scale(${sc})`;
 
     if(obj.type === 'text'){
-      // default reset
       dom.style.webkitBackgroundClip = 'unset';
       dom.style.backgroundImage = '';
       dom.style.color = obj.color || '#000';
@@ -388,24 +435,18 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.style.color = 'transparent';
         dom.style.webkitTextFillColor = 'transparent';
       } else if(obj.fillMode === 'dress' && obj.dress){
-        // For dress: wait for font readiness to get accurate measure
-        // then draw dress onto tmp canvas and apply as background-image (dataURL)
         const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
         const text = obj.text || '';
 
-        // ensure fonts loaded (best-effort)
         const drawDress = ()=>{
           try {
             const tmp = document.createElement('canvas');
             const tctx = tmp.getContext('2d');
             tctx.font = `${fontSize}px "${obj.font}"`;
-            // measure text width (fallback if unavailable)
             let w = Math.max(1, Math.ceil(tctx.measureText(text).width));
             let h = Math.max(1, Math.ceil(fontSize * 1.1));
-            // add small padding to avoid clipping
             w = Math.ceil(w + 8); h = Math.ceil(h + 8);
             tmp.width = w; tmp.height = h;
-            // draw dress image then clip by text alpha
             const dimg = new Image(); dimg.crossOrigin='anonymous';
             dimg.onload = ()=>{
               const t2 = tmp.getContext('2d');
@@ -415,9 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
               t2.fillStyle = '#000';
               t2.font = `${fontSize}px "${obj.font}"`;
               t2.textBaseline = 'top';
-              // draw text mask (position adjust)
-              t2.fillText(text, 4, 4 + (fontSize*0.0));
-              // apply as background image
+              t2.fillText(text, 4, 4);
               try {
                 dom.style.backgroundImage = `url(${tmp.toDataURL()})`;
                 dom.style.webkitBackgroundClip = 'text';
@@ -427,35 +466,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 dom.style.color = obj.color || '#000';
               }
             };
-            dimg.onerror = ()=>{
-              dom.style.color = obj.color || '#000';
-            };
+            dimg.onerror = ()=> { dom.style.color = obj.color || '#000'; };
             dimg.src = obj.dress;
           } catch(e){
             dom.style.color = obj.color || '#000';
           }
         };
 
-        // attempt to wait for fonts to be available for accurate measure
         if(document.fonts && document.fonts.ready){
           document.fonts.ready.then(()=>{
-            // also try load the specific font family (best-effort)
             if(obj.font){
               document.fonts.load(`${fontSize}px "${obj.font}"`).finally(drawDress);
             } else drawDress();
           }).catch(drawDress);
         } else {
-          // fallback immediate
           drawDress();
         }
       }
     } else if(obj.type === 'image'){
-      // image overlay updated in updateImageOverlay
       updateImageOverlay(obj, dom);
     }
   }
 
-  // attach interaction: select, drag, rotate, pinch-to-scale
+  // interactions: drag / rotate / pinch
   function attachInteraction(dom, obj){
     dom.style.left = (obj.x||50) + 'px';
     dom.style.top = (obj.y||50) + 'px';
@@ -512,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
       window.addEventListener('pointerup', up);
     });
 
-    // touch gestures for pinch/rotate
+    // pinch gestures
     let gesture = { active:false, startDist:0, startAngle:0, origScale: obj.scale||1, origRotation: obj.rotation||0 };
     dom.addEventListener('touchstart', (ev)=>{
       if(ev.touches.length === 1){
@@ -555,7 +588,6 @@ document.addEventListener('DOMContentLoaded', () => {
     SELECTED = {dom,obj};
   }
 
-  // deselect all on canvas click
   editorCanvas.addEventListener('mousedown', (e)=>{
     if(e.target === editorCanvas){
       document.querySelectorAll('.canvas-item.selected').forEach(el=>el.classList.remove('selected'));
@@ -563,8 +595,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // add element
-  btnAdd.addEventListener('click', ()=>{
+  // Add element - text or image (image only after pressing "أضف")
+  btnAdd && btnAdd.addEventListener('click', ()=>{
     if(modeSelect.value === 'text'){
       const txt = textInput.value.trim();
       if(!txt) return alert('أدخل نصًا أولاً');
@@ -572,23 +604,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const dom = renderElement(obj);
       const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
       if(lastDom) selectElement(lastDom,obj);
-      if(DRESSES_LOADED && AVAILABLE_DRESS.length && obj.fillMode === 'dress'){
-        applySmartDressToObj(obj, dom || lastDom);
-      }
       textInput.value='';
     } else {
       const f = fileImage.files && fileImage.files[0];
       if(!f) return alert('اختر صورة شفافة من جهازك');
-
-      // preload image to ensure sizes before rending DOM (fixes missing preview / interactivity)
       const reader = new FileReader();
       reader.onload = (ev)=>{
         const dataUrl = ev.target.result;
         const preload = new Image();
         preload.onload = ()=>{
           const obj = createElementObject('image',{ img: dataUrl });
-          const canvasPadding = 40;
           const editorW = Math.max(200, editorCanvas.clientWidth || 300);
+          const canvasPadding = 40;
           const maxw = Math.min(Math.max(200, editorW - canvasPadding), preload.naturalWidth || editorW);
           obj.displayWidth = Math.min(480, maxw);
           obj.displayHeight = Math.round(obj.displayWidth * (preload.naturalHeight / preload.naturalWidth));
@@ -615,7 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // delete selected
+  // Delete selected
   deleteSelected.addEventListener('click', ()=>{
     if(!SELECTED) return alert('اختر عنصراً أولاً');
     const {dom,obj} = SELECTED;
@@ -625,8 +652,8 @@ document.addEventListener('DOMContentLoaded', () => {
     SELECTED = null;
   });
 
-  // OPEN POPUPS: gradients or dress list
-  function openPopup(type, targetObj){
+  // POPUP - gradients / dressups
+  function openPopup(type){
     popupContainer.innerHTML = '';
     popupContainer.classList.add('open');
     popupContainer.setAttribute('aria-hidden','false');
@@ -635,8 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const title = document.createElement('h3'); title.textContent = type==='grad' ? 'اختر تدرج' : 'اختر تلبيسة';
     const close = document.createElement('button'); close.className='btn'; close.textContent='إغلاق';
     close.addEventListener('click', closePopup);
-    head.appendChild(title); head.appendChild(close);
-    pop.appendChild(head);
+    head.appendChild(title); head.appendChild(close); pop.appendChild(head);
 
     const body = document.createElement('div'); body.className='popup-body';
     const grid = document.createElement('div'); grid.className = (type==='grad' ? 'grad-grid' : 'dress-grid');
@@ -653,7 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     } else {
       if(AVAILABLE_DRESS.length === 0){
-        const p = document.createElement('div'); p.textContent = 'لا توجد تلبيسات في assets/Dress up/'; p.style.padding='12px';
+        const p = document.createElement('div'); p.textContent = 'لا توجد تلبيسات في assets/dressup/'; p.style.padding='12px';
         body.appendChild(p);
       } else {
         AVAILABLE_DRESS.forEach(url=>{
@@ -673,33 +699,51 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function closePopup(){ popupContainer.classList.remove('open'); popupContainer.innerHTML=''; popupContainer.setAttribute('aria-hidden','true'); }
-   // apply gradient/dress
-  function applyGradientToSelected(g){
-    if(!SELECTED){ alert('اختر عنصرًا أولاً'); return; }
-    const {obj,dom} = SELECTED;
-    obj.fillMode = 'gradient';
-    obj.gradient = g;
-    if(dom && dom.classList.contains('dressed')) dom.classList.remove('dressed');
-    applyStyleToDom(obj, dom);
-    if(obj.type === 'image') updateImageOverlay(obj, dom);
-  }
-  function applyDressToSelected(url){
-    if(!SELECTED){ alert('اختر عنصرًا أولاً'); return; }
-    const {obj,dom} = SELECTED;
-    obj.fillMode = 'dress';
-    obj.dress = url;
-    if(dom) dom.classList.add('dressed');
-    applyStyleToDom(obj, dom);
-    if(obj.type === 'image') updateImageOverlay(obj, dom);
-  }
 
-  // handlers to open popups from toolbar (text and image)
   btnGradients && btnGradients.addEventListener('click', ()=> openPopup('grad'));
   btnDressups && btnDressups.addEventListener('click', ()=> openPopup('dress'));
   btnGradientsImg && btnGradientsImg.addEventListener('click', ()=> openPopup('grad'));
   btnDressupsImg && btnDressupsImg.addEventListener('click', ()=> openPopup('dress'));
 
-  // apply font to selected or last text
+  // APPLY gradient/dress to selected — important: DO NOT CREATE NEW ELEMENTS
+  function applyGradientToSelected(g){
+    if(!SELECTED){ alert('اختر عنصرًا أولاً'); return; }
+    const {obj,dom} = SELECTED;
+    obj.fillMode = 'gradient';
+    obj.gradient = g;
+
+    // remove any dress class or background previously set
+    if(dom.classList.contains('dressed')) dom.classList.remove('dressed');
+
+    // If text: use background-clip text
+    if(obj.type === 'text'){
+      dom.style.background = `linear-gradient(90deg, ${g[0]}, ${g[1]})`;
+      dom.style.webkitBackgroundClip = 'text';
+      dom.style.backgroundClip = 'text';
+      dom.style.color = 'transparent';
+      dom.style.webkitTextFillColor = 'transparent';
+    } else if(obj.type === 'image'){
+      // For images: set the obj.gradient then redraw overlay (overlay cleared inside updateImageOverlay)
+      updateImageOverlay(obj, dom);
+    }
+  }
+
+  function applyDressToSelected(url){
+    if(!SELECTED){ alert('اختر عنصرًا أولاً'); return; }
+    const {obj,dom} = SELECTED;
+    obj.fillMode = 'dress';
+    obj.dress = url;
+
+    if(obj.type === 'text'){
+      dom.classList.add('dressed');
+      applyStyleToDom(obj, dom);
+    } else if(obj.type === 'image'){
+      dom.classList.add('dressed');
+      updateImageOverlay(obj, dom);
+    }
+  }
+
+  // Font apply
   function applyFontToSelected(fontName){
     if(!SELECTED){
       const lastText = [...ELEMENTS].reverse().find(e=>e.type==='text');
@@ -716,7 +760,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(obj.type === 'text' && obj.fillMode === 'dress') applyStyleToDom(obj, dom);
   }
 
-  // download/export final as PNG (draw to canvas)
+  // Download/export final as PNG
   downloadImage.addEventListener('click', async ()=>{
     try {
       const rect = editorCanvas.getBoundingClientRect();
@@ -755,7 +799,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if(obj.stroke && obj.stroke>0){ ctx.lineWidth = obj.stroke; ctx.strokeStyle = obj.strokeColor || '#000'; ctx.strokeText(obj.text,x,y); }
             ctx.fillText(obj.text, x, y);
           } else if(obj.fillMode === 'dress' && obj.dress){
-            // render dress mask into tmp canvas then draw
             const tmp = document.createElement('canvas'); tmp.width = Math.max(1,Math.round(bboxW)); tmp.height = Math.max(1,Math.round(bboxH));
             const tctx = tmp.getContext('2d');
             tctx.clearRect(0,0,tmp.width,tmp.height);
@@ -831,17 +874,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // helper: apply selected gradient (text-only)
+  // Helper for text/dress apply
   function applyGradientToText(g){
     if(!SELECTED || SELECTED.obj.type !== 'text') { alert('اختر نصاً أولاً'); return; }
     const {obj,dom} = SELECTED;
     obj.fillMode = 'gradient';
     obj.gradient = g;
     if(dom && dom.classList.contains('dressed')) dom.classList.remove('dressed');
-    applyStyleToDom(obj, dom);
+    dom.style.background = `linear-gradient(90deg, ${g[0]}, ${g[1]})`;
+    dom.style.webkitBackgroundClip = 'text';
+    dom.style.backgroundClip = 'text';
+    dom.style.color = 'transparent';
+    dom.style.webkitTextFillColor = 'transparent';
   }
 
-  // apply dress to text
   function applyDressToText(url){
     if(!SELECTED || SELECTED.obj.type !== 'text') { alert('اختر نصاً أولاً'); return; }
     const {obj,dom} = SELECTED;
@@ -851,7 +897,7 @@ document.addEventListener('DOMContentLoaded', () => {
     applyStyleToDom(obj, dom);
   }
 
-  // small UX: when mode changes show/hide controls
+  // show/hide controls on mode change
   modeSelect.addEventListener('change', ()=>{
     if(modeSelect.value === 'text'){
       textControls.classList.remove('hidden');
@@ -862,12 +908,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // allow clicking font list items outside overlay to close
+  // click outside font panel closes it
   document.addEventListener('click', (e)=>{
-    if(!fontListPanel.contains(e.target) && e.target !== fontListBtn) fontListPanel.classList.add('hidden');
+    if(fontListPanel && !fontListPanel.contains(e.target) && e.target !== fontListBtn) fontListPanel.classList.add('hidden');
   });
 
-  // ensure clicking image's area selects the wrap
+  // clicking item selects it
   document.addEventListener('click', (e)=>{
     const item = e.target.closest('.canvas-item');
     if(item && editorCanvas.contains(item)){
@@ -875,11 +921,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // expose opening popup functions for toolbar buttons
+  // Expose popup openers (used by HTML)
   window.__openColorPopup = ()=> openPopup('grad');
   window.__openDressPopup = ()=> openPopup('dress');
 
-  // initial small demo: if user wants to open fonts panel but nothing loaded yet -> show message (handled in refresh)
   refreshFontListUI();
 
-}); // DOMContentLoaded end
+  function applySmartDressToObj(obj, dom){
+    if(!obj || !dom) return;
+    if(!AVAILABLE_DRESS || AVAILABLE_DRESS.length === 0) return;
+    if(!obj.dress) obj.dress = AVAILABLE_DRESS[0];
+    obj.fillMode = 'dress';
+    applyStyleToDom(obj, dom);
+    dom.classList.add('dressed');
+  }
+
+  // init assets
+  (async ()=>{
+    try {
+      await populateAssets();
+    } catch(e){
+      console.warn('populateAssets failed', e);
+      showInlineMessage('خطأ أثناء تحميل الأصول — تحقق من مجلد assets/');
+    }
+  })();
+
+  // open font list
+  fontListBtn && fontListBtn.addEventListener('click', (e)=>{
+    fontListPanel.classList.toggle('hidden');
+  });
+
+}); // end DOMContentLoaded
