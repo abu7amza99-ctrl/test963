@@ -1,4 +1,4 @@
-/* professional-decoration.css - النسخة النهائية حسب المطلوب */
+/* professional-decoration.css - النسخة النهائية بعد الإصلاح */
 
 @font-face {
   font-family: 'ReemKufiLocalFallback';
@@ -39,13 +39,15 @@ a{color:inherit;text-decoration:none}
 .app-logo{width:48px;height:48px;object-fit:contain}
 .app-title{font-family:'ReemKufiLocalFallback', 'Reem Kufi', sans-serif;color:var(--gold1);font-weight:800;font-size:20px;text-shadow:0 1px 0 rgba(0,0,0,0.6);border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:2px}
 
-/* Sidebar button (right side) */
+/* Sidebar button */
 .sidebar-btn{position:absolute;right:14px;background:transparent;border:0;cursor:pointer}
 .sidebar-btn img{width:44px;height:44px}
 
 /* Sidebar */
 .sidebar{
-  position:fixed;right:-320px;top:0;height:100%;width:320px;background:linear-gradient(180deg,rgba(207,162,58,0.2),rgba(207,162,58,0.12));padding:18px;transition:right .26s;z-index:100;
+  position:fixed;right:-320px;top:0;height:100%;width:320px;
+  background:linear-gradient(180deg,rgba(207,162,58,0.2),rgba(207,162,58,0.12));
+  padding:18px;transition:right .26s;z-index:100;
   backdrop-filter: blur(4px);
 }
 .sidebar.active{right:0}
@@ -55,33 +57,65 @@ a{color:inherit;text-decoration:none}
 .sidebar-menu a{display:block;padding:10px;border-radius:8px;color:var(--gold1)}
 
 /* Main layout */
-.main{min-height:calc(100vh - 72px);padding:22px 14px;background-image:url('../assets/bg.png');background-size:cover;background-position:center;display:flex;justify-content:center;align-items:flex-start}
-.editor-container{width:100%;max-width:1180px;background:var(--panel);border-radius:14px;padding:16px;box-shadow:0 30px 60px rgba(0,0,0,0.6)}
-.editor-title{text-align:center;color:var(--accent);font-family:'ReemKufiLocalFallback', 'Reem Kufi',sans-serif;font-size:28px;margin:6px 0 14px}
+.main{
+  min-height:calc(100vh - 72px);
+  padding:22px 14px;
+  background-image:url('../assets/bg.png');
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+}
+.editor-container{
+  width:100%;max-width:1180px;
+  background:var(--panel);
+  border-radius:14px;
+  padding:16px;
+  box-shadow:0 30px 60px rgba(0,0,0,0.6);
+}
+.editor-title{
+  text-align:center;
+  color:var(--accent);
+  font-family:'ReemKufiLocalFallback', 'Reem Kufi',sans-serif;
+  font-size:28px;
+  margin:6px 0 14px;
+}
 
 /* Toolbar */
 .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-start;background:var(--panel-40);padding:12px;border-radius:10px}
 .toolbar label{display:inline-flex;align-items:center;gap:6px;color:#222}
-.toolbar select,.toolbar input[type="text"],.toolbar input[type="file"]{padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:rgba(255,255,255,0.95);color:#111}
+.toolbar select,.toolbar input[type="text"],.toolbar input[type="file"]{
+  padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);
+  background:rgba(255,255,255,0.95);color:#111
+}
 .btn{padding:8px 12px;border-radius:12px;border:0;background:linear-gradient(90deg,var(--gold2),var(--gold1));color:#120800;cursor:pointer;font-weight:700}
 .btn.small{padding:6px 8px;font-size:14px}
 .btn.primary{background:linear-gradient(90deg,#f2d46b,#ffd86a);color:#120800}
 .btn.danger{background:#d9534f;color:#fff}
 .btn.download{background:linear-gradient(90deg,#f7df9a,#f0c65a);color:#000;border:1px solid rgba(255,255,255,0.6)}
 
-/* conditional sections */
+/* Conditional sections */
 .conditional{display:flex;gap:8px;align-items:center}
 .hidden{display:none}
 
-/* editor-canvas */
-.editor-canvas{position:relative;background:linear-gradient(180deg,#ffffff,#f7f7f7);min-height:420px;border-radius:12px;padding:14px;border:3px dashed rgba(207,162,58,0.45);overflow:hidden}
+/* Editor canvas */
+.editor-canvas{
+  position:relative;
+  background:linear-gradient(180deg,#ffffff,#f7f7f7);
+  min-height:420px;
+  border-radius:12px;
+  padding:14px;
+  border:3px dashed rgba(207,162,58,0.45);
+  overflow:hidden;
+}
 .hint{color:#675a3a;text-align:center;margin-top:12%}
 
-/* canvas items */
+/* Canvas items */
 .canvas-item{position:absolute;touch-action:none;user-select:none;cursor:grab;transform-origin:center center}
 .canvas-item.selected{outline:4px dashed rgba(207,162,58,0.85);outline-offset:8px;border-radius:6px}
 
-/* text item */
+/* Text item */
 .text-item{
   font-family:'ReemKufiLocalFallback','Reem Kufi',sans-serif;
   font-size:48px;
@@ -91,14 +125,19 @@ a{color:inherit;text-decoration:none}
   pointer-events:auto;
   mix-blend-mode:normal;
   transition:filter .2s, background-image .3s;
+  line-height:1.1; /* ✅ إصلاح التقطّع */
+  background-repeat:no-repeat;
+  background-size:cover;
 }
 
-/* التلبيس الذكي على النص */
+/* ✅ إصلاح التلبيس الذكي */
 .text-item.dressed {
   background-clip:text;
   -webkit-background-clip:text;
   color:transparent;
   filter:drop-shadow(1px 1px 2px rgba(0,0,0,0.4));
+  image-rendering: crisp-edges;
+  -webkit-text-fill-color: transparent;
 }
 
 /* image wrap */
@@ -108,13 +147,14 @@ a{color:inherit;text-decoration:none}
   max-width:700px;
   height:auto;
   pointer-events:none;
+  border-radius:8px;
+  image-rendering:auto;
 }
 .img-wrap.dressed img{
   mix-blend-mode:multiply;
-  opacity:0.88;
+  opacity:0.9;
   transition:opacity .3s, filter .3s;
 }
-.img-overlay-canvas{position:absolute;left:0;top:0;pointer-events:none;display:block;opacity:0;transition:opacity .18s}
 
 /* rotate handle */
 .rotate-handle{
@@ -138,9 +178,36 @@ a{color:inherit;text-decoration:none}
 /* bottom */
 .bottom-bar{display:flex;gap:10px;justify-content:center;margin-top:12px}
 
-/* responsive */
+/* Responsive */
 @media(max-width:900px){
   .grad-grid{grid-template-columns:repeat(4,1fr)}
   .dress-grid{grid-template-columns:repeat(3,1fr)}
   .editor-canvas{min-height:360px;padding:10px}
+}
+
+/* ✅ تحسين التوافق مع الهواتف */
+@media(max-width:600px){
+  .topbar {height: 60px;padding: 4px 10px;}
+  .app-logo {width: 38px;height: 38px;}
+  .app-title {font-size: 16px;}
+  .sidebar {width: 90%;right: -90%;}
+  .sidebar.active {right: 0;}
+  .main {padding: 10px;align-items: stretch;}
+  .editor-container {padding: 10px;border-radius: 10px;}
+  .editor-title {font-size: 22px;margin-bottom: 10px;}
+  .toolbar {flex-direction: column;align-items: stretch;gap: 10px;}
+  .toolbar label {flex-direction: column;align-items: flex-start;font-size: 14px;}
+  .toolbar select,
+  .toolbar input[type="text"],
+  .toolbar input[type="file"] {width: 100%;font-size: 15px;}
+  .btn {width: 100%;padding: 10px;font-size: 15px;}
+  .btn.small {padding: 8px;font-size: 14px;}
+  .editor-canvas {min-height: 300px;border-width: 2px;border-radius: 10px;}
+  .text-item {font-size: 32px;word-break: break-word;}
+  .img-wrap img {max-width: 100%;height:auto;}
+  .popup {width: 95%;max-height: 90vh;overflow-y: auto;}
+  .grad-grid {grid-template-columns: repeat(2, 1fr);}
+  .dress-grid {grid-template-columns: repeat(2, 1fr);}
+  .bottom-bar {flex-direction: column;gap: 8px;}
+  .hint {font-size: 14px;margin-top: 25%;}
 }
