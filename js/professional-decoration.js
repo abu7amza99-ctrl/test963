@@ -1,4 +1,7 @@
-/* professional-decoration.js - نهائي: تلوين الأحرف على الشفافية + جلب خطوط وتلبيسات من GitHub API */
+/* professional-decoration.js - نهائي: تلوين الأحرف على الشفافية + جلب خطوط وتلبيسات من GitHub API
+   تم إضافة: "التلبيس الذكي التلقائي" كما طُلب — لا أزرار جديدة، لا تأثيرات إضافية، فقط تطبيق التلبيسة
+   تلقائياً على العناصر (نصوص/صور) عندما تتوفر تلبيسات من المستودع.
+*/
 document.addEventListener('DOMContentLoaded', () => {
   // عناصر DOM
   const toggleSidebar = document.getElementById('toggleSidebar');
@@ -29,6 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const ELEMENTS = [];
   let AVAILABLE_FONTS = [];     // {name, url}
   let AVAILABLE_DRESS = [];     // urls
+
+  // ذكي: تذكرنا إذا أنهينا تحميل التلبيسات من الريبو
+  let DRESSES_LOADED = false;
+
   const GRADIENTS = (function(){
     const out = [];
     for(let i=0;i<50;i++){
@@ -127,10 +134,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const owner = FALLBACK_REPO.owner, repo = FALLBACK_REPO.repo;
     if(!owner || !repo) return;
     const list = await listGitHubFolder(owner, repo, 'assets/Dress up');
-    if(!list || !Array.isArray(list)) return;
+    if(!list || !Array.isArray(list)) {
+      DRESSES_LOADED = true;
+      return;
+    }
     const imgs = list.filter(f => f.type === 'file' && /\.(png|jpe?g|webp|svg)$/i.test(f.name));
     AVAILABLE_DRESS.length = 0;
     imgs.forEach(i=> AVAILABLE_DRESS.push(i.download_url));
+    DRESSES_LOADED = true;
+
+    // بعد تحميل التلبيسات: طبق التلبيس الذكي على العناصر القائمة إن لم تُلبس بعد
+    try {
+      ELEMENTS.forEach(e=>{
+        if(e && e.fillMode === 'solid' && AVAILABLE_DRESS.length){
+          // حاول إيجاد الدوم المرتبط ثم طبق التلبيس عليه
+          const dom = editorCanvas.querySelector(`[data-id="${e.id}"]`);
+          if(dom) applySmartDressToObj(e, dom);
+          else {
+            // لو الدوم غير موجود الآن، فقط عين خصائص التلبيس حتى تُطبق عند الرندر
+            e.fillMode = 'dress';
+            e.dress = AVAILABLE_DRESS[0];
+          }
+        }
+      });
+    } catch(err){
+      console.warn('smart-dress apply after load failed', err);
+    }
   }
 
   // initialize remote resources
@@ -144,6 +173,24 @@ document.addEventListener('DOMContentLoaded', () => {
     fontListPanel.classList.toggle('hidden');
   });
 
+  // --- Smart Dress helper ---
+  // يطبق التلبيسة الذكية على الكائن والدوم (يضيف كلاس dressed لتمكين CSS)
+  function applySmartDressToObj(obj, dom){
+    if(!obj || !dom) return;
+    if(!AVAILABLE_DRESS || AVAILABLE_DRESS.length === 0) return;
+    // إذا كانت التلبيسة محددة مسبقاً لا نغيرها — لكن إن كان fillMode solid نضبطها
+    if(!obj.dress) obj.dress = AVAILABLE_DRESS[0];
+    obj.fillMode = 'dress';
+    // تطبيق أسلوب العرض
+    applyStyleToDom(obj, dom);
+    // إضافة كلاس CSS دلالة على "تلبيس" (يسمح بأنماط CSS مثل drop-shadow أو mix-blend-mode تعمل)
+    if(obj.type === 'text'){
+      dom.classList.add('dressed');
+    } else if(obj.type === 'image'){
+      dom.classList.add('dressed');
+    }
+  }
+
   // --- Editor core: element objects + rendering ---
   function createElementObject(type, data){
     const id = 'el_'+(Date.now() + Math.floor(Math.random()*999));
@@ -154,6 +201,11 @@ document.addEventListener('DOMContentLoaded', () => {
       displayWidth:null, displayHeight:null, text:''
     };
     const obj = Object.assign(base, data||{});
+    // If dresses already loaded and available -> set dress by default (تلبيس ذكي افتراضي)
+    if(DRESSES_LOADED && AVAILABLE_DRESS.length && obj.fillMode === 'solid'){
+      obj.fillMode = 'dress';
+      obj.dress = AVAILABLE_DRESS[0];
+    }
     ELEMENTS.push(obj);
     return obj;
   }
@@ -172,6 +224,14 @@ document.addEventListener('DOMContentLoaded', () => {
       applyStyleToDom(obj, dom);
       attachInteraction(dom, obj);
       editorCanvas.appendChild(dom);
+
+      // إذا كان الكائن مُعدّاً للتلبيس مسبقاً (إن تم ضبطه في createElementObject أو بعد تحميل التلبيسات)
+      if(obj.fillMode === 'dress' && obj.dress){
+        // طبق تلبيسة ذكية على النص وأضف كلاس dressed
+        dom.classList.add('dressed');
+        // ensure applyStyleToDom was called (it was) but call again to be safe
+        applyStyleToDom(obj, dom);
+      }
     } else if(obj.type === 'image'){
       const wrap = document.createElement('div');
       wrap.className = 'canvas-item img-wrap';
@@ -210,6 +270,12 @@ document.addEventListener('DOMContentLoaded', () => {
       attachInteraction(wrap, obj);
       editorCanvas.appendChild(wrap);
       dom = wrap;
+
+      // إذا كان مُعدّاً للتلبيس -> ضع كلاس dressed وحدث overlay
+      if(obj.fillMode === 'dress' && obj.dress){
+        dom.classList.add('dressed');
+        updateImageOverlay(obj, dom);
+      }
     }
     return dom;
   }
@@ -220,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlayCanvas = wrap.querySelector('.img-overlay-canvas');
     if(!imgEl || !overlayCanvas) return;
     const dispW = obj.displayWidth || parseInt(imgEl.style.width) || imgEl.naturalWidth;
-    const dispH = obj.displayHeight || Math.round(imgEl.naturalHeight * (dispW / imgEl.naturalWidth));
+    const dispH = obj.displayHeight || Math.round(imgEl.naturalHeight * (dispW / img.naturalWidth));
     overlayCanvas.width = dispW; overlayCanvas.height = dispH;
     overlayCanvas.style.width = dispW + 'px'; overlayCanvas.style.height = dispH + 'px';
     overlayCanvas.style.left = '0px'; overlayCanvas.style.top = '0px';
@@ -257,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!dom) return;
     dom.style.transform = `rotate(${obj.rotation}rad)`;
     if(obj.type === 'text'){
-      if(obj.fillMode === 'solid' || !obj.gradient){
+      if(obj.fillMode === 'solid' || !obj.gradient && obj.fillMode !== 'dress'){
         dom.style.color = obj.color || '#000';
         dom.style.webkitTextFillColor = obj.color || '#000';
         dom.style.webkitBackgroundClip = 'unset';
@@ -273,6 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const text = obj.text || '';
         const tmp = document.createElement('canvas');
         const tctx = tmp.getContext('2d');
+        // If measureText requires loaded font, this may be approximate until font is ready.
         tctx.font = `${fontSize}px "${obj.font}"`;
         const w = Math.max(1, Math.ceil(tctx.measureText(text).width));
         const h = Math.max(1, fontSize + 10);
@@ -281,12 +348,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if(obj.dress){
           const dimg = new Image(); dimg.crossOrigin='anonymous';
           dimg.onload = ()=>{
+            tctx.clearRect(0,0,tmp.width,tmp.height);
+            // draw dress full-cover
             tctx.drawImage(dimg,0,0,w,h);
             tctx.globalCompositeOperation = 'destination-in';
             tctx.fillStyle = '#000';
+            tctx.font = `${fontSize}px "${obj.font}"`;
             tctx.fillText(text,0,fontSize*0.85);
             dom.style.backgroundImage = `url(${tmp.toDataURL()})`;
             dom.style.webkitBackgroundClip = 'text';
+            dom.style.backgroundClip = 'text';
             dom.style.color = 'transparent';
           };
           dimg.onerror = ()=> {
@@ -379,10 +450,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const txt = textInput.value.trim();
       if(!txt) return alert('أدخل نصًا أولاً');
       const obj = createElementObject('text',{ text: txt, font: (AVAILABLE_FONTS[0] ? AVAILABLE_FONTS[0].name : 'ReemKufiLocalFallback')});
-      renderElement(obj);
+      const dom = renderElement(obj);
+      // إذا لم تكن التلبيسات محمّلة عند الإنشاء ولكن أصبحت متاحة لاحقاً، سيقوم loadDressupsFromRepo بتطبيقها تلقائياً
       // auto-select newly added
       const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
       if(lastDom) selectElement(lastDom,obj);
+      // إذا كنا قد حملنا التلبيسات فعلاً قبل الإضافة -> طبق التلبيس ذكيًا بعد الرندر مباشرة
+      if(DRESSES_LOADED && AVAILABLE_DRESS.length && obj.fillMode === 'dress'){
+        applySmartDressToObj(obj, dom || lastDom);
+      }
       textInput.value='';
     } else {
       const f = fileImage.files && fileImage.files[0];
@@ -390,7 +466,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const reader = new FileReader();
       reader.onload = (ev)=>{
         const obj = createElementObject('image',{ img: ev.target.result });
-        renderElement(obj);
+        const dom = renderElement(obj);
+        // apply smart dress immediately if available
+        if(DRESSES_LOADED && AVAILABLE_DRESS.length && obj.fillMode === 'dress'){
+          applySmartDressToObj(obj, dom);
+        }
         const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
         if(lastDom) selectElement(lastDom,obj);
       };
@@ -465,6 +545,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const {obj,dom} = SELECTED;
     obj.fillMode = 'gradient';
     obj.gradient = g;
+    // remove dressed class if any (user chose gradient)
+    if(dom && dom.classList.contains('dressed')) dom.classList.remove('dressed');
     applyStyleToDom(obj, dom);
     // if image: update overlay
     if(obj.type === 'image') updateImageOverlay(obj, dom);
@@ -474,6 +556,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const {obj,dom} = SELECTED;
     obj.fillMode = 'dress';
     obj.dress = url;
+    // add dressed class for CSS hints
+    if(dom) dom.classList.add('dressed');
     applyStyleToDom(obj, dom);
     if(obj.type === 'image') updateImageOverlay(obj, dom);
   }
@@ -626,6 +710,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const {obj,dom} = SELECTED;
     obj.fillMode = 'gradient';
     obj.gradient = g;
+    // remove dressed class if user switched to gradient
+    if(dom && dom.classList.contains('dressed')) dom.classList.remove('dressed');
     applyStyleToDom(obj, dom);
   }
 
@@ -635,6 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const {obj,dom} = SELECTED;
     obj.fillMode = 'dress';
     obj.dress = url;
+    if(dom) dom.classList.add('dressed');
     applyStyleToDom(obj, dom);
   }
 
