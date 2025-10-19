@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const popupContainer = document.getElementById('popupContainer');
   const deleteSelected = document.getElementById('deleteSelected');
 
-  // conditionals
+  // conditionals (باقي عناصر الواجهة إن وُجدت)
   const textControls = document.getElementById('textControls');
   const imageControls = document.getElementById('imageControls');
 
@@ -308,7 +308,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return dom;
   }
 
-  // update overlay for image (gradient/dress applied to alpha only)
+  // نهاية جزء العرض — تكملة الدفعة 2 تأتي بعد هذا الجزء
+   // update overlay for image (gradient/dress applied to alpha only)
   function updateImageOverlay(obj, wrap){
     if(!wrap) return;
     const imgEl = wrap.querySelector('img');
@@ -439,18 +440,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // attempt to wait for fonts to be available for accurate measure
         if(document.fonts && document.fonts.ready){
           document.fonts.ready.then(()=>{
-            // also try load the specific font family (best-effort)
             if(obj.font){
               document.fonts.load(`${fontSize}px "${obj.font}"`).finally(drawDress);
             } else drawDress();
           }).catch(drawDress);
         } else {
-          // fallback immediate
           drawDress();
         }
       }
     } else if(obj.type === 'image'){
-      // image overlay updated in updateImageOverlay
       updateImageOverlay(obj, dom);
     }
   }
