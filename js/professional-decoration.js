@@ -7,7 +7,13 @@
    - استخدام عرض editorCanvas لحساب أقصى عرض للصور بدلاً من قيمة ثابتة
    - دعم إيماءات اللمس: سحب، تدوير، وتكبير/تصغير بعنصرين (pinch-to-zoom)
    - تكبير مقبض التدوير على أجهزة اللمس لتسهيل التفاعل
+
+   إصلاحات أساسية:
+   - عند إضافة صورة من الملف المحلي: الآن نحمّل الصورة مؤقتاً وننتظر naturalWidth/complete قبل رندرها في الـDOM
+   - updateImageOverlay صار يتحقق من جاهزية img المصدر ويعيد المحاولة أو ينتظر حدث load
+   - الحفاظ على الخلفية/شفافية الصورة: التدرج/التلبيسة تُطبّق فقط على ألفا (destination-in)
 */
+
 document.addEventListener('DOMContentLoaded', () => {
   // عناصر DOM
   const toggleSidebar = document.getElementById('toggleSidebar');
@@ -250,6 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
       wrap.style.top = obj.y + 'px';
       wrap.dataset.id = obj.id;
 
+      // ensure overlay canvas is positioned above the img but inside the wrap
       const img = document.createElement('img');
       img.src = obj.img;
       img.alt = '';
@@ -258,16 +265,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const overlayCanvas = document.createElement('canvas');
       overlayCanvas.className = 'img-overlay-canvas';
+      // style: overlay should be absolute inside wrap; CSS file should already handle but ensure here
+      overlayCanvas.style.position = 'absolute';
+      overlayCanvas.style.left = '0';
+      overlayCanvas.style.top = '0';
+      overlayCanvas.style.pointerEvents = 'none';
 
-      img.onload = () => {
+      // helper to finalize sizing once image source dimensions known
+      const finalizeImageLayout = ()=>{
         // حساب أقصى عرض ديناميكي حسب عرض لوحة التحرير (يتناسب مع الموبايل)
         const canvasPadding = 40; // ترك مسافة جانبية
+        // guard: ensure editorCanvas width exists
+        const editorW = Math.max(200, editorCanvas.clientWidth || 300);
         const maxw = Math.min(
-          Math.max(200, editorCanvas.clientWidth - canvasPadding),
-          img.naturalWidth
+          Math.max(200, editorW - canvasPadding),
+          img.naturalWidth || editorW
         );
         const dispW = obj.displayWidth || Math.min(480, maxw);
-        const aspect = img.naturalHeight / img.naturalWidth;
+        const aspect = img.naturalHeight && img.naturalWidth ? (img.naturalHeight / img.naturalWidth) : 1;
         const dispH = Math.round(dispW * aspect);
 
         img.style.width = dispW + 'px';
@@ -280,6 +295,30 @@ document.addEventListener('DOMContentLoaded', () => {
         updateImageOverlay(obj, wrap);
       };
 
+      // If image is already complete (from cache or dataURL), finalize immediately; otherwise wait load
+      if(img.complete && img.naturalWidth && img.naturalWidth > 0){
+        // small timeout to ensure CSS applied
+        setTimeout(finalizeImageLayout, 0);
+      } else {
+        img.addEventListener('load', function _onLoad(){
+          img.removeEventListener('load', _onLoad);
+          finalizeImageLayout();
+        });
+        // safety: if error, still append and show placeholder size
+        img.addEventListener('error', function _onErr(){
+          img.removeEventListener('error', _onErr);
+          // set fallback size
+          obj.displayWidth = obj.displayWidth || Math.min(300, editorCanvas.clientWidth - 40);
+          const fallbackH = Math.round((obj.displayWidth || 300) * 0.75);
+          wrap.style.width = (obj.displayWidth || 300) + 'px';
+          wrap.style.height = fallbackH + 'px';
+          overlayCanvas.width = obj.displayWidth || 300;
+          overlayCanvas.height = fallbackH;
+          overlayCanvas.style.width = (obj.displayWidth || 300) + 'px';
+          overlayCanvas.style.height = fallbackH + 'px';
+        });
+      }
+
       wrap.appendChild(img);
       wrap.appendChild(overlayCanvas);
       applyStyleToDom(obj, wrap);
@@ -290,6 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // إذا كان مُعدّاً للتلبيس -> ضع كلاس dressed وحدث overlay
       if(obj.fillMode === 'dress' && obj.dress){
         dom.classList.add('dressed');
+        // update overlay now (finalizeImageLayout will call updateImageOverlay once loaded)
         updateImageOverlay(obj, dom);
       }
     }
@@ -298,32 +338,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // update overlay for image (gradient/dress applied to alpha only)
   function updateImageOverlay(obj, wrap){
+    if(!wrap) return;
     const imgEl = wrap.querySelector('img');
     const overlayCanvas = wrap.querySelector('.img-overlay-canvas');
     if(!imgEl || !overlayCanvas) return;
-    const dispW = Math.round((obj.displayWidth || parseInt(imgEl.style.width) || img.naturalWidth) * (obj.scale || 1));
-    const dispH = Math.round((obj.displayHeight || Math.round(img.naturalHeight * (dispW / img.naturalWidth))) * (obj.scale || 1));
-    overlayCanvas.width = dispW; overlayCanvas.height = dispH;
-    overlayCanvas.style.width = dispW + 'px'; overlayCanvas.style.height = dispH + 'px';
-    overlayCanvas.style.left = '0px'; overlayCanvas.style.top = '0px';
+
+    // if image not complete yet, wait for load then re-run
+    if(!imgEl.complete || (imgEl.naturalWidth === 0 && imgEl.naturalHeight === 0)){
+      // attach once-only listener and return
+      const once = ()=>{
+        imgEl.removeEventListener('load', once);
+        imgEl.removeEventListener('error', once);
+        // slight delay to ensure layout reflected
+        setTimeout(()=> updateImageOverlay(obj, wrap), 20);
+      };
+      imgEl.addEventListener('load', once);
+      imgEl.addEventListener('error', once);
+      return;
+    }
+
+    // determine display width/height
+    const dispW = Math.round((obj.displayWidth || parseInt(imgEl.style.width) || imgEl.naturalWidth) * (obj.scale || 1));
+    const dispH = Math.round((obj.displayHeight || Math.round(imgEl.naturalHeight * (dispW / imgEl.naturalWidth))) * (obj.scale || 1));
+
+    // update overlay canvas size
+    overlayCanvas.width = dispW;
+    overlayCanvas.height = dispH;
+    overlayCanvas.style.width = dispW + 'px';
+    overlayCanvas.style.height = dispH + 'px';
+    overlayCanvas.style.left = '0px';
+    overlayCanvas.style.top = '0px';
     const ctx = overlayCanvas.getContext('2d');
     ctx.clearRect(0,0,dispW,dispH);
 
+    // draw according to fillMode
     if(obj.fillMode === 'gradient' && obj.gradient){
       const g = ctx.createLinearGradient(0,0,dispW,0);
       g.addColorStop(0, obj.gradient[0]); g.addColorStop(1, obj.gradient[1]);
       ctx.fillStyle = g; ctx.fillRect(0,0,dispW,dispH);
       ctx.globalCompositeOperation = 'destination-in';
-      ctx.drawImage(imgEl, 0, 0, dispW, dispH);
+      // draw the source image into the mask; drawImage expects the source img element and desired dimensions
+      try { ctx.drawImage(imgEl, 0, 0, dispW, dispH); } catch(e){ /* ignore drawing errors */ }
       ctx.globalCompositeOperation = 'source-over';
       overlayCanvas.style.opacity = 1;
     } else if(obj.fillMode === 'dress' && obj.dress){
       const dimg = new Image(); dimg.crossOrigin = 'anonymous';
       dimg.onload = ()=>{
         ctx.clearRect(0,0,dispW,dispH);
-        ctx.drawImage(dimg, 0, 0, dispW, dispH);
+        try { ctx.drawImage(dimg, 0, 0, dispW, dispH); } catch(e){}
         ctx.globalCompositeOperation = 'destination-in';
-        ctx.drawImage(imgEl, 0, 0, dispW, dispH);
+        try { ctx.drawImage(imgEl, 0, 0, dispW, dispH); } catch(e){}
         ctx.globalCompositeOperation = 'source-over';
         overlayCanvas.style.opacity = 1;
       };
@@ -339,9 +403,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!dom) return;
     // include scale in transform
     const sc = typeof obj.scale === 'number' ? obj.scale : 1;
-    dom.style.transform = `rotate(${obj.rotation}rad) scale(${sc})`;
+    // ensure rotation numeric
+    const rot = obj.rotation || 0;
+    dom.style.transform = `rotate(${rot}rad) scale(${sc})`;
     if(obj.type === 'text'){
-      if(obj.fillMode === 'solid' || !obj.gradient && obj.fillMode !== 'dress'){
+      if(obj.fillMode === 'solid' || (!obj.gradient && obj.fillMode !== 'dress')){
         dom.style.color = obj.color || '#000';
         dom.style.webkitTextFillColor = obj.color || '#000';
         dom.style.webkitBackgroundClip = 'unset';
@@ -349,6 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const g = obj.gradient;
         dom.style.background = `linear-gradient(90deg, ${g[0]}, ${g[1]})`;
         dom.style.webkitBackgroundClip = 'text';
+        dom.style.backgroundClip = 'text';
         dom.style.color = 'transparent';
         dom.style.webkitTextFillColor = 'transparent';
       } else if(obj.fillMode === 'dress' && obj.dress){
@@ -368,15 +435,17 @@ document.addEventListener('DOMContentLoaded', () => {
           dimg.onload = ()=>{
             tctx.clearRect(0,0,tmp.width,tmp.height);
             // draw dress full-cover
-            tctx.drawImage(dimg,0,0,w,h);
+            try { tctx.drawImage(dimg,0,0,w,h); } catch(e){}
             tctx.globalCompositeOperation = 'destination-in';
             tctx.fillStyle = '#000';
             tctx.font = `${fontSize}px "${obj.font}"`;
             tctx.fillText(text,0,fontSize*0.85);
-            dom.style.backgroundImage = `url(${tmp.toDataURL()})`;
-            dom.style.webkitBackgroundClip = 'text';
-            dom.style.backgroundClip = 'text';
-            dom.style.color = 'transparent';
+            try {
+              dom.style.backgroundImage = `url(${tmp.toDataURL()})`;
+              dom.style.webkitBackgroundClip = 'text';
+              dom.style.backgroundClip = 'text';
+              dom.style.color = 'transparent';
+            } catch(e){}
           };
           dimg.onerror = ()=> {
             dom.style.color = '#000';
@@ -543,16 +612,40 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       const f = fileImage.files && fileImage.files[0];
       if(!f) return alert('اختر صورة شفافة من جهازك');
+      // ** إصلاح مهم هنا: سنحمّل الصورة أولاً كـ Image للتأكد naturalWidth متوفِّر قبل رندر DOM **
       const reader = new FileReader();
       reader.onload = (ev)=>{
-        const obj = createElementObject('image',{ img: ev.target.result });
-        const dom = renderElement(obj);
-        // apply smart dress immediately if available
-        if(DRESSES_LOADED && AVAILABLE_DRESS.length && obj.fillMode === 'dress'){
-          applySmartDressToObj(obj, dom);
-        }
-        const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
-        if(lastDom) selectElement(lastDom,obj);
+        const dataUrl = ev.target.result;
+        // preload via Image to ensure dimensions available
+        const preload = new Image();
+        preload.onload = ()=>{
+          // الآن نملك naturalWidth/naturalHeight -> نستخدمها في إنشاء الكائن والعرض
+          const obj = createElementObject('image',{ img: dataUrl });
+          // set initial display sizes based on preload
+          const canvasPadding = 40;
+          const editorW = Math.max(200, editorCanvas.clientWidth || 300);
+          const maxw = Math.min(Math.max(200, editorW - canvasPadding), preload.naturalWidth || editorW);
+          obj.displayWidth = Math.min(480, maxw);
+          obj.displayHeight = Math.round(obj.displayWidth * (preload.naturalHeight / preload.naturalWidth));
+          const dom = renderElement(obj);
+          // apply smart dress immediately if available
+          if(DRESSES_LOADED && AVAILABLE_DRESS.length && obj.fillMode === 'dress'){
+            applySmartDressToObj(obj, dom);
+          }
+          const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
+          if(lastDom) selectElement(lastDom,obj);
+        };
+        preload.onerror = ()=>{
+          // fallback: still create element but sizes may be adjusted after load
+          const obj = createElementObject('image',{ img: dataUrl });
+          const dom = renderElement(obj);
+          if(DRESSES_LOADED && AVAILABLE_DRESS.length && obj.fillMode === 'dress'){
+            applySmartDressToObj(obj, dom);
+          }
+          const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
+          if(lastDom) selectElement(lastDom,obj);
+        };
+        preload.src = dataUrl;
       };
       reader.readAsDataURL(f);
       fileImage.value = '';
@@ -647,8 +740,7 @@ document.addEventListener('DOMContentLoaded', () => {
   btnDressups && btnDressups.addEventListener('click', ()=> openPopup('dress'));
   btnGradientsImg && btnGradientsImg.addEventListener('click', ()=> openPopup('grad'));
   btnDressupsImg && btnDressupsImg.addEventListener('click', ()=> openPopup('dress'));
-
-  // apply font to selected or last text
+   // apply font to selected or last text
   function applyFontToSelected(fontName){
     if(!SELECTED){
       // apply to last text element if exists
@@ -744,23 +836,23 @@ document.addEventListener('DOMContentLoaded', () => {
               const drawH = (obj.displayHeight || Math.round(img.naturalHeight * (drawW / img.naturalWidth))) * (obj.scale || 1);
 
               if(obj.fillMode === 'gradient' && obj.gradient){
-                const tmp = document.createElement('canvas'); tmp.width = drawW; tmp.height = drawH;
+                const tmp = document.createElement('canvas'); tmp.width = Math.max(1,Math.round(drawW)); tmp.height = Math.max(1,Math.round(drawH));
                 const tctx = tmp.getContext('2d');
                 const g = tctx.createLinearGradient(0,0,tmp.width,0);
                 g.addColorStop(0,obj.gradient[0]); g.addColorStop(1,obj.gradient[1]);
                 tctx.fillStyle = g; tctx.fillRect(0,0,tmp.width,tmp.height);
                 tctx.globalCompositeOperation='destination-in';
-                tctx.drawImage(img,0,0,tmp.width,tmp.height);
+                try { tctx.drawImage(img,0,0,tmp.width,tmp.height); } catch(e){}
                 ctx.drawImage(tmp,left,top,tmp.width,tmp.height);
                 res();
               } else if(obj.fillMode === 'dress' && obj.dress){
                 const dressImg = new Image(); dressImg.crossOrigin='anonymous';
                 dressImg.onload = ()=>{
-                  const tmp = document.createElement('canvas'); tmp.width = drawW; tmp.height = drawH;
+                  const tmp = document.createElement('canvas'); tmp.width = Math.max(1,Math.round(drawW)); tmp.height = Math.max(1,Math.round(drawH));
                   const tctx = tmp.getContext('2d');
-                  tctx.drawImage(dressImg,0,0,tmp.width,tmp.height);
+                  try { tctx.drawImage(dressImg,0,0,tmp.width,tmp.height); } catch(e){}
                   tctx.globalCompositeOperation='destination-in';
-                  tctx.drawImage(img,0,0,tmp.width,tmp.height);
+                  try { tctx.drawImage(img,0,0,tmp.width,tmp.height); } catch(e){}
                   ctx.drawImage(tmp,left,top,tmp.width,tmp.height);
                   res();
                 };
@@ -771,6 +863,7 @@ document.addEventListener('DOMContentLoaded', () => {
               }
             };
             img.onerror = ()=> res();
+            // attempt to use the live DOM image src (dataURL or remote)
             img.src = imgEl.src;
           });
         }
