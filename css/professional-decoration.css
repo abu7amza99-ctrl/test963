@@ -1,109 +1,119 @@
-/* professional-decoration.css - متوافق مع assets/fonts/ و assets/dressup/ */
+/* professional-decoration.css - النسخة النهائية حسب المطلوب */
 
 @font-face {
-  font-family: 'Reem Kufi';
-  src: url('../assets/fonts/ReemKufi.woff2') format('woff2');
-  font-weight: 400 800;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Cairo';
-  src: url('../assets/fonts/Cairo.woff2') format('woff2');
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Tajawal';
-  src: url('../assets/fonts/Tajawal.woff2') format('woff2');
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Amiri';
-  src: url('../assets/fonts/Amiri.woff2') format('woff2');
-  font-display: swap;
+  font-family: 'ReemKufiLocalFallback';
+  src: local('Reem Kufi'), local('ReemKufi');
 }
 
-/* ألوان ومتغيرات */
+/* Root colors */
 :root{
-  --gold:#cfa23a;
-  --gold-dark:#b8862a;
-  --panel-bg: rgba(207,162,58,0.10); /* 10% */
-  --toolbar-bg: rgba(207,162,58,0.40); /* 40% */
-  --sidebar-bg: rgba(207,162,58,0.20); /* 20% */
+  --gold1:#ffd700;
+  --gold2:#b8860b;
+  --panel: rgba(255, 235, 180, 0.10);
+  --panel-40: rgba(255,235,180,0.40);
+  --gold-trans: rgba(207,162,58,0.20);
   --muted:#9a9a9a;
+  --accent:#cfa23a;
+  --bg-dark:#0d0d0d;
 }
 
-/* reset بسيط */
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:'Cairo',sans-serif;direction:rtl;color:#111}
-.page-bg{position:fixed;inset:0;background-size:cover;background-position:center;z-index:-2}
+/* Reset */
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:'Cairo',sans-serif;background:var(--bg-dark);color:#fff;direction:rtl}
+a{color:inherit;text-decoration:none}
 
-/* topbar */
-.topbar{height:78px;display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center;box-shadow:0 6px 25px rgba(0,0,0,0.4);position:sticky;top:0;z-index:90}
-.topbar-inner{width:100%;max-width:1200px;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px}
-.app-center{display:flex;align-items:center;gap:12px}
-.app-logo{width:52px;height:52px;object-fit:contain}
-.app-title-main{font-family:'Reem Kufi',sans-serif;color:var(--gold);font-weight:800;font-size:20px;text-shadow:0 1px 0 rgba(0,0,0,0.6);border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:2px}
-.sidebar-btn{position:absolute;right:18px;background:transparent;border:0;cursor:pointer}
+/* Topbar */
+.topbar{
+  height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background-image:url('../assets/shbg.png');
+  background-size:cover;
+  background-position:center;
+  box-shadow:0 6px 20px rgba(0,0,0,0.6);
+  position:sticky;top:0;z-index:90;
+}
+.topbar-inner{width:100%;max-width:1200px;padding:8px 16px;display:flex;align-items:center;justify-content:center;gap:12px;position:relative}
+.brand{display:flex;align-items:center;gap:12px;transform:translateX(-10px)}
+.app-logo{width:48px;height:48px;object-fit:contain}
+.app-title{font-family:'ReemKufiLocalFallback', 'Reem Kufi', sans-serif;color:var(--gold1);font-weight:800;font-size:20px;text-shadow:0 1px 0 rgba(0,0,0,0.6);border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:2px}
+
+/* Sidebar button (right side) */
+.sidebar-btn{position:absolute;right:14px;background:transparent;border:0;cursor:pointer}
 .sidebar-btn img{width:44px;height:44px}
 
-/* sidebar */
-.sidebar{position:fixed;top:0;right:-320px;width:320px;height:100%;background:var(--sidebar-bg);backdrop-filter: blur(6px);padding:18px;transition:right .28s ease;z-index:200}
-.sidebar.open{right:0}
-.sidebar-close{position:absolute;left:12px;top:8px;background:transparent;color:#000;border:0;font-size:28px}
-.sidebar-menu ul{list-style:none;margin-top:40px}
-.sidebar-menu li{margin:12px 0}
-.sidebar-menu a{display:block;padding:10px;border-radius:8px;color:#111;font-family:'Reem Kufi';text-decoration:none}
+/* Sidebar */
+.sidebar{
+  position:fixed;right:-320px;top:0;height:100%;width:320px;background:linear-gradient(180deg,rgba(207,162,58,0.2),rgba(207,162,58,0.12));padding:18px;transition:right .26s;z-index:100;
+  backdrop-filter: blur(4px);
+}
+.sidebar.active{right:0}
+.sidebar-close{position:absolute;left:12px;top:8px;background:transparent;color:#fff;border:0;font-size:28px}
+.sidebar-menu ul{list-style:none;padding:0;margin-top:40px}
+.sidebar-menu li{margin:10px 0}
+.sidebar-menu a{display:block;padding:10px;border-radius:8px;color:var(--gold1)}
 
-/* main layout */
-.main{min-height:calc(100vh - 78px);display:flex;align-items:flex-start;justify-content:center;padding:18px}
-.editor-container{width:100%;max-width:1180px;background:var(--panel-bg);border-radius:14px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,0.35)}
-.editor-section-title{text-align:center;font-family:'Reem Kufi',sans-serif;color:var(--gold);font-size:28px;margin-bottom:12px;text-shadow:0 1px 0 rgba(0,0,0,0.4)}
+/* Main layout */
+.main{min-height:calc(100vh - 72px);padding:22px 14px;background-image:url('../assets/bg.png');background-size:cover;background-position:center;display:flex;justify-content:center;align-items:flex-start}
+.editor-container{width:100%;max-width:1180px;background:var(--panel);border-radius:14px;padding:16px;box-shadow:0 30px 60px rgba(0,0,0,0.6)}
+.editor-title{text-align:center;color:var(--accent);font-family:'ReemKufiLocalFallback', 'Reem Kufi',sans-serif;font-size:28px;margin:6px 0 14px}
 
-/* toolbar */
-.toolbar{display:flex;gap:8px;align-items:center;justify-content:flex-start;background:var(--toolbar-bg);padding:12px;border-radius:10px;flex-wrap:wrap;margin-bottom:12px}
-.tool-item{display:flex;align-items:center;gap:6px;color:#111}
-.toolbar input[type="text"], .toolbar select, .toolbar input[type="file"]{padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.08)}
-.btn{padding:8px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
-.btn.primary{background:linear-gradient(90deg,var(--gold-dark),var(--gold));color:#120800}
-.btn.download{background:linear-gradient(90deg,var(--gold),#fff);color:#000;border:1px solid rgba(255,255,255,0.6)}
-.btn.danger{background:#e74c3c;color:#fff}
+/* Toolbar */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-start;background:var(--panel-40);padding:12px;border-radius:10px}
+.toolbar label{display:inline-flex;align-items:center;gap:6px;color:#222}
+.toolbar select,.toolbar input[type="text"],.toolbar input[type="file"]{padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:rgba(255,255,255,0.95);color:#111}
+.btn{padding:8px 12px;border-radius:12px;border:0;background:linear-gradient(90deg,var(--gold2),var(--gold1));color:#120800;cursor:pointer;font-weight:700}
+.btn.small{padding:6px 8px;font-size:14px}
+.btn.primary{background:linear-gradient(90deg,#f2d46b,#ffd86a);color:#120800}
+.btn.danger{background:#d9534f;color:#fff}
+.btn.download{background:linear-gradient(90deg,#f7df9a,#f0c65a);color:#000;border:1px solid rgba(255,255,255,0.6)}
 
-/* معاينة */
-.editor-canvas{position:relative;background:transparent;border:3px dashed rgba(0,0,0,0.08);min-height:420px;border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.editor-canvas .hint{color:var(--muted);text-align:center}
+/* conditional sections */
+.conditional{display:flex;gap:8px;align-items:center}
+.hidden{display:none}
 
-/* عناصر قابلة للتحرير */
+/* editor-canvas */
+.editor-canvas{position:relative;background:linear-gradient(180deg,#ffffff,#f7f7f7);min-height:420px;border-radius:12px;padding:14px;border:3px dashed rgba(207,162,58,0.45);overflow:hidden}
+.hint{color:#675a3a;text-align:center;margin-top:12%}
+
+/* canvas items */
 .canvas-item{position:absolute;touch-action:none;user-select:none;cursor:grab;transform-origin:center center}
-.canvas-item.selected{outline:3px dashed rgba(0,0,0,0.12);outline-offset:8px;border-radius:6px}
-.text-item{font-family:'Reem Kufi',sans-serif;font-size:48px;color:#111;padding:6px;white-space:nowrap}
-.img-wrap{position:absolute;display:inline-block}
-.img-wrap img{display:block;max-width:700px;height:auto;pointer-events:none}
+.canvas-item.selected{outline:4px dashed rgba(207,162,58,0.85);outline-offset:8px;border-radius:6px}
 
-/* overlays */
-.img-overlay-canvas{position:absolute;left:0;top:0;pointer-events:none;display:block;}
+/* text item */
+.text-item{font-family:'ReemKufiLocalFallback','Reem Kufi',sans-serif;font-size:48px;color:#111;padding:6px;white-space:nowrap;pointer-events:auto}
+
+/* image wrap */
+.img-wrap{position:absolute;display:inline-block}
+.img-wrap img{display:block;max-width:700px;height:auto;display:block;pointer-events:none} /* pointer-events none -> يضمن تحديد الوِرَاب عند النقر */
+.img-overlay-canvas{position:absolute;left:0;top:0;right:auto;bottom:auto;pointer-events:none;display:block;opacity:0;transition:opacity .18s}
 
 /* rotate handle */
-.rotate-handle{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;color:#120800;font-weight:700;position:absolute;top:-18px;left:-18px;cursor:grab;box-shadow:0 6px 18px rgba(0,0,0,0.25)}
-
-/* bottom controls */
-.bottom-controls{display:flex;gap:12px;justify-content:center;margin-top:12px}
+.rotate-handle{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold1),var(--gold2));
+  display:flex;align-items:center;justify-content:center;color:#120800;font-weight:700;position:absolute;top:-18px;left:-18px;cursor:grab;box-shadow:0 6px 18px rgba(0,0,0,0.3)
+}
 
 /* popup */
 .popup-container{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:1200;padding:20px}
 .popup-container.open{display:flex}
-.popup{width:920px;max-width:95%;background:#fff;border-radius:12px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,0.25)}
+.popup{width:920px;max-width:100%;background:#fff;border-radius:12px;padding:14px;box-shadow:0 30px 80px rgba(0,0,0,0.25)}
 .popup-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.popup-body{display:flex;flex-direction:column;gap:12px}
 .grad-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
-.grad-sample{height:48px;border-radius:10px;border:1px solid #eee;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.grad-sample{height:48px;border-radius:10px;border:1px solid #eee;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.04)}
 .dress-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
 .dress-item{height:86px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid #eee}
 .dress-item img{max-width:100%;max-height:100%;object-fit:cover}
 
+/* bottom */
+.bottom-bar{display:flex;gap:10px;justify-content:center;margin-top:12px}
+
 /* responsive */
-@media (max-width:900px){
-  .grad-grid{grid-template-columns:repeat(3,1fr)}
+@media(max-width:900px){
+  .grad-grid{grid-template-columns:repeat(4,1fr)}
   .dress-grid{grid-template-columns:repeat(3,1fr)}
-  .toolbar{overflow:auto}
-  .sidebar{width:100%;right:-100%}
-}
+  .editor-canvas{min-height:360px;padding:10px}
+          }
