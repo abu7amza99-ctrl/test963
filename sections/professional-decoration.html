@@ -189,7 +189,38 @@
   <!-- Popup للتدرجات والتلبيسات -->
   <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
 
-  <!-- السكربت -->
+  <!-- ✅ إصلاح عرض الصور والتلبيس للهاتف -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const fileInput = document.getElementById("fileImage");
+      const canvas = document.getElementById("editorCanvas");
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = document.createElement("img");
+          img.src = reader.result;
+          img.alt = "صورة مرفوعة";
+          img.className = "uploaded-image";
+          img.style.maxWidth = "100%";
+          img.style.height = "auto";
+          img.style.display = "block";
+          img.style.margin = "0 auto";
+          const wrap = document.createElement("div");
+          wrap.className = "canvas-item img-wrap";
+          wrap.style.position = "absolute";
+          wrap.style.left = "10px";
+          wrap.style.top = "10px";
+          wrap.appendChild(img);
+          canvas.appendChild(wrap);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+  </script>
+
+  <!-- السكربت الأصلي -->
   <script src="../js/professional-decoration.js" defer></script>
 </body>
-      </html>
+                                                   </html>
