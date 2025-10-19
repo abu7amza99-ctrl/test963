@@ -3,26 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>عالم التصاميم والزخرفة — زخرفة احترافية</title>
+  <title>عالم التصاميم والزخرفة — الزخرفة الاحترافية</title>
 
-  <!-- الخطوط والستايل -->
+  <!-- الروابط -->
   <link rel="stylesheet" href="../css/professional-decoration.css">
-
-  <!-- سكربت التحكم (موجود في js/) -->
-  <script src="../js/professional-decoration.js" defer></script>
 </head>
 <body>
-  <!-- خلفية عامة -->
-  <div class="page-bg" style="background-image:url('../assets/bg.png')"></div>
-
   <!-- شريط علوي -->
-  <header class="topbar" style="background-image:url('../assets/shbg.png')">
+  <header class="topbar" id="topbar">
     <div class="topbar-inner">
       <button id="toggleSidebar" class="sidebar-btn" aria-label="قائمة"><img src="../assets/yhbg.png" alt="قائمة"></button>
-
-      <div class="app-center">
+      <div class="brand">
         <img src="../assets/abu7amza.png" alt="لوغو" class="app-logo">
-        <div class="app-title-main">عالم التصاميم والزخرفة</div>
+        <div class="app-title">عالم التصاميم والزخرفة</div>
       </div>
     </div>
   </header>
@@ -41,97 +34,78 @@
     </nav>
   </aside>
 
-  <!-- القسم الرئيسي -->
-  <main class="main">
+  <!-- المحتوى -->
+  <main class="main" id="main" style="background-image:url('../assets/bg.png')">
     <section class="editor-container">
+      <h1 class="editor-title">الزخرفة الاحترافية</h1>
 
-      <h1 class="editor-section-title">الزخرفة الاحترافية</h1>
-
-      <!-- شريط الأدوات -->
-      <div class="toolbar">
-        <label class="tool-item">النوع
+      <div class="toolbar" role="toolbar" aria-label="أدوات المحرر">
+        <label>النوع
           <select id="modeSelect">
             <option value="text">نص</option>
             <option value="image">صورة</option>
           </select>
         </label>
 
-        <!-- input text (يظهر عندما يختار المستخدم نص) -->
-        <label class="tool-item" id="textInputWrap">النص
-          <input id="textInput" type="text" placeholder="اكتب النص هنا...">
-        </label>
+        <div id="textControls" class="conditional">
+          <label>النص
+            <input id="textInput" type="text" placeholder="اكتب النص وسيظهر تلقائياً">
+          </label>
 
-        <!-- upload image (يظهر عندما يختار المستخدم صورة) -->
-        <label class="tool-item" id="fileInputWrap" style="display:none">صورة شفافة
-          <input id="fileImage" type="file" accept="image/png,image/*">
-        </label>
+          <label>الخط
+            <div class="font-select-wrapper">
+              <button id="openFontList" class="open-list">اختر خط ▾</button>
+              <div id="fontList" class="panel-list hidden" aria-hidden="true"></div>
+            </div>
+          </label>
 
-        <!-- اختيار الخط -->
-        <label class="tool-item">الخط
-          <select id="fontSelect"></select>
-        </label>
+          <label>نوع اللون
+            <select id="textColorMode">
+              <option value="solid">لون ثابت</option>
+              <option value="gradient">تدرج</option>
+              <option value="dress">تلبيس</option>
+            </select>
+          </label>
+          <button id="openColorGrid" class="btn small">إظهار التدرجات/ألوان</button>
+          <button id="openDressGrid" class="btn small">عرض التلبيسات</button>
+        </div>
 
-        <!-- نوع التلوين -->
-        <label class="tool-item">نوع اللون
-          <select id="colorMode">
-            <option value="solid">لون ثابت</option>
-            <option value="gradient">تدرج</option>
-            <option value="dress">تلبيس</option>
-          </select>
-        </label>
+        <div id="imageControls" class="conditional hidden">
+          <label class="file-label">رفع صورة شفافة
+            <input id="fileImage" type="file" accept="image/png,image/*">
+          </label>
 
-        <!-- زر عرض الشبكة للتدرجات / التلبيسات -->
-        <button id="btnShowPalette" class="tool-item btn">إظهار الشبكة</button>
+          <label>نوع اللون
+            <select id="imageColorMode">
+              <option value="solid">لون ثابت</option>
+              <option value="gradient">تدرج</option>
+              <option value="dress">تلبيس</option>
+            </select>
+          </label>
 
-        <!-- إضافة / معاينة -->
-        <button id="btnAdd" class="btn primary">أضف / اعرض</button>
+          <button id="openColorGridImg" class="btn small">التدرجات</button>
+          <button id="openDressGridImg" class="btn small">التلبيسات</button>
+        </div>
+
+        <button id="btnAdd" class="btn primary">أضف</button>
       </div>
 
-      <!-- مربع المعاينة -->
+      <!-- معاينة -->
       <div id="editorCanvas" class="editor-canvas" tabindex="0" role="application" aria-label="لوحة التصميم">
-        <div class="hint">أضف نصاً أو صورة شفافة لبدء المعاينة</div>
+        <div class="hint">أضف نصاً أو صورة شفافة للمعاينة هنا ✨</div>
       </div>
 
-      <!-- أسفل المعاينة: أدوات إضافية -->
-      <div class="bottom-controls">
+      <div class="bottom-bar">
         <button id="deleteSelected" class="btn danger">حذف المحدد</button>
-        <button id="downloadImage" class="btn download">تحميل التصميم</button>
+        <button id="downloadImage" class="btn primary download">تحميل التصميم</button>
       </div>
     </section>
   </main>
 
-  <!-- نافذة عرض التدرجات / التلبيسات -->
+  <!-- Popup للتدرجات والتلبيسات -->
   <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
 
-  <!-- إصلاح: السماح للنقر على الصورة داخل العنصر ليفعل التحديد -->
-  <script>
-    document.addEventListener('click', (e) => {
-      const canvas = document.getElementById('editorCanvas');
-      if (!canvas) return;
-      const item = e.target.closest('.canvas-item');
-      if (item && canvas.contains(item)) {
-        item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-      }
-    });
-  </script>
+  <!-- السكربت -->
+  <script src="../js/professional-decoration.js" defer></script>
 </body>
-</html>    <!-- نافذة التدرجات / التلبيسات -->
-    <div id="popupContainer" class="popup-container"></div>
-  </section>
-
-  <script src="../js/professional-decoration.js"></script>
-
-  <script>
-    // ✅ تأكيد تحديد العنصر عند النقر داخل ساحة التحرير
-    document.addEventListener('click', (e) => {
-      const canvas = document.getElementById('editorCanvas');
-      if (!canvas) return;
-
-      const item = e.target.closest('.canvas-item');
-      if (item && canvas.contains(item)) {
-        item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-      }
-    });
-  </script>
-</body>
-</html>
+          </html>
