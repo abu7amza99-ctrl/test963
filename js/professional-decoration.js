@@ -601,9 +601,33 @@ document.addEventListener('DOMContentLoaded', () => {
       if(!txt) return alert('أدخل نصًا أولاً');
       const obj = createElementObject('text',{ text: txt, font: (AVAILABLE_FONTS[0] ? AVAILABLE_FONTS[0].name : 'ReemKufiLocalFallback')});
       const dom = renderElement(obj);
-      const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
-      if(lastDom) selectElement(lastDom,obj);
-      textInput.value='';
+      // 🟩 توسيط النص في منتصف المعاينة وجعله بنفس حجم مربع الصورة
+const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
+if(lastDom) {
+  const previewW = editorCanvas.clientWidth;
+  const previewH = editorCanvas.clientHeight;
+
+  // جعل النص بنفس حجم المربع تقريباً (عرض وارتفاع المربع)
+  const boxSize = Math.min(previewW, previewH) * 0.8; // نسبة 80% من حجم المربع
+  obj.size = boxSize / 4; // حجم الخط متناسب مع حجم المربع
+  dom.style.fontSize = obj.size + 'px';
+
+  // حساب تمركز النص
+  const rect = dom.getBoundingClientRect();
+  const textW = rect.width;
+  const textH = rect.height;
+
+  const centerX = (previewW - textW) / 2;
+  const centerY = (previewH - textH) / 2;
+
+  obj.x = centerX;
+  obj.y = centerY;
+  dom.style.left = centerX + 'px';
+  dom.style.top = centerY + 'px';
+  
+  selectElement(lastDom,obj);
+}
+textInput.value='';
     } else {
       const f = fileImage.files && fileImage.files[0];
       if(!f) return alert('اختر صورة شفافة من جهازك');
