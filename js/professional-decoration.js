@@ -968,4 +968,4 @@ const desiredH = parseInt(document.getElementById('heightInput').value);
     fontListPanel.classList.toggle('hidden');
   });
 
-}); // end DOMContentLoaded
+}); // end DOMContentLoade
