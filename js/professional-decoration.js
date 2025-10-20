@@ -735,27 +735,6 @@ dom.style.top = centerY + 'px';
       dom.style.webkitTextFillColor = 'transparent';
     } else if(obj.type === 'image'){
       // For images: set the obj.gradient then redraw overlay (overlay cleared inside updateImageOverlay)
-      updateImageOverlay(obj, dom);function applyDressToSelected(url){
-  if(!SELECTED){ alert('اختر عنصرًا أولاً'); return; }
-  const {obj,dom} = SELECTED;
-  obj.fillMode = 'dress';
-  obj.dress = url;
-
-  if(obj.type === 'text'){
-    dom.classList.add('dressed');
-    applyStyleToDom(obj, dom);
-    // ✅ تصحيح المعاينة الفورية بعد تحميل الخط
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => applyStyleToDom(obj, dom));
-    } else {
-      applyStyleToDom(obj, dom);
-    }
-  } else if(obj.type === 'image'){
-    dom.classList.add('dressed');
-    updateImageOverlay(obj, dom);
-  }
-  }
-
 function applyDressToSelected(url){
   if(!SELECTED){ alert('اختر عنصرًا أولاً'); return; }
   const {obj,dom} = SELECTED;
@@ -997,4 +976,3 @@ const desiredH = parseInt(document.getElementById('heightInput').value);
   });
 
 }); // end DOMContentLoaded
-
