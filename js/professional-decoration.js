@@ -608,7 +608,7 @@ if(lastDom) {
   const previewH = editorCanvas.clientHeight;
 
   // جعل النص بنفس حجم المربع تقريباً (عرض وارتفاع المربع)
-  const boxSize = Math.min(previewW, previewH) * 0.8; // نسبة 80% من حجم المربع
+  const boxSize = Math.min(previewW, previewH) * 1; // نسبة 80% من حجم المربع
   obj.size = boxSize / 4; // حجم الخط متناسب مع حجم المربع
   dom.style.fontSize = obj.size + 'px';
 
