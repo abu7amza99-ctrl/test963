@@ -770,15 +770,22 @@ dom.style.top = centerY + 'px';
   downloadImage.addEventListener('click', async ()=>{
     try {
       const rect = editorCanvas.getBoundingClientRect();
-      const W = Math.max(800, Math.round(rect.width));
-      const H = Math.max(400, Math.round(rect.height));
+     const W = Math.round(rect.width);
+     const H = Math.round(rect.height);
+     // 🔹 احسب نسبة التكبير بين حجم الصورة المطلوب وحجم المعاينة
+    const desiredW = parseInt(document.querySelector('input[placeholder="العرض (px)"]').value) || W;
+    const desiredH = parseInt(document.querySelector('input[placeholder="الارتفاع (px)"]').value) || H;
+    const scaleX = desiredW / W;
+    const scaleY = desiredH / H;
+    const scale = Math.min(scaleX, scaleY);
       const out = document.createElement('canvas'); 
       const ctx = out.getContext('2d');
-      // ✅ ضبط دقة الكانفاس لتطابق المعاينة على جميع الأجهزة (خاصة الجوال)
-// 🧩 تعديل: اجعل حجم الكانفاس مطابق تمامًا لمربع المعاينة (بدون تكبير للجوال)
-      out.width = W;
-      out.height = H;
+      out.width = W * scale;
+      out.height = H * scale;
+      ctx.scale(scale, scale);
+      ctx.imageSmoothingQuality = 'high';
       ctx.clearRect(0, 0, W, H);
+     
 
       const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
       for(const dom of domChildren){
