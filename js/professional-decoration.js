@@ -454,28 +454,27 @@ document.addEventListener('DOMContentLoaded', () => {
             w = Math.ceil(w + 8); h = Math.ceil(h + 8);
             tmp.width = w; tmp.height = h;
             const dimg = new Image(); dimg.crossOrigin='anonymous';
-            dimg.onload = ()=>{
-              const t2 = tmp.getContext('2d');
-              t2.clearRect(0,0,w,h);
-              try { t2.drawImage(dimg,0,0,w,h); } catch(e){}
-              t2.globalCompositeOperation = 'destination-in';
-              t2.fillStyle = '#000';
-              t2.font = `${fontSize}px "${obj.font}"`;
-              t2.textBaseline = 'top';
-              t2.fillText(text, 4, 4);
-              try {
-  dom.style.backgroundImage = `url(${obj.dress})`;
-} catch(e){
+              dimg.onload = () => {
+  const t2 = tmp.getContext('2d');
+  t2.clearRect(0, 0, w, h);
+  try {
+    t2.drawImage(dimg, 0, 0, w, h);
+  } catch(e) {}
+  t2.globalCompositeOperation = 'destination-in';
+  t2.fillStyle = '#000';
+  t2.font = `${fontSize}px "${obj.font}"`;
+  t2.textBaseline = 'top';
+  t2.fillText(text, 4, 4);
+
+  dom.style.backgroundImage = `url(${tmp.toDataURL()})`;
+  dom.style.color = 'transparent';
+};
+
+dimg.onerror = () => {
   dom.style.color = obj.color || '#000';
-}
-                dom.style.color = obj.color || '#000';
-              }
-            };
-            dimg.onerror = ()=> { dom.style.color = obj.color || '#000'; };
-            dimg.src = obj.dress;
-          } catch(e){
-            dom.style.color = obj.color || '#000';
-          }
+};
+
+dimg.src = obj.dress;
         };
 
         if(document.fonts && document.fonts.ready){
