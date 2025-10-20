@@ -775,11 +775,10 @@ dom.style.top = centerY + 'px';
       const out = document.createElement('canvas'); 
       const ctx = out.getContext('2d');
       // ✅ ضبط دقة الكانفاس لتطابق المعاينة على جميع الأجهزة (خاصة الجوال)
-const ratio = window.devicePixelRatio || 1;
-out.width = W * ratio;
-out.height = H * ratio;
-ctx.scale(ratio, ratio);
-      ctx.clearRect(0,0,W,H);
+// 🧩 تعديل: اجعل حجم الكانفاس مطابق تمامًا لمربع المعاينة (بدون تكبير للجوال)
+      out.width = W;
+      out.height = H;
+      ctx.clearRect(0, 0, W, H);
 
       const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
       for(const dom of domChildren){
