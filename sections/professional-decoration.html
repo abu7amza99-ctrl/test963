@@ -36,6 +36,28 @@
     border-radius: 6px;
     text-align: center;
   }
+  /* ⚙️ تحسين عرض المعاينة ومحاذاة النص */
+  #editorCanvas {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  /* النص داخل المعاينة يكون دائماً بالوسط */
+  #editorCanvas .canvas-item.text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* تحسين مظهر زر التحميل */
+  .btn.primary.download {
+    background-color: #4caf50;
+    color: white;
+  }
   </style>
 </head>
 <body>
@@ -151,4 +173,4 @@
   <!-- سكربت الأساسي -->
   <script src="../js/professional-decoration.js" defer></script>
 </body>
-      </html>
+  </html>
