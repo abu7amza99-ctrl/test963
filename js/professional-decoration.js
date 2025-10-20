@@ -267,8 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const editorW = Math.max(200, editorCanvas.clientWidth || 300);
         const maxw = Math.min(Math.max(200, editorW - canvasPadding), img.naturalWidth || editorW);
         const dispW = obj.displayWidth || Math.min(480, maxw);
-        const aspect = img.naturalHeight && img.naturalWidth ? (img.naturalHeight / img.naturalWidth) : 1;
-        const dispH = Math.round(dispW * aspect);
+        const dispH = dispW; // 🔲 نجعل الصورة مربعة تمامًا (العرض = الارتفاع)
 
         img.style.width = dispW + 'px';
         wrap.style.width = dispW + 'px';
