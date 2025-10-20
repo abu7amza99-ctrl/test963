@@ -766,8 +766,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const rect = editorCanvas.getBoundingClientRect();
       const W = Math.max(800, Math.round(rect.width));
       const H = Math.max(400, Math.round(rect.height));
-      const out = document.createElement('canvas'); out.width = W; out.height = H;
+      const out = document.createElement('canvas'); 
       const ctx = out.getContext('2d');
+      // ✅ ضبط دقة الكانفاس لتطابق المعاينة على جميع الأجهزة (خاصة الجوال)
+const ratio = window.devicePixelRatio || 1;
+out.width = W * ratio;
+out.height = H * ratio;
+ctx.scale(ratio, ratio);
       ctx.clearRect(0,0,W,H);
 
       const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
