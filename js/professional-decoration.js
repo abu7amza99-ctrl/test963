@@ -831,8 +831,8 @@ document.addEventListener('DOMContentLoaded', () => {
             img.onload = async ()=>{
               const left = Math.round(parseFloat(wrap.style.left)||obj.x||0);
               const top = Math.round(parseFloat(wrap.style.top)||obj.y||0);
-              const drawW = (obj.displayWidth || parseInt(imgEl.style.width) || img.naturalWidth) * (obj.scale || 1);
-              const drawH = (obj.displayHeight || Math.round(img.naturalHeight * (drawW / img.naturalWidth))) * (obj.scale || 1);
+              const drawW = parseInt(imgEl.style.width) || (obj.displayWidth * (obj.scale || 1)) || img.naturalWidth;
+              const drawH = parseInt(imgEl.style.height) || (obj.displayHeight * (obj.scale || 1)) || img.naturalHeight;
 
               if(obj.fillMode === 'gradient' && obj.gradient){
                 const tmp = document.createElement('canvas'); tmp.width = Math.max(1,Math.round(drawW)); tmp.height = Math.max(1,Math.round(drawH));
