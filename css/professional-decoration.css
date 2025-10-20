@@ -113,7 +113,7 @@ a { color: inherit; text-decoration: none; }
 .hidden { display: none; }
 
 /* ✅ مربع المعاينة ديناميكي (يتغير بالحجم حسب اختيار المستخدم) */
-..editor-canvas {
+.editor-canvas {
   position: relative;
   background: linear-gradient(180deg,#ffffff,#f7f7f7);
   width: 100%;
@@ -222,4 +222,4 @@ a { color: inherit; text-decoration: none; }
     max-width: 85vw;
     right: -85vw;
   }
-}
+                                                                           }
