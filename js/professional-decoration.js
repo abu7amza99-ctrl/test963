@@ -464,11 +464,10 @@ document.addEventListener('DOMContentLoaded', () => {
               t2.textBaseline = 'top';
               t2.fillText(text, 4, 4);
               try {
-                dom.style.backgroundImage = `url(${tmp.toDataURL()})`;
-                dom.style.webkitBackgroundClip = 'text';
-                dom.style.backgroundClip = 'text';
-                dom.style.color = 'transparent';
-              } catch(e){
+  dom.style.backgroundImage = `url(${obj.dress})`;
+} catch(e){
+  dom.style.color = obj.color || '#000';
+}
                 dom.style.color = obj.color || '#000';
               }
             };
