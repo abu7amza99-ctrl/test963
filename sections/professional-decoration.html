@@ -11,6 +11,31 @@
   <style>
     /* تأكيد موضعي لأن بعض البيئات قد تحتاج */
     #editorCanvas { position: relative; }
+    /* 🎨 تنسيق حقول إدخال الأبعاد */
+  .export-size {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .export-size label {
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .export-size input {
+    width: 80px;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    text-align: center;
+  }
   </style>
 </head>
 <body>
@@ -102,10 +127,21 @@
         <div class="hint"></div>
       </div>
 
-      <div class="bottom-bar">
-        <button id="deleteSelected" class="btn danger">حذف المحدد</button>
-        <button id="downloadImage" class="btn primary download">تحميل التصميم</button>
-      </div>
+     <div class="bottom-bar">
+  <button id="deleteSelected" class="btn danger">حذف المحدد</button>
+
+  <!-- 🧭 إدخال أبعاد الصورة -->
+  <div class="export-size">
+    <label>العرض (px)
+      <input id="exportWidth" type="number" value="3000" min="100" step="100">
+    </label>
+    <label>الارتفاع (px)
+      <input id="exportHeight" type="number" value="3000" min="100" step="100">
+    </label>
+  </div>
+
+  <button id="downloadImage" class="btn primary download">تحميل التصميم</button>
+</div>
     </section>
   </main>
 
@@ -115,4 +151,4 @@
   <!-- سكربت -->
   <script src="../js/professional-decoration.js" defer></script>
 </body>
-</html>
+        </html>
