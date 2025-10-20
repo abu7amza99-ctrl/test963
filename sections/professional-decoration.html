@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>عالم التصاميم والزخرفة — الزخرفة الاحترافية</title>
 
   <!-- رابط CSS -->
@@ -35,6 +35,28 @@
     border: 1px solid #ccc;
     border-radius: 6px;
     text-align: center;
+  }
+  /* ⚙️ تحسين عرض المعاينة ومحاذاة النص */
+  #editorCanvas {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  /* النص داخل المعاينة يكون دائماً بالوسط */
+  #editorCanvas .canvas-item.text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* تحسين مظهر زر التحميل */
+  .btn.primary.download {
+    background-color: #4caf50;
+    color: white;
   }
   </style>
 </head>
@@ -130,14 +152,15 @@
      <div class="bottom-bar">
   <button id="deleteSelected" class="btn danger">حذف المحدد</button>
 
-  <!-- 🧭 إدخال أبعاد الصورة -->
-  <div class="export-size">
-    <label>العرض (px)
-      <input id="exportWidth" type="number" value="3000" min="100" step="100">
-    </label>
-    <label>الارتفاع (px)
-      <input id="exportHeight" type="number" value="3000" min="100" step="100">
-    </label>
+<!-- 🧭 إدخال أبعاد الصورة -->
+<div class="export-size">
+  <label>العرض (px)
+    <input type="number" placeholder="العرض" value="3000" min="100" step="100">
+  </label>
+  <label>الارتفاع (px)
+    <input type="number" placeholder="الارتفاع" value="3000" min="100" step="100">
+  </label>
+</div>
   </div>
 
   <button id="downloadImage" class="btn primary download">تحميل التصميم</button>
@@ -148,7 +171,7 @@
   <!-- Popup للتدرجات والتلبيسات -->
   <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
 
-  <!-- سكربت -->
+  <!-- سكربت الأساسي -->
   <script src="../js/professional-decoration.js" defer></script>
 </body>
-  </html>
+</html>
