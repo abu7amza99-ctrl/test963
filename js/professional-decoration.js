@@ -770,13 +770,8 @@ dom.style.top = centerY + 'px';
   downloadImage.addEventListener('click', async ()=>{
     try {
       const rect = editorCanvas.getBoundingClientRect();
-      // جلب القيم من الحقول الجديدة
-const userW = parseInt(document.getElementById('exportWidth').value) || 3000;
-const userH = parseInt(document.getElementById('exportHeight').value) || 3000;
-
-// تحديد أبعاد الصورة حسب إدخال المستخدم
-const W = userW;
-const H = userH;
+      const W = Math.max(800, Math.round(rect.width));
+      const H = Math.max(400, Math.round(rect.height));
       const out = document.createElement('canvas'); 
       const ctx = out.getContext('2d');
       // ✅ ضبط دقة الكانفاس لتطابق المعاينة على جميع الأجهزة (خاصة الجوال)
