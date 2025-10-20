@@ -2,7 +2,9 @@
 
 /* خطوط */
 @font-face {
-font-family: 'Reem Kufi', sans-serif;
+  font-family: 'ReemKufiLocalFallback';
+  src: local('Reem Kufi'), local('ReemKufi');
+}
 
 /* الألوان الجذرية */
 :root {
@@ -110,21 +112,15 @@ a { color: inherit; text-decoration: none; }
 .conditional { display: flex; gap: 8px; align-items: center; }
 .hidden { display: none; }
 
-/* ✅ مربع المعاينة ديناميكي (يتغير بالحجم حسب اختيار المستخدم) */
+/* editor canvas */
 .editor-canvas {
   position: relative;
   background: linear-gradient(180deg,#ffffff,#f7f7f7);
-  width: 100%;
-  max-width: min(700px, 90vw); /* يقيّد الحجم حسب عرض الجهاز */
-  aspect-ratio: 1 / 1;
-  margin: 0 auto;
+  min-height: 420px;
   border-radius: 12px;
+  padding: 14px;
   border: 3px dashed rgba(207,162,58,0.45);
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: width 0.3s ease, height 0.3s ease;
 }
 .hint { color: #675a3a; text-align: center; margin-top: 12%; }
 
@@ -199,26 +195,15 @@ a { color: inherit; text-decoration: none; }
   .bottom-bar{flex-direction:column;gap:8px;}
   .hint{font-size:14px;margin-top:25%;}
 }
-/* إصلاح حجم مربع المعاينة بالجوالات وتوسّط العرض */
-@media (max-width: 480px) {
-  body {
-    overflow-x: hidden; /* منع الشريط الأسود الجانبي */
-  }
-
-  .editor-canvas {
-    max-width: 90vw; /* يجعل المربع بنسبة من عرض الشاشة */
-    height: auto !important;
-    aspect-ratio: 1 / 1;
-    margin: 0 auto;
-  }
-
-  .editor-container {
-    overflow: hidden; /* يمنع تمدد اللوحة */
-  }
-
-  .sidebar {
-    max-width: 85vw;
-    right: -85vw;
-  }
-
-}
+/* 📸 جعل الصورة المرفوعة في المنتصف تمامًا داخل المربع */
+.editor-canvas img {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  border-radius: 10px;
+                   }
