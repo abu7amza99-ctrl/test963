@@ -972,7 +972,7 @@ const desiredH = parseInt(document.getElementById('heightInput').value);
   fontListBtn && fontListBtn.addEventListener('click', (e)=>{
     fontListPanel.classList.toggle('hidden');
   });
-// ✅ Sidebar open/close
+// ✅ Sidebar open/close (الإصدار النهائي الصحيح)
 const toggleSidebar = document.getElementById('toggleSidebar');
 const siteSidebar = document.getElementById('siteSidebar');
 const closeSidebar = document.getElementById('closeSidebar');
@@ -980,7 +980,8 @@ const closeSidebar = document.getElementById('closeSidebar');
 if (toggleSidebar && siteSidebar) {
   toggleSidebar.addEventListener('click', () => {
     siteSidebar.classList.toggle('open');
-    siteSidebar.setAttribute('aria-hidden', !siteSidebar.classList.contains('open'));
+    const isOpen = siteSidebar.classList.contains('open');
+    siteSidebar.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
   });
 }
 
@@ -989,5 +990,6 @@ if (closeSidebar && siteSidebar) {
     siteSidebar.classList.remove('open');
     siteSidebar.setAttribute('aria-hidden', 'true');
   });
-}
+  }
 }); // end DOMContentLoaded
+
