@@ -618,7 +618,15 @@ document.addEventListener('DOMContentLoaded', () => {
           const maxw = Math.min(Math.max(200, editorW - canvasPadding), preload.naturalWidth || editorW);
           obj.displayWidth = Math.min(480, maxw);
           obj.displayHeight = Math.round(obj.displayWidth * (preload.naturalHeight / preload.naturalWidth));
-          const dom = renderElement(obj);
+    
+          // 🟩 توسيط الصورة داخل المعاينة
+        const dom = renderElement(obj);
+const centerX = (editorCanvas.clientWidth - obj.displayWidth) / 2;
+const centerY = (editorCanvas.clientHeight - obj.displayHeight) / 2;
+obj.x = centerX;
+obj.y = centerY;
+dom.style.left = centerX + 'px';
+dom.style.top = centerY + 'px';
           if(DRESSES_LOADED && AVAILABLE_DRESS.length && obj.fillMode === 'dress'){
             applySmartDressToObj(obj, dom);
           }
@@ -627,7 +635,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         preload.onerror = ()=>{
           const obj = createElementObject('image',{ img: dataUrl });
-          const dom = renderElement(obj);
           if(DRESSES_LOADED && AVAILABLE_DRESS.length && obj.fillMode === 'dress'){
             applySmartDressToObj(obj, dom);
           }
