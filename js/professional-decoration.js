@@ -773,8 +773,8 @@ dom.style.top = centerY + 'px';
      const W = Math.round(rect.width);
      const H = Math.round(rect.height);
      // 🔹 احسب نسبة التكبير بين حجم الصورة المطلوب وحجم المعاينة
-    const desiredW = parseInt(document.querySelector('input[placeholder="العرض (px)"]').value) || W;
-    const desiredH = parseInt(document.querySelector('input[placeholder="الارتفاع (px)"]').value) || H;
+const desiredW = parseInt(document.getElementById('widthInput').value);
+const desiredH = parseInt(document.getElementById('heightInput').value);
     const scaleX = desiredW / W;
     const scaleY = desiredH / H;
     const scale = Math.min(scaleX, scaleY);
