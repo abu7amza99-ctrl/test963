@@ -754,8 +754,6 @@ dom.style.top = centerY + 'px';
     dom.classList.add('dressed');
     updateImageOverlay(obj, dom);
   }
-}
-    }
   }
 
 function applyDressToSelected(url){
@@ -999,3 +997,4 @@ const desiredH = parseInt(document.getElementById('heightInput').value);
   });
 
 }); // end DOMContentLoaded
+
