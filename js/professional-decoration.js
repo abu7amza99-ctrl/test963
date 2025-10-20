@@ -36,8 +36,24 @@ let previewHeight = exportHeightInput ? parseInt(exportHeightInput.value, 10) ||
 // دالة لتطبيق الحجم على مربع المعاينة مباشرة
 function applyPreviewSizeToCanvas() {
   const canvas = document.getElementById('editorCanvas');
-  canvas.style.width  = previewWidth + 'px';
-  canvas.style.height = previewHeight + 'px';
+// 🔹 تحديد عامل التصغير حسب نوع الجهاز
+let scale;
+if (window.innerWidth <= 480) {
+  scale = 0.05; // للجوالات (تصغير قوي)
+} else if (window.innerWidth <= 768) {
+  scale = 0.07; // للأجهزة اللوحية
+} else {
+  scale = 0.1; // لأجهزة الكمبيوتر
+}
+
+// 🔹 تطبيق الحجم المصغّر لمربع المعاينة
+canvas.style.width = previewWidth * scale + 'px';
+canvas.style.height = previewHeight * scale + 'px';
+canvas.style.margin = '0 auto';
+canvas.style.display = 'block';
+
+// 🔹 منع التمدد الأفقي أو الشريط الأسود بالجوال
+document.body.style.overflowX = 'hidden';
   // رسالة صغيرة للمستخدم (اختياري)
   if (typeof showInlineMessage === "function") {
     showInlineMessage(`حجم المعاينة: ${previewWidth}×${previewHeight}px`, 1600);
