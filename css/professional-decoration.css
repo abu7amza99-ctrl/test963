@@ -113,12 +113,12 @@ a { color: inherit; text-decoration: none; }
 .hidden { display: none; }
 
 /* ✅ مربع المعاينة ديناميكي (يتغير بالحجم حسب اختيار المستخدم) */
-.editor-canvas {
+..editor-canvas {
   position: relative;
   background: linear-gradient(180deg,#ffffff,#f7f7f7);
   width: 100%;
-  aspect-ratio: 1 / 1; /* افتراضيًا مربع */
-  max-width: 700px; /* حتى ما يصير ضخم على الشاشة */
+  max-width: min(700px, 90vw); /* يقيّد الحجم حسب عرض الجهاز */
+  aspect-ratio: 1 / 1;
   margin: 0 auto;
   border-radius: 12px;
   border: 3px dashed rgba(207,162,58,0.45);
@@ -200,4 +200,26 @@ a { color: inherit; text-decoration: none; }
   .dress-grid{grid-template-columns:repeat(2,1fr)}
   .bottom-bar{flex-direction:column;gap:8px;}
   .hint{font-size:14px;margin-top:25%;}
+}
+/* إصلاح حجم مربع المعاينة بالجوالات وتوسّط العرض */
+@media (max-width: 480px) {
+  body {
+    overflow-x: hidden; /* منع الشريط الأسود الجانبي */
+  }
+
+  .editor-canvas {
+    max-width: 90vw; /* يجعل المربع بنسبة من عرض الشاشة */
+    height: auto !important;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+  }
+
+  .editor-container {
+    overflow: hidden; /* يمنع تمدد اللوحة */
+  }
+
+  .sidebar {
+    max-width: 85vw;
+    right: -85vw;
+  }
 }
