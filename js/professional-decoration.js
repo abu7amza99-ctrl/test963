@@ -829,28 +829,41 @@ dom.style.top = centerY + 'px';
     if(obj.type === 'text' && obj.fillMode === 'dress') applyStyleToDom(obj, dom);
   }
 
-  // Download/export final as PNG
-  downloadImage.addEventListener('click', async ()=>{
-    try {
-      const rect = editorCanvas.getBoundingClientRect();
-      // ✅ تحديد حجم الكانفاس للتصدير بناءً على حجم مربع المعاينة
-let W = 512, H = 512; // قيم افتراضية
+// Download/export final as PNG
+downloadImage.addEventListener('click', async () => {
+  try {
+    const rect = editorCanvas.getBoundingClientRect();
 
-if (previewSizeSelect) {
-  const val = previewSizeSelect.value;
-  if (val === 'small') { W = H = 200; }
-  else if (val === 'medium') { W = H = 300; }
-  else if (val === 'large') { W = H = 400; }
-  else if (!isNaN(parseInt(val))) { W = H = parseInt(val); }
-}
+    // 🟡 أخذ الأبعاد من مدخلات المستخدم
+    const exportWidthInput = document.getElementById("exportWidth");
+    const exportHeightInput = document.getElementById("exportHeight");
 
-// إذا في حقول إدخال يدوي (exportWidth / exportHeight)
-if (exportWidthInput && exportWidthInput.value) {
-  W = parseInt(exportWidthInput.value);
-}
-if (exportHeightInput && exportHeightInput.value) {
-  H = parseInt(exportHeightInput.value);
-}
+    let W = parseInt(exportWidthInput.value) || rect.width;
+    let H = parseInt(exportHeightInput.value) || rect.height;
+
+    // ✅ تصحيح القيم الغير منطقية
+    if (isNaN(W) || W < 100) W = rect.width;
+    if (isNaN(H) || H < 100) H = rect.height;
+
+    // 🟡 إنشاء الكانفس الجديد بنفس الأبعاد
+    const out = document.createElement('canvas');
+    const ctx = out.getContext('2d');
+    out.width = W;
+    out.height = H;
+    ctx.clearRect(0, 0, W, H);
+
+    // ✅ توسيط كل العناصر بناءً على حجم مربع المعاينة
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    ctx.scale(scaleX, scaleY);
+
+    // ✅ نقل النصوص والعناصر كما هي من المعاينة
+    const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
+    for (const dom of domChildren) {
+      const id = dom.dataset.id;
+      const obj = ELEMENTS.find(e => e.id === id);
+      if (!obj) continue;
+
       const out = document.createElement('canvas'); 
       const ctx = out.getContext('2d');
       // ✅ ضبط دقة الكانفاس لتطابق المعاينة على جميع الأجهزة (خاصة الجوال)
