@@ -195,15 +195,3 @@ a { color: inherit; text-decoration: none; }
   .bottom-bar{flex-direction:column;gap:8px;}
   .hint{font-size:14px;margin-top:25%;}
 }
-/* 📸 جعل الصورة المرفوعة في المنتصف تمامًا داخل المربع */
-.editor-canvas img {
-  display: block;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 90%;
-  max-height: 90%;
-  object-fit: contain;
-  border-radius: 10px;
-                 }
