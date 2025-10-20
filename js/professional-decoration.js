@@ -433,16 +433,9 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.style.backgroundClip = 'text';
         dom.style.color = 'transparent';
         dom.style.webkitTextFillColor = 'transparent';
-} else if(obj.fillMode === 'dress' && obj.dress){
-  const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
-  const text = obj.text || '';
-
-  // ✅ تصحيح المعاينة الفورية لنمط dress
-  dom.style.color = 'transparent';
-  dom.style.webkitTextFillColor = 'transparent';
-  dom.style.backgroundClip = 'text';
-  dom.style.webkitBackgroundClip = 'text';
-  dom.style.backgroundImage = `url(${obj.dress})`;
+      } else if(obj.fillMode === 'dress' && obj.dress){
+        const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
+        const text = obj.text || '';
 
         const drawDress = ()=>{
           try {
@@ -454,27 +447,29 @@ document.addEventListener('DOMContentLoaded', () => {
             w = Math.ceil(w + 8); h = Math.ceil(h + 8);
             tmp.width = w; tmp.height = h;
             const dimg = new Image(); dimg.crossOrigin='anonymous';
-              dimg.onload = () => {
-  const t2 = tmp.getContext('2d');
-  t2.clearRect(0, 0, w, h);
-  try {
-    t2.drawImage(dimg, 0, 0, w, h);
-  } catch(e) {}
-  t2.globalCompositeOperation = 'destination-in';
-  t2.fillStyle = '#000';
-  t2.font = `${fontSize}px "${obj.font}"`;
-  t2.textBaseline = 'top';
-  t2.fillText(text, 4, 4);
-
-  dom.style.backgroundImage = `url(${tmp.toDataURL()})`;
-  dom.style.color = 'transparent';
-};
-
-dimg.onerror = () => {
-  dom.style.color = obj.color || '#000';
-};
-
-dimg.src = obj.dress;
+            dimg.onload = ()=>{
+              const t2 = tmp.getContext('2d');
+              t2.clearRect(0,0,w,h);
+              try { t2.drawImage(dimg,0,0,w,h); } catch(e){}
+              t2.globalCompositeOperation = 'destination-in';
+              t2.fillStyle = '#000';
+              t2.font = `${fontSize}px "${obj.font}"`;
+              t2.textBaseline = 'top';
+              t2.fillText(text, 4, 4);
+              try {
+                dom.style.backgroundImage = `url(${tmp.toDataURL()})`;
+                dom.style.webkitBackgroundClip = 'text';
+                dom.style.backgroundClip = 'text';
+                dom.style.color = 'transparent';
+              } catch(e){
+                dom.style.color = obj.color || '#000';
+              }
+            };
+            dimg.onerror = ()=> { dom.style.color = obj.color || '#000'; };
+            dimg.src = obj.dress;
+          } catch(e){
+            dom.style.color = obj.color || '#000';
+          }
         };
 
         if(document.fonts && document.fonts.ready){
