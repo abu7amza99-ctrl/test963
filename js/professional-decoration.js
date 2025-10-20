@@ -608,7 +608,7 @@ if(lastDom) {
   const previewH = editorCanvas.clientHeight;
 
   // جعل النص بنفس حجم المربع تقريباً (عرض وارتفاع المربع)
-  const boxSize = Math.min(previewW, previewH) * 0.25; // نسبة 80% من حجم المربع
+  const boxSize = Math.min(previewW, previewH) * 0.70; // نسبة 70 من حجم المربع
   obj.size = boxSize / 4; // حجم الخط متناسب مع حجم المربع
   dom.style.fontSize = obj.size + 'px';
 
@@ -991,3 +991,4 @@ const H = userH;
   });
 
 }); // end DOMContentLoaded
+
