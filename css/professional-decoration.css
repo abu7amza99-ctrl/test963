@@ -2,9 +2,7 @@
 
 /* خطوط */
 @font-face {
-  font-family: 'ReemKufiLocalFallback';
-  src: local('Reem Kufi'), local('ReemKufi');
-}
+font-family: 'Reem Kufi', sans-serif;
 
 /* الألوان الجذرية */
 :root {
@@ -222,4 +220,5 @@ a { color: inherit; text-decoration: none; }
     max-width: 85vw;
     right: -85vw;
   }
+
 }
