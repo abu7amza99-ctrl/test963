@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const fontListBtn = document.getElementById('openFontList');
   const fontListPanel = document.getElementById('fontList');
   const fileImage = document.getElementById('fileImage');
+  const previewSizeSelect = document.getElementById('previewSizeSelect'); // 🔲 لاختيار حجم مربع المعاينة
   const btnAdd = document.getElementById('btnAdd');
   const btnGradients = document.getElementById('openColorGrid');
   const btnDressups = document.getElementById('openDressGrid');
@@ -24,6 +25,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const downloadImage = document.getElementById('downloadImage');
   const popupContainer = document.getElementById('popupContainer');
   const deleteSelected = document.getElementById('deleteSelected');
+  // ---- 🟩 إضافة: ربط حقول اختيار حجم المعاينة ----
+const exportWidthInput = document.getElementById('exportWidth');
+const exportHeightInput = document.getElementById('exportHeight');
+
+// قيم افتراضية (من الحقول أو افتراضي 512×512)
+let previewWidth  = exportWidthInput ? parseInt(exportWidthInput.value, 10) || 512 : 512;
+let previewHeight = exportHeightInput ? parseInt(exportHeightInput.value, 10) || 512 : 512;
+
+// دالة لتطبيق الحجم على مربع المعاينة مباشرة
+function applyPreviewSizeToCanvas() {
+  const canvas = document.getElementById('editorCanvas');
+  canvas.style.width  = previewWidth + 'px';
+  canvas.style.height = previewHeight + 'px';
+  // رسالة صغيرة للمستخدم (اختياري)
+  if (typeof showInlineMessage === "function") {
+    showInlineMessage(`حجم المعاينة: ${previewWidth}×${previewHeight}px`, 1600);
+  }
+}
+
+// تطبيق الحجم عند تحميل الصفحة
+applyPreviewSizeToCanvas();
+
+// تحديث الحجم عند تعديل الحقول
+if (exportWidthInput) {
+  exportWidthInput.addEventListener('input', () => {
+    previewWidth = Math.max(50, parseInt(exportWidthInput.value, 10) || 100);
+    applyPreviewSizeToCanvas();
+  });
+}
+if (exportHeightInput) {
+  exportHeightInput.addEventListener('input', () => {
+    previewHeight = Math.max(50, parseInt(exportHeightInput.value, 10) || 100);
+    applyPreviewSizeToCanvas();
+  });
+}
 
   const textControls = document.getElementById('textControls');
   const imageControls = document.getElementById('imageControls');
@@ -266,8 +302,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const canvasPadding = 40;
         const editorW = Math.max(200, editorCanvas.clientWidth || 300);
         const maxw = Math.min(Math.max(200, editorW - canvasPadding), img.naturalWidth || editorW);
-        const dispW = obj.displayWidth || Math.min(480, maxw);
-        const dispH = dispW; // 🔲 نجعل الصورة مربعة تمامًا (العرض = الارتفاع)
+        // 🟦 تحديد حجم مربع المعاينة بناءً على اختيار المستخدم
+let selectedSize = 300;
+if (previewSizeSelect) {
+  const val = previewSizeSelect.value;
+  if (val === 'small') selectedSize = 200;
+  else if (val === 'medium') selectedSize = 300;
+  else if (val === 'large') selectedSize = 400;
+  else if (!isNaN(parseInt(val))) selectedSize = parseInt(val);
+}
+
+const dispW = selectedSize;
+const dispH = selectedSize;
+      // 🔲 نجعل الصورة مربعة تمامًا (العرض = الارتفاع)
 
         img.style.width = dispW + 'px';
         wrap.style.width = dispW + 'px';
@@ -770,8 +817,24 @@ dom.style.top = centerY + 'px';
   downloadImage.addEventListener('click', async ()=>{
     try {
       const rect = editorCanvas.getBoundingClientRect();
-      const W = Math.max(800, Math.round(rect.width));
-      const H = Math.max(400, Math.round(rect.height));
+      // ✅ تحديد حجم الكانفاس للتصدير بناءً على حجم مربع المعاينة
+let W = 512, H = 512; // قيم افتراضية
+
+if (previewSizeSelect) {
+  const val = previewSizeSelect.value;
+  if (val === 'small') { W = H = 200; }
+  else if (val === 'medium') { W = H = 300; }
+  else if (val === 'large') { W = H = 400; }
+  else if (!isNaN(parseInt(val))) { W = H = parseInt(val); }
+}
+
+// إذا في حقول إدخال يدوي (exportWidth / exportHeight)
+if (exportWidthInput && exportWidthInput.value) {
+  W = parseInt(exportWidthInput.value);
+}
+if (exportHeightInput && exportHeightInput.value) {
+  H = parseInt(exportHeightInput.value);
+}
       const out = document.createElement('canvas'); 
       const ctx = out.getContext('2d');
       // ✅ ضبط دقة الكانفاس لتطابق المعاينة على جميع الأجهزة (خاصة الجوال)
