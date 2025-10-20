@@ -433,9 +433,16 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.style.backgroundClip = 'text';
         dom.style.color = 'transparent';
         dom.style.webkitTextFillColor = 'transparent';
-      } else if(obj.fillMode === 'dress' && obj.dress){
-        const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
-        const text = obj.text || '';
+} else if(obj.fillMode === 'dress' && obj.dress){
+  const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
+  const text = obj.text || '';
+
+  // ✅ تصحيح المعاينة الفورية لنمط dress
+  dom.style.color = 'transparent';
+  dom.style.webkitTextFillColor = 'transparent';
+  dom.style.backgroundClip = 'text';
+  dom.style.webkitBackgroundClip = 'text';
+  dom.style.backgroundImage = `url(${obj.dress})`;
 
         const drawDress = ()=>{
           try {
