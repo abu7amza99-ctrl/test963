@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const fontListBtn = document.getElementById('openFontList');
   const fontListPanel = document.getElementById('fontList');
   const fileImage = document.getElementById('fileImage');
-  const previewSizeSelect = document.getElementById('previewSizeSelect'); // 🔲 لاختيار حجم مربع المعاينة
   const btnAdd = document.getElementById('btnAdd');
   const btnGradients = document.getElementById('openColorGrid');
   const btnDressups = document.getElementById('openDressGrid');
@@ -25,57 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const downloadImage = document.getElementById('downloadImage');
   const popupContainer = document.getElementById('popupContainer');
   const deleteSelected = document.getElementById('deleteSelected');
-  // ---- 🟩 إضافة: ربط حقول اختيار حجم المعاينة ----
-const exportWidthInput = document.getElementById('exportWidth');
-const exportHeightInput = document.getElementById('exportHeight');
-
-// قيم افتراضية (من الحقول أو افتراضي 512×512)
-let previewWidth  = exportWidthInput ? parseInt(exportWidthInput.value, 10) || 512 : 512;
-let previewHeight = exportHeightInput ? parseInt(exportHeightInput.value, 10) || 512 : 512;
-
-// دالة لتطبيق الحجم على مربع المعاينة مباشرة
-function applyPreviewSizeToCanvas() {
-  const canvas = document.getElementById('editorCanvas');
-// 🔹 تحديد عامل التصغير حسب نوع الجهاز
-let scale;
-if (window.innerWidth <= 480) {
-  scale = 0.05; // للجوالات (تصغير قوي)
-} else if (window.innerWidth <= 768) {
-  scale = 0.07; // للأجهزة اللوحية
-} else {
-  scale = 0.1; // لأجهزة الكمبيوتر
-}
-
-// 🔹 تطبيق الحجم المصغّر لمربع المعاينة
-canvas.style.width = previewWidth * scale + 'px';
-canvas.style.height = previewHeight * scale + 'px';
-canvas.style.margin = '0 auto';
-canvas.style.display = 'block';
-
-// 🔹 منع التمدد الأفقي أو الشريط الأسود بالجوال
-document.body.style.overflowX = 'hidden';
-  // رسالة صغيرة للمستخدم (اختياري)
-  if (typeof showInlineMessage === "function") {
-    showInlineMessage(`حجم المعاينة: ${previewWidth}×${previewHeight}px`, 1600);
-  }
-}
-
-// تطبيق الحجم عند تحميل الصفحة
-applyPreviewSizeToCanvas();
-
-// تحديث الحجم عند تعديل الحقول
-if (exportWidthInput) {
-  exportWidthInput.addEventListener('input', () => {
-    previewWidth = Math.max(50, parseInt(exportWidthInput.value, 10) || 100);
-    applyPreviewSizeToCanvas();
-  });
-}
-if (exportHeightInput) {
-  exportHeightInput.addEventListener('input', () => {
-    previewHeight = Math.max(50, parseInt(exportHeightInput.value, 10) || 100);
-    applyPreviewSizeToCanvas();
-  });
-}
 
   const textControls = document.getElementById('textControls');
   const imageControls = document.getElementById('imageControls');
@@ -318,19 +266,8 @@ if (exportHeightInput) {
         const canvasPadding = 40;
         const editorW = Math.max(200, editorCanvas.clientWidth || 300);
         const maxw = Math.min(Math.max(200, editorW - canvasPadding), img.naturalWidth || editorW);
-        // 🟦 تحديد حجم مربع المعاينة بناءً على اختيار المستخدم
-let selectedSize = 300;
-if (previewSizeSelect) {
-  const val = previewSizeSelect.value;
-  if (val === 'small') selectedSize = 200;
-  else if (val === 'medium') selectedSize = 300;
-  else if (val === 'large') selectedSize = 400;
-  else if (!isNaN(parseInt(val))) selectedSize = parseInt(val);
-}
-
-const dispW = selectedSize;
-const dispH = selectedSize;
-      // 🔲 نجعل الصورة مربعة تمامًا (العرض = الارتفاع)
+        const dispW = obj.displayWidth || Math.min(480, maxw);
+        const dispH = dispW; // 🔲 نجعل الصورة مربعة تمامًا (العرض = الارتفاع)
 
         img.style.width = dispW + 'px';
         wrap.style.width = dispW + 'px';
@@ -829,41 +766,12 @@ dom.style.top = centerY + 'px';
     if(obj.type === 'text' && obj.fillMode === 'dress') applyStyleToDom(obj, dom);
   }
 
-// Download/export final as PNG
-downloadImage.addEventListener('click', async () => {
-  try {
-    const rect = editorCanvas.getBoundingClientRect();
-
-    // 🟡 أخذ الأبعاد من مدخلات المستخدم
-    const exportWidthInput = document.getElementById("exportWidth");
-    const exportHeightInput = document.getElementById("exportHeight");
-
-    let W = parseInt(exportWidthInput.value) || rect.width;
-    let H = parseInt(exportHeightInput.value) || rect.height;
-
-    // ✅ تصحيح القيم الغير منطقية
-    if (isNaN(W) || W < 100) W = rect.width;
-    if (isNaN(H) || H < 100) H = rect.height;
-
-    // 🟡 إنشاء الكانفس الجديد بنفس الأبعاد
-    const out = document.createElement('canvas');
-    const ctx = out.getContext('2d');
-    out.width = W;
-    out.height = H;
-    ctx.clearRect(0, 0, W, H);
-
-    // ✅ توسيط كل العناصر بناءً على حجم مربع المعاينة
-    const scaleX = W / rect.width;
-    const scaleY = H / rect.height;
-    ctx.scale(scaleX, scaleY);
-
-    // ✅ نقل النصوص والعناصر كما هي من المعاينة
-    const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
-    for (const dom of domChildren) {
-      const id = dom.dataset.id;
-      const obj = ELEMENTS.find(e => e.id === id);
-      if (!obj) continue;
-
+  // Download/export final as PNG
+  downloadImage.addEventListener('click', async ()=>{
+    try {
+      const rect = editorCanvas.getBoundingClientRect();
+      const W = Math.max(800, Math.round(rect.width));
+      const H = Math.max(400, Math.round(rect.height));
       const out = document.createElement('canvas'); 
       const ctx = out.getContext('2d');
       // ✅ ضبط دقة الكانفاس لتطابق المعاينة على جميع الأجهزة (خاصة الجوال)
