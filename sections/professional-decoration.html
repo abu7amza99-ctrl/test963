@@ -149,6 +149,34 @@
   <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
 
   <!-- سكربت -->
+<!-- سكربت لتحديث حجم مربع المعاينة حسب مدخلات المستخدم -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const canvas = document.getElementById("editorCanvas");
+      const widthInput = document.getElementById("exportWidth");
+      const heightInput = document.getElementById("exportHeight");
+
+      function updatePreviewSize() {
+        const w = parseInt(widthInput.value);
+        const h = parseInt(heightInput.value);
+
+        // 🔹 عامل تصغير (حتى ما يصير ضخم داخل الصفحة)
+        const scale = 0.1;
+        canvas.style.width = w * scale + "px";
+        canvas.style.height = h * scale + "px";
+        canvas.style.margin = "0 auto";
+      }
+
+      // أول تحميل
+      updatePreviewSize();
+
+      // عند التعديل
+      widthInput.addEventListener("input", updatePreviewSize);
+      heightInput.addEventListener("input", updatePreviewSize);
+    });
+  </script>
+
+  <!-- سكربت الأساسي -->
   <script src="../js/professional-decoration.js" defer></script>
 </body>
-          </html>
+  </html>
