@@ -608,7 +608,7 @@ if(lastDom) {
   const previewH = editorCanvas.clientHeight;
 
   // جعل النص بنفس حجم المربع تقريباً (عرض وارتفاع المربع)
-  const boxSize = Math.min(previewW, previewH) * 1; // نسبة 80% من حجم المربع
+  const boxSize = Math.min(previewW, previewH) * 0.25; // نسبة 80% من حجم المربع
   obj.size = boxSize / 4; // حجم الخط متناسب مع حجم المربع
   dom.style.fontSize = obj.size + 'px';
 
@@ -790,57 +790,128 @@ dom.style.top = centerY + 'px';
     if(obj.type === 'text' && obj.fillMode === 'dress') applyStyleToDom(obj, dom);
   }
 
-// ✅ تحميل التصميم كصورة PNG مع تمركز النص بنفس حجم مربع المعاينة
-downloadImage.addEventListener("click", async () => {
-  try {
-    const widthInput = document.getElementById("exportWidth");
-    const heightInput = document.getElementById("exportHeight");
+  // Download/export final as PNG
+  downloadImage.addEventListener('click', async ()=>{
+    try {
+      const rect = editorCanvas.getBoundingClientRect();
+      // جلب القيم من الحقول الجديدة
+const userW = parseInt(document.getElementById('exportWidth').value) || 3000;
+const userH = parseInt(document.getElementById('exportHeight').value) || 3000;
 
-    const width = parseInt(widthInput?.value || 2000);
-    const height = parseInt(heightInput?.value || 2000);
+// تحديد أبعاد الصورة حسب إدخال المستخدم
+const W = userW;
+const H = userH;
+      const out = document.createElement('canvas'); 
+      const ctx = out.getContext('2d');
+      // ✅ ضبط دقة الكانفاس لتطابق المعاينة على جميع الأجهزة (خاصة الجوال)
+// 🧩 تعديل: اجعل حجم الكانفاس مطابق تمامًا لمربع المعاينة (بدون تكبير للجوال)
+      out.width = W;
+      out.height = H;
+      ctx.clearRect(0, 0, W, H);
 
-    const editorCanvas = document.getElementById("editorCanvas");
-    const rect = editorCanvas.getBoundingClientRect();
+      const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
+      for(const dom of domChildren){
+        const id = dom.dataset.id;
+        const obj = ELEMENTS.find(e=>e.id===id);
+        if(!obj) continue;
 
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = width;
-    canvas.height = height;
+        if(obj.type === 'text'){
+          const x = Math.round((parseFloat(dom.style.left) || obj.x || 0));
+          const y = Math.round((parseFloat(dom.style.top) || obj.y || 0));
+          const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
+          ctx.save();
+          const bboxW = dom.offsetWidth || (fontSize*(obj.text?obj.text.length:1));
+          const bboxH = dom.offsetHeight || fontSize;
+          const cx = x + bboxW/2; const cy = y + bboxH/2;
+          ctx.translate(cx,cy); ctx.rotate(obj.rotation||0); ctx.translate(-cx,-cy);
+          ctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
+          ctx.textAlign = 'left'; ctx.textBaseline = 'top';
 
-    const scaleX = width / rect.width;
-    const scaleY = height / rect.height;
+          if(obj.fillMode === 'solid' || !obj.gradient){
+            ctx.fillStyle = obj.color || '#000';
+            if(obj.stroke && obj.stroke>0){ ctx.lineWidth = obj.stroke; ctx.strokeStyle = obj.strokeColor || '#000'; ctx.strokeText(obj.text, x, y); }
+            ctx.fillText(obj.text, x, y);
+          } else if(obj.fillMode === 'gradient' && obj.gradient){
+            const g = ctx.createLinearGradient(x,y,x+bboxW,y);
+            g.addColorStop(0,obj.gradient[0]); g.addColorStop(1,obj.gradient[1]);
+            ctx.fillStyle = g;
+            if(obj.stroke && obj.stroke>0){ ctx.lineWidth = obj.stroke; ctx.strokeStyle = obj.strokeColor || '#000'; ctx.strokeText(obj.text,x,y); }
+            ctx.fillText(obj.text, x, y);
+          } else if(obj.fillMode === 'dress' && obj.dress){
+            const tmp = document.createElement('canvas'); tmp.width = Math.max(1,Math.round(bboxW)); tmp.height = Math.max(1,Math.round(bboxH));
+            const tctx = tmp.getContext('2d');
+            tctx.clearRect(0,0,tmp.width,tmp.height);
+            tctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
+            tctx.textAlign = 'left'; tctx.textBaseline = 'top';
+            tctx.fillStyle = '#000'; tctx.fillText(obj.text,0,0);
+            await new Promise((res)=>{
+              const img = new Image(); img.crossOrigin='anonymous';
+              img.onload = ()=>{
+                const t2 = document.createElement('canvas'); t2.width = tmp.width; t2.height = tmp.height;
+                const t2ctx = t2.getContext('2d');
+                try { t2ctx.drawImage(img,0,0,t2.width,t2.height); } catch(e){}
+                t2ctx.globalCompositeOperation='destination-in';
+                t2ctx.drawImage(tmp,0,0);
+                ctx.drawImage(t2, x, y);
+                res();
+              };
+              img.onerror = ()=> { ctx.fillStyle = '#000'; ctx.fillText(obj.text,x,y); res(); };
+              img.src = obj.dress;
+            });
+          }
 
-    ctx.clearRect(0, 0, width, height);
+          ctx.restore();
+        } else if(obj.type === 'image'){
+          const wrap = dom;
+          const imgEl = wrap.querySelector('img');
+          if(!imgEl) continue;
+          await new Promise((res)=>{
+            const img = new Image(); img.crossOrigin='anonymous';
+            img.onload = async ()=>{
+              const left = Math.round(parseFloat(wrap.style.left)||obj.x||0);
+              const top = Math.round(parseFloat(wrap.style.top)||obj.y||0);
+              const drawW = parseInt(imgEl.style.width) || (obj.displayWidth * (obj.scale || 1)) || img.naturalWidth;
+              const drawH = parseInt(imgEl.style.height) || (obj.displayHeight * (obj.scale || 1)) || img.naturalHeight;
 
-    document.querySelectorAll("#editorCanvas .canvas-item").forEach(el => {
-      const style = window.getComputedStyle(el);
-      const x = parseFloat(style.left) * scaleX;
-      const y = parseFloat(style.top) * scaleY;
-      const w = el.offsetWidth * scaleX;
-      const h = el.offsetHeight * scaleY;
-
-      if (el.classList.contains("text-item")) {
-        const fontSize = parseFloat(style.fontSize) * scaleX;
-        ctx.font = `${fontSize}px ${style.fontFamily}`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = style.color;
-        ctx.fillText(el.innerText, x + w / 2, y + h / 2);
-      } else if (el.querySelector("img")) {
-        const img = el.querySelector("img");
-        ctx.drawImage(img, x, y, w, h);
+              if(obj.fillMode === 'gradient' && obj.gradient){
+                const tmp = document.createElement('canvas'); tmp.width = Math.max(1,Math.round(drawW)); tmp.height = Math.max(1,Math.round(drawH));
+                const tctx = tmp.getContext('2d');
+                const g = tctx.createLinearGradient(0,0,tmp.width,0);
+                g.addColorStop(0,obj.gradient[0]); g.addColorStop(1,obj.gradient[1]);
+                tctx.fillStyle = g; tctx.fillRect(0,0,tmp.width,tmp.height);
+                tctx.globalCompositeOperation='destination-in';
+                try { tctx.drawImage(img,0,0,tmp.width,tmp.height); } catch(e){}
+                ctx.drawImage(tmp,left,top,tmp.width,tmp.height);
+                res();
+              } else if(obj.fillMode === 'dress' && obj.dress){
+                const dressImg = new Image(); dressImg.crossOrigin='anonymous';
+                dressImg.onload = ()=>{
+                  const tmp = document.createElement('canvas'); tmp.width = Math.max(1,Math.round(drawW)); tmp.height = Math.max(1,Math.round(drawH));
+                  const tctx = tmp.getContext('2d');
+                  try { tctx.drawImage(dressImg,0,0,tmp.width,tmp.height); } catch(e){}
+                  tctx.globalCompositeOperation='destination-in';
+                  try { tctx.drawImage(img,0,0,tmp.width,tmp.height); } catch(e){}
+                  ctx.drawImage(tmp,left,top,tmp.width,tmp.height);
+                  res();
+                };
+                dressImg.onerror = ()=> { ctx.drawImage(img,left,top,drawW,drawH); res(); };
+                dressImg.src = obj.dress;
+              } else {
+                ctx.drawImage(img,left,top,drawW,drawH); res();
+              }
+            };
+            img.onerror = ()=> res();
+            img.src = imgEl.src;
+          });
+        }
       }
-    });
-
-    const link = document.createElement("a");
-    link.download = "design.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-
-  } catch (err) {
-    console.error(err);
-  }
-});
+      const url = out.toDataURL('image/png');
+      const a = document.createElement('a'); a.href = url; a.download = 'design.png'; a.click();
+    } catch(err){
+      console.error(err);
+      alert('حدث خطأ أثناء التصدير: ' + (err.message||err));
+    }
+  });
 
   // Helper for text/dress apply
   function applyGradientToText(g){
