@@ -972,5 +972,18 @@ const desiredH = parseInt(document.getElementById('heightInput').value);
   fontListBtn && fontListBtn.addEventListener('click', (e)=>{
     fontListPanel.classList.toggle('hidden');
   });
+     // ✅ Sidebar toggle logic
+if (toggleSidebar && siteSidebar) {
+  toggleSidebar.addEventListener('click', () => {
+    siteSidebar.classList.toggle('open');
+  });
+}
+
+if (closeSidebar && siteSidebar) {
+  closeSidebar.addEventListener('click', () => {
+    siteSidebar.classList.remove('open');
+  });
+}
 
 }); // end DOMContentLoaded
+
