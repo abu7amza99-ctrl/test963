@@ -2,69 +2,68 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>عالم التصاميم والزخرفة — الزخرفة الاحترافية</title>
 
   <!-- رابط CSS -->
   <link rel="stylesheet" href="../css/professional-decoration.css">
 
   <style>
-    /* تأكيد موضعي لأن بعض البيئات قد تحتاج */
+    /* تأكيد إضافي لتوافق المعاينة */
     #editorCanvas { position: relative; }
-    /* 🎨 تنسيق حقول إدخال الأبعاد */
-  .export-size {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 10px;
-  }
+    .export-size {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
 
-  .export-size label {
-    font-size: 14px;
-    color: #333;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
+    .export-size label {
+      font-size: 14px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
 
-  .export-size input {
-    width: 80px;
-    padding: 4px 6px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    text-align: center;
-  }
-  /* ⚙️ تحسين عرض المعاينة ومحاذاة النص */
-  #editorCanvas {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    overflow: hidden;
-  }
+    .export-size input {
+      width: 80px;
+      padding: 4px 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      text-align: center;
+    }
 
-  /* النص داخل المعاينة يكون دائماً بالوسط */
-  #editorCanvas .canvas-item.text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
+    #editorCanvas {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+    }
 
-  /* تحسين مظهر زر التحميل */
-  .btn.primary.download {
-    background-color: #4caf50;
-    color: white;
-  }
+    #editorCanvas .canvas-item.text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .btn.primary.download {
+      background-color: #4caf50;
+      color: white;
+    }
   </style>
 </head>
 <body>
   <!-- شريط علوي -->
   <header class="topbar" id="topbar">
     <div class="topbar-inner">
-      <button id="toggleSidebar" class="sidebar-btn" aria-label="قائمة"><img src="../assets/yhbg.png" alt="قائمة"></button>
+      <button id="toggleSidebar" class="sidebar-btn" aria-label="قائمة">
+        <img src="../assets/yhbg.png" alt="قائمة">
+      </button>
       <div class="brand">
         <img src="../assets/abu7amza.png" alt="لوغو" class="app-logo">
         <div class="app-title">عالم التصاميم والزخرفة</div>
@@ -73,18 +72,20 @@
   </header>
 
   <!-- اللوحة الجانبية -->
-  <aside class="sidebar">
-    <button class="close-btn">&times;</button>
-    <ul class="sidebar-menu">
-      <li><a href="sections/home.html">الصفحة الرئيسية</a></li>
-      <li><a href="sections/professional-decoration.html">الزخرفة الاحترافية</a></li>
-      <li><a href="sections/name-decoration.html">زخرفة الأسماء</a></li>
-      <li><a href="sections/about.html">لمحة عن التطبيق</a></li>
-      <li><a href="sections/contact.html">اتصل بنا</a></li>
-    </ul>
+  <aside id="siteSidebar" class="sidebar" aria-hidden="true">
+    <button id="closeSidebar" class="sidebar-close" aria-label="إغلاق">×</button>
+    <nav class="sidebar-menu" aria-label="القائمة الرئيسية">
+      <ul>
+        <li><a href="../index.html">الصفحة الرئيسية</a></li>
+        <li><a href="professional-decoration.html" class="active">الزخرفة الاحترافية</a></li>
+        <li><a href="../name-decoration.html">زخرفة الأسماء</a></li>
+        <li><a href="../about.html">لمحة عن التطبيق</a></li>
+        <li><a href="../contact.html">اتصل بنا</a></li>
+      </ul>
+    </nav>
   </aside>
 
-  <!-- المحتوى -->
+  <!-- المحتوى الرئيسي -->
   <main class="main" id="main" style="background-image:url('../assets/bg.png')">
     <section class="editor-container">
       <h1 class="editor-title">الزخرفة الاحترافية</h1>
@@ -144,34 +145,30 @@
 
       <!-- المعاينة -->
       <div id="editorCanvas" class="editor-canvas" tabindex="0" role="application" aria-label="لوحة التصميم">
-        <div class="hint"></div>
+        <div class="hint">اضغط "أضف" لإدراج نص أو صورة. حدد العنصر ثم اختر تدرج أو تلبيس.</div>
       </div>
 
-<div class="bottom-bar">
-       <button id="deleteSelected" class="btn danger">حذف المحدد</button>
+      <div class="bottom-bar">
+        <button id="deleteSelected" class="btn danger">حذف المحدد</button>
 
-       <!-- 🧭 إدخال أبعاد الصورة -->
-       <div class="export-size">
-         <label>العرض (px)
-           <input id="widthInput" type="number" placeholder="العرض" value="3000" min="100" step="100">
-         </label>
-         <label>الارتفاع (px)
-           <input id="heightInput" type="number" placeholder="الارتفاع" value="3000" min="100" step="100">
-         </label>
-       </div>
+        <div class="export-size">
+          <label>العرض (px)
+            <input id="widthInput" type="number" placeholder="العرض" value="3000" min="100" step="100">
+          </label>
+          <label>الارتفاع (px)
+            <input id="heightInput" type="number" placeholder="الارتفاع" value="3000" min="100" step="100">
+          </label>
+        </div>
 
-       <button id="downloadImage" class="btn primary download">تحميل التصميم</button>
-     </div> <!-- ✅ إغلاق bottom-bar -->
-   </section> <!-- ✅ إغلاق section -->
- </main>
+        <button id="downloadImage" class="btn primary download">تحميل التصميم</button>
+      </div>
+    </section>
+  </main>
 
-<!-- Popup للتدرجات والتلبيسات -->
-<div id="popupContainer" class="popup-container" aria-hidden="true"></div>
+  <!-- نافذة التدرجات والتلبيسات -->
+  <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
 
-<!-- سكربت الأساسي -->
-<script src="../js/professional-decoration.js" defer></script>
+  <!-- سكربت -->
+  <script src="../js/professional-decoration.js" defer></script>
 </body>
-</html>
-
-
-
+  </html>
