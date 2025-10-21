@@ -104,13 +104,19 @@
             <input id="textInput" type="text" placeholder="اكتب النص">
           </label>
 
-          <label>الخط
-            <div class="font-select-wrapper">
-              <button id="openFontList" class="open-list">اختر خط ▾</button>
-              <div id="fontList" class="panel-list hidden" aria-hidden="true"></div>
-            </div>
-          </label>
+<label>الخط
+  <div class="font-select-wrapper">
+    <button id="openFontList" class="open-list">اختر خط</button>
 
+    <div id="fontList" class="panel-list hidden" aria-hidden="true">
+      <div class="panel-scroll">
+        <div class="font-item" data-font="Amiri" style="font-family: 'Amiri';">
+          خط أميري
+        </div>
+      </div>
+    </div>
+  </div>
+</label>
           <label>نوع اللون
             <select id="textColorMode">
               <option value="solid">لون ثابت</option>
@@ -160,4 +166,5 @@
   <script src="../js/professional-decoration.js" defer></script>
 </body>
   </html>
+
 
