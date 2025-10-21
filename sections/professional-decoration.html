@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="../css/professional-decoration.css">
 
   <style>
-    /* تأكيد إضافي لتوافق المعاينة */
     #editorCanvas { position: relative; }
     .export-size {
       display: flex;
@@ -55,6 +54,20 @@
       background-color: #4caf50;
       color: white;
     }
+
+    /* تحسين استجابة الهاتف */
+    @media (max-width: 768px) {
+      .toolbar {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .toolbar label {
+        width: 100%;
+      }
+      #editorCanvas {
+        min-height: 300px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -78,9 +91,9 @@
       <ul>
         <li><a href="../index.html">الصفحة الرئيسية</a></li>
         <li><a href="professional-decoration.html" class="active">الزخرفة الاحترافية</a></li>
-        <li><a href="sections/name-decoration.html">زخرفة الأسماء</a></li>
-        <li><a href="sections/about.html">لمحة عن التطبيق</a></li>
-       <li><a href="sections/contact.html">اتصل بنا</a></li>
+        <li><a href="../name-decoration.html">زخرفة الأسماء</a></li>
+        <li><a href="../about.html">لمحة عن التطبيق</a></li>
+        <li><a href="../contact.html">اتصل بنا</a></li>
       </ul>
     </nav>
   </aside>
@@ -118,6 +131,7 @@
               <option value="dress">تلبيس</option>
             </select>
           </label>
+
           <button id="openColorGrid" class="btn small">التدرجات</button>
           <button id="openDressGrid" class="btn small">التلبيسات</button>
         </div>
@@ -145,7 +159,7 @@
 
       <!-- المعاينة -->
       <div id="editorCanvas" class="editor-canvas" tabindex="0" role="application" aria-label="لوحة التصميم">
-        <div class="hint"></div>
+        <div class="hint">اضغط "أضف" لإدراج نص أو صورة. حدد العنصر ثم اختر تدرج أو تلبيس.</div>
       </div>
 
       <div class="bottom-bar">
