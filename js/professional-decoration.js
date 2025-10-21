@@ -982,7 +982,23 @@ const fontListBtn = document.getElementById('openFontList');
 const fontListPanel = document.getElementById('fontList');
 
 // تأكيد أن العناصر موجودة
-if (!fontListBtn || !fontListPanel) {
+if (fontListBtn && fontListPanel) {
+  // إخفاء القائمة بالبداية
+  fontListPanel.classList.add('hidden');
+
+  // عند الضغط على زر "اختر خط"
+  fontListBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fontListPanel.classList.toggle('hidden');
+  });
+
+  // إخفاء القائمة لما تضغط برة
+  document.addEventListener('click', (e) => {
+    if (!fontListPanel.contains(e.target) && !fontListBtn.contains(e.target)) {
+      fontListPanel.classList.add('hidden');
+    }
+  });
+} else {
   console.warn('⚠️ لم يتم العثور على عناصر قائمة الخطوط');
 }
   // open font list button
@@ -1061,5 +1077,3 @@ if (textControls) {
 }
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-
-
