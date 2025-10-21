@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../css/professional-decoration.css">
 
   <style>
+    /* تأكيد إضافي لتوافق المعاينة */
     #editorCanvas { position: relative; }
     .export-size {
       display: flex;
@@ -53,20 +54,6 @@
     .btn.primary.download {
       background-color: #4caf50;
       color: white;
-    }
-
-    /* تحسين استجابة الهاتف */
-    @media (max-width: 768px) {
-      .toolbar {
-        flex-direction: column;
-        gap: 8px;
-      }
-      .toolbar label {
-        width: 100%;
-      }
-      #editorCanvas {
-        min-height: 300px;
-      }
     }
   </style>
 </head>
@@ -131,7 +118,6 @@
               <option value="dress">تلبيس</option>
             </select>
           </label>
-
           <button id="openColorGrid" class="btn small">التدرجات</button>
           <button id="openDressGrid" class="btn small">التلبيسات</button>
         </div>
