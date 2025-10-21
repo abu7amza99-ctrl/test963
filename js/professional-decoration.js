@@ -977,6 +977,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   })();
 
+   const fontListBtn = document.getElementById('openFontList');
+const fontListPanel = document.getElementById('fontList');
+
   // open font list button
   if (fontListBtn) fontListBtn.addEventListener('click', (e) => {
     if (!fontListPanel) return;
@@ -1053,3 +1056,4 @@ if (textControls) {
 }
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
