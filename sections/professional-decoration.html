@@ -76,11 +76,11 @@
     <button id="closeSidebar" class="sidebar-close" aria-label="إغلاق">×</button>
     <nav class="sidebar-menu" aria-label="القائمة الرئيسية">
       <ul>
-        <li><a href="../index.html">الصفحة الرئيسية</a></li>
+        <li><a href="sactions/home.html">الصفحة الرئيسية</a></li>
         <li><a href="professional-decoration.html" class="active">الزخرفة الاحترافية</a></li>
-        <li><a href="../name-decoration.html">زخرفة الأسماء</a></li>
-        <li><a href="../about.html">لمحة عن التطبيق</a></li>
-        <li><a href="../contact.html">اتصل بنا</a></li>
+        <li><a href="sactions/name-decoration.html">زخرفة الأسماء</a></li>
+        <li><a href="sactions/about.html">لمحة عن التطبيق</a></li>
+        <li><a href="sactions/contact.html">اتصل بنا</a></li>
       </ul>
     </nav>
   </aside>
@@ -128,24 +128,12 @@
             <input id="fileImage" type="file" accept="image/png,image/*">
           </label>
 
-          <label>نوع اللون
-            <select id="imageColorMode">
-              <option value="solid">لون ثابت</option>
-              <option value="gradient">تدرج</option>
-              <option value="dress">تلبيس</option>
-            </select>
-          </label>
-
-          <button id="openColorGridImg" class="btn small">التدرجات</button>
-          <button id="openDressGridImg" class="btn small">التلبيسات</button>
-        </div>
-
         <button id="btnAdd" class="btn primary">أضف</button>
       </div>
 
       <!-- المعاينة -->
       <div id="editorCanvas" class="editor-canvas" tabindex="0" role="application" aria-label="لوحة التصميم">
-        <div class="hint">اضغط "أضف" لإدراج نص أو صورة. حدد العنصر ثم اختر تدرج أو تلبيس.</div>
+        <div class="hint"></div>
       </div>
 
       <div class="bottom-bar">
@@ -172,3 +160,4 @@
   <script src="../js/professional-decoration.js" defer></script>
 </body>
   </html>
+
