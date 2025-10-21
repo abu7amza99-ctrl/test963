@@ -1015,4 +1015,45 @@ document.addEventListener('DOMContentLoaded', () => {
   ensureSidebarControls();
 
   // --- End of DOMContentLoaded handler ---
+  // --- hide controls initially until type is chosen ---
+if (textControls) textControls.classList.add('hidden');
+if (imageControls) imageControls.classList.add('hidden');
+
+if (modeSelect) {
+  modeSelect.addEventListener('change', () => {
+    if (modeSelect.value === 'text') {
+      textControls.classList.remove('hidden');
+      imageControls.classList.add('hidden');
+    } else if (modeSelect.value === 'image') {
+      imageControls.classList.remove('hidden');
+      textControls.classList.add('hidden');
+    }
+  });
+}
+  
 }); // end DOMContentLoaded
+// --- show/hide lists only when buttons clicked ---
+const fontSelect = document.querySelector('#fontSelect');
+const gradSelect = document.querySelector('#gradSelect');
+const dressSelect = document.querySelector('#dressSelect');
+
+const fontList = document.querySelector('.font-list');
+const gradList = document.querySelector('.grad-list');
+const dressList = document.querySelector('.dress-list');
+
+if (fontSelect && fontList) {
+  fontSelect.addEventListener('click', () => {
+    fontList.classList.toggle('hidden');
+  });
+}
+
+if (gradSelect && gradList) {
+  gradSelect.addEventListener('click', () => {
+    gradList.classList.toggle('hidden');
+  });
+}
+
+if (dressSelect && dressList) {
+  dressSelect.addEventListener('click', () => {
+    dressList.classList.toggle('hidden');
+  });
