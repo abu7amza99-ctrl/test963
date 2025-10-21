@@ -977,9 +977,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   })();
 
-   const fontListBtn = document.getElementById('openFontList');
+// عناصر اختيار الخطوط
+const fontListBtn = document.getElementById('openFontList');
 const fontListPanel = document.getElementById('fontList');
 
+// تأكيد أن العناصر موجودة
+if (!fontListBtn || !fontListPanel) {
+  console.warn('⚠️ لم يتم العثور على عناصر قائمة الخطوط');
+}
   // open font list button
   if (fontListBtn) fontListBtn.addEventListener('click', (e) => {
     if (!fontListPanel) return;
@@ -1056,4 +1061,5 @@ if (textControls) {
 }
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
