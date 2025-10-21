@@ -1,4 +1,4 @@
-/* professional-decoration.css - النسخة النهائية المتكاملة */
+/* professional-decoration.css - النسخة النهائية */
 
 /* خطوط */
 @font-face {
@@ -78,12 +78,50 @@ a { color: inherit; text-decoration: none; }
 /* sidebar */
 .sidebar-btn { position: absolute; right: 14px; background: transparent; border: 0; cursor: pointer; }
 .sidebar-btn img { width: 44px; height: 44px; }
-.sidebar { position: fixed; right: -320px; top: 0; height: 100%; width: 320px; background: linear-gradient(180deg, rgba(207,162,58,0.2), rgba(207,162,58,0.12)); padding: 18px; transition: right .26s; z-index: 100; backdrop-filter: blur(4px); }
-.sidebar.active { right: 0; }
-.sidebar-close { position: absolute; left: 12px; top: 8px; background: transparent; color: #fff; border: 0; font-size: 28px; }
-.sidebar-menu ul { list-style: none; padding: 0; margin-top: 40px; }
+
+.sidebar {
+  position: fixed;
+  right: -320px;
+  top: 0;
+  height: 100%;
+  width: 320px;
+  background: linear-gradient(180deg, rgba(207,162,58,0.2), rgba(207,162,58,0.12));
+  padding: 18px;
+  transition: right .3s ease-in-out;
+  z-index: 100;
+  backdrop-filter: blur(6px);
+}
+.sidebar.active,
+.sidebar.open {
+  right: 0;
+}
+.sidebar-close {
+  position: absolute;
+  left: 12px;
+  top: 8px;
+  background: transparent;
+  color: #fff;
+  border: 0;
+  font-size: 28px;
+  cursor: pointer;
+}
+.sidebar-menu ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 40px;
+}
 .sidebar-menu li { margin: 10px 0; }
-.sidebar-menu a { display: block; padding: 10px; border-radius: 8px; color: var(--gold1); }
+.sidebar-menu a {
+  display: block;
+  padding: 10px;
+  border-radius: 8px;
+  color: var(--gold1);
+  transition: background 0.3s;
+}
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+  background: rgba(255, 215, 0, 0.12);
+}
 
 /* main */
 .main {
@@ -95,22 +133,60 @@ a { color: inherit; text-decoration: none; }
   justify-content: center;
   align-items: flex-start;
 }
-.editor-container { width: 100%; max-width: 1180px; background: var(--panel); border-radius: 14px; padding: 16px; box-shadow: 0 30px 60px rgba(0,0,0,0.6); }
-.editor-title { text-align: center; color: var(--accent); font-family: 'ReemKufiLocalFallback','Reem Kufi',sans-serif; font-size: 28px; margin: 6px 0 14px; }
+.editor-container {
+  width: 100%;
+  max-width: 1180px;
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+}
+.editor-title {
+  text-align: center;
+  color: var(--accent);
+  font-family: 'ReemKufiLocalFallback','Reem Kufi',sans-serif;
+  font-size: 28px;
+  margin: 6px 0 14px;
+}
 
 /* toolbar */
-.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-start; background: var(--panel-40); padding: 12px; border-radius: 10px; }
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
+  background: var(--panel-40);
+  padding: 12px;
+  border-radius: 10px;
+}
 .toolbar label { display: inline-flex; align-items: center; gap: 6px; color: #222; }
-.toolbar select, .toolbar input[type="text"], .toolbar input[type="file"] { padding: 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); background: rgba(255,255,255,0.95); color: #111; }
-.btn { padding: 8px 12px; border-radius: 12px; border: 0; background: linear-gradient(90deg,var(--gold2),var(--gold1)); color: #120800; cursor: pointer; font-weight:700; }
+.toolbar select,
+.toolbar input[type="text"],
+.toolbar input[type="file"] {
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.06);
+  background: rgba(255,255,255,0.95);
+  color: #111;
+}
+.btn {
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 0;
+  background: linear-gradient(90deg,var(--gold2),var(--gold1));
+  color: #120800;
+  cursor: pointer;
+  font-weight:700;
+}
 .btn.small { padding: 6px 8px; font-size: 14px; }
 .btn.primary { background: linear-gradient(90deg,#f2d46b,#ffd86a); color: #120800; }
 .btn.danger { background: #d9534f; color: #fff; }
-.btn.download { background: linear-gradient(90deg,#f7df9a,#f0c65a); color: #000; border: 1px solid rgba(255,255,255,0.6); }
-
-/* conditional */
-.conditional { display: flex; gap: 8px; align-items: center; }
-.hidden { display: none; }
+.btn.download {
+  background: linear-gradient(90deg,#f7df9a,#f0c65a);
+  color: #000;
+  border: 1px solid rgba(255,255,255,0.6);
+}
 
 /* editor canvas */
 .editor-canvas {
@@ -159,7 +235,7 @@ a { color: inherit; text-decoration: none; }
 .popup { width: 920px; max-width: 100%; background: #fff; border-radius: 12px; padding: 14px; box-shadow: 0 30px 80px rgba(0,0,0,0.25); }
 .popup-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .popup-body { display: flex; flex-direction: column; gap: 12px; }
-.grad-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; }
+.grad-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; padding:8px; }
 .grad-sample { height: 48px; border-radius: 10px; border: 1px solid #eee; cursor: pointer; box-shadow:0 6px 18px rgba(0,0,0,0.04); }
 .dress-grid { display: grid; grid-template-columns: repeat(6,1fr); gap:8px; }
 .dress-item { height:86px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid #eee; }
@@ -177,11 +253,8 @@ a { color: inherit; text-decoration: none; }
   .app-logo{width:38px;height:38px;}
   .app-title{font-size:16px;}
   .sidebar{width:90%;right:-90%;}
-  .sidebar.active{right:0;}
-  /* دعم كلاس open المستخدم في الجافاسكربت */
-.sidebar.open {
-  right: 0;
-}
+  .sidebar.active,
+  .sidebar.open { right: 0; }
   .main{padding:10px;align-items:stretch;}
   .editor-container{padding:10px;border-radius:10px;}
   .editor-title{font-size:22px;margin-bottom:10px;}
@@ -199,7 +272,8 @@ a { color: inherit; text-decoration: none; }
   .bottom-bar{flex-direction:column;gap:8px;}
   .hint{font-size:14px;margin-top:25%;}
 }
-/* 📸 جعل الصورة المرفوعة في المنتصف تمامًا داخل المربع */
+
+/* الصورة في المنتصف */
 .editor-canvas img {
   display: block;
   position: absolute;
@@ -210,5 +284,7 @@ a { color: inherit; text-decoration: none; }
   max-height: 90%;
   object-fit: contain;
   border-radius: 10px;
-                   }
+}
 
+/* popup overlay content quick styles (fallback) */
+.popup .grad-grid { max-height: 360px; overflow:auto; }
