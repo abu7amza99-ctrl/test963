@@ -288,3 +288,11 @@ a { color: inherit; text-decoration: none; }
 
 /* popup overlay content quick styles (fallback) */
 .popup .grad-grid { max-height: 360px; overflow:auto; }
+
+/* hidden utility class */
+.hidden {
+  display: none !important;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
