@@ -1014,46 +1014,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   ensureSidebarControls();
 
-  // --- End of DOMContentLoaded handler ---
-  // --- hide controls initially until type is chosen ---
-if (textControls) textControls.classList.add('hidden');
-if (imageControls) imageControls.classList.add('hidden');
+   // --- التحكم بإظهار وإخفاء القوائم حسب التفاعل ---
 
-if (modeSelect) {
-  modeSelect.addEventListener('change', () => {
-    if (modeSelect.value === 'text') {
-      textControls.classList.remove('hidden');
-      imageControls.classList.add('hidden');
-    } else if (modeSelect.value === 'image') {
-      imageControls.classList.remove('hidden');
-      textControls.classList.add('hidden');
+// إخفاء القوائم عند بداية التشغيل
+if (textControls) {
+  const fontWrapper = textControls.querySelector('.font-select-wrapper');
+  const gradBtn = textControls.querySelector('#openColorGrid');
+  const dressBtn = textControls.querySelector('#openDressGrid');
+
+  if (fontWrapper) {
+    const fontPanel = document.getElementById('fontList');
+    if (fontPanel) fontPanel.classList.add('hidden');
+    const fontBtn = document.getElementById('openFontList');
+    if (fontBtn && fontPanel) {
+      fontBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fontPanel.classList.toggle('hidden');
+      });
+      document.addEventListener('click', (e) => {
+        if (!fontWrapper.contains(e.target)) fontPanel.classList.add('hidden');
+      });
     }
-  });
+  }
+
+  // إخفاء شبكة التدرجات والتلبيسات إلى أن يضغط الزر
+  if (gradBtn) {
+    gradBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openGradientGrid('text');
+    });
+  }
+  if (dressBtn) {
+    dressBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openDressGrid('text');
+    });
+  }
 }
-  
+  // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-// --- show/hide lists only when buttons clicked ---
-const fontSelect = document.querySelector('#fontSelect');
-const gradSelect = document.querySelector('#gradSelect');
-const dressSelect = document.querySelector('#dressSelect');
-
-const fontList = document.querySelector('.font-list');
-const gradList = document.querySelector('.grad-list');
-const dressList = document.querySelector('.dress-list');
-
-if (fontSelect && fontList) {
-  fontSelect.addEventListener('click', () => {
-    fontList.classList.toggle('hidden');
-  });
-}
-
-if (gradSelect && gradList) {
-  gradSelect.addEventListener('click', () => {
-    gradList.classList.toggle('hidden');
-  });
-}
-
-if (dressSelect && dressList) {
-  dressSelect.addEventListener('click', () => {
-    dressList.classList.toggle('hidden');
-  });
