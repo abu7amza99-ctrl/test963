@@ -399,6 +399,9 @@ button.open-list.open + #fontList {
 }
 
 
+body {
+  font-family: 'Amiri', serif;
+}
 
 
 
