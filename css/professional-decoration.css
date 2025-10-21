@@ -6,13 +6,6 @@
   src: local('Reem Kufi'), local('ReemKufi');
 }
 
-@font-face {
-  font-family: 'Amiri';
-  src: url('../assets/fonts/amiri.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
 /* الألوان الجذرية */
 :root {
   --gold1: #ffd700;
@@ -405,19 +398,4 @@ button.open-list.open + #fontList {
   color: #3a2c00;
 }
 
-/* لتطبيق الخط أميري على أسماء الخطوط داخل القائمة */
-.font-item {
-  font-family: 'Amiri', serif;
-}
-
 body {
-  font-family: 'Amiri', serif;
-  }
-
-body {
-  font-family: 'Amiri', serif;
-}
-
-
-
-
