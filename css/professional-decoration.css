@@ -292,7 +292,6 @@ a { color: inherit; text-decoration: none; }
 /* ---------- Font list: default hidden + visible when active ---------- */
 
 /* التأكد من أن اللوحة مخفية افتراضياً */
-#fontList,
 .panel-list.hidden {
   display: none !important;
   visibility: hidden !important;
@@ -383,3 +382,4 @@ button.open-list.open + #fontList {
   visibility: visible;
   opacity: 1;
   }
+
