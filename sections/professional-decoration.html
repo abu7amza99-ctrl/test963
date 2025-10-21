@@ -72,15 +72,17 @@
   </header>
 
   <!-- اللوحة الجانبية -->
-<aside class="sidebar">
-    <button class="close-btn">&times;</button>
-    <ul class="sidebar-menu">
-      <li><a href="sections/home.html">الصفحة الرئيسية</a></li>
-      <li><a href="sections/professional-decoration.html">الزخرفة الاحترافية</a></li>
-      <li><a href="sections/name-decoration.html">زخرفة الأسماء</a></li>
-      <li><a href="sections/about.html">لمحة عن التطبيق</a></li>
-      <li><a href="sections/contact.html">اتصل بنا</a></li>
-    </ul>
+  <aside id="siteSidebar" class="sidebar" aria-hidden="true">
+    <button id="closeSidebar" class="sidebar-close" aria-label="إغلاق">×</button>
+    <nav class="sidebar-menu" aria-label="القائمة الرئيسية">
+      <ul>
+        <li><a href="../index.html">الصفحة الرئيسية</a></li>
+        <li><a href="professional-decoration.html" class="active">الزخرفة الاحترافية</a></li>
+        <li><a href="sections/name-decoration.html">زخرفة الأسماء</a></li>
+        <li><a href="sections/about.html">لمحة عن التطبيق</a></li>
+       <li><a href="sections/contact.html">اتصل بنا</a></li>
+      </ul>
+    </nav>
   </aside>
 
   <!-- المحتوى الرئيسي -->
