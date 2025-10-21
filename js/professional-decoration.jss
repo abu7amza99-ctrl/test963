@@ -1061,3 +1061,4 @@ if (textControls) {
 }
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
