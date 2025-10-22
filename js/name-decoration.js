@@ -379,7 +379,7 @@ if (chooseTypeBtn && lettersMenu) {
 /* ============================
    مسح ونسخ للنص اليدوي
    ============================ */
-if (clearCustom) clearCustom.addEventListener("click", () => { customResult.textContent = ""; });
+if (clearCustom) clearCustom.addEventListener("click", () => { customResult.innerText = ""; });
 if (copyCustom) copyCustom.addEventListener("click", () => {
   const t = (customResult.textContent || "").trim();
   if (!t) return showToast("لا يوجد نص للنسخ");
