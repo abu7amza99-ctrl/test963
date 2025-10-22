@@ -1,0 +1,151 @@
+body {
+  margin: 0;
+  font-family: 'Amiri', serif;
+  background: url('../assets/bg.png') no-repeat center center fixed;
+  background-size: cover;
+  color: #000;
+}
+
+/* الشريط العلوي */
+.top-bar {
+  background: url('../assets/shbg.png') no-repeat center;
+  background-size: cover;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  position: relative;
+}
+
+.site-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.site-title h1 {
+  font-family: 'Reem Kufi', sans-serif;
+  color: #D4AF37;
+  text-shadow: 1px 1px 2px #000;
+  font-size: 22px;
+}
+
+.logo {
+  height: 45px;
+  width: 45px;
+}
+
+.menu-btn {
+  height: 40px;
+  width: 40px;
+  cursor: pointer;
+}
+
+/* اللوحة الجانبية */
+.side-panel {
+  position: fixed;
+  top: 0;
+  right: -260px;
+  width: 250px;
+  height: 100%;
+  background: rgba(212, 175, 55, 0.2);
+  backdrop-filter: blur(6px);
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.2);
+  transition: right 0.4s ease;
+  z-index: 1000;
+  padding-top: 100px;
+}
+
+.side-panel.open {
+  right: 0;
+}
+
+/* زر الإغلاق */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: transparent;
+  border: none;
+  color: #D4AF37;
+  font-size: 26px;
+  font-weight: bold;
+  cursor: pointer;
+  text-shadow: 1px 1px 2px #000;
+}
+
+.side-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+
+.side-panel li {
+  margin: 20px 0;
+}
+
+.side-panel a {
+  text-decoration: none;
+  color: #D4AF37;
+  font-family: 'Reem Kufi', sans-serif;
+  font-size: 18px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  text-shadow: 1px 1px 2px black;
+  transition: all 0.2s ease;
+}
+
+.side-panel a:hover {
+  color: black;
+  background: rgba(212, 175, 55, 0.4);
+  text-shadow: none;
+}
+
+/* محتوى القسم */
+.main-content {
+  text-align: center;
+  padding: 40px 15px;
+}
+
+.section-title {
+  font-family: 'Reem Kufi', sans-serif;
+  color: #D4AF37;
+  font-size: 32px;
+  text-shadow: 2px 2px 3px black;
+  margin-bottom: 30px;
+}
+
+/* زر اختيار النوع */
+.selector button {
+  font-family: 'Amiri', serif;
+  font-size: 18px;
+  padding: 12px 25px;
+  background: rgba(212, 175, 55, 0.85);
+  color: black;
+  border: 2px solid #000;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.type-menu {
+  margin-top: 10px;
+  background: rgba(212, 175, 55, 0.2);
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* مكان النتائج */
+.decoration-output {
+  margin-top: 30px;
+  font-size: 20px;
+  font-family: 'Amiri', serif;
+}
