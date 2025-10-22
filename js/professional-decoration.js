@@ -749,7 +749,7 @@ obj.fillMode = 'gradient';
 obj.gradient = g;
 if (dom.classList && dom.classList.contains('dressed')) dom.classList.remove('dressed');
 if (obj.type === 'text') {
-dom.style.background = linear-gradient(90deg, ${g[0]}, ${g[1]});
+dom.style.background = `linear-gradient(90deg, ${g[0]}, ${g[1]})`;
 dom.style.webkitBackgroundClip = 'text';
 dom.style.backgroundClip = 'text';
 dom.style.color = 'transparent';
@@ -936,7 +936,7 @@ const { obj, dom } = SELECTED;
 obj.fillMode = 'gradient';
 obj.gradient = g;
 if (dom && dom.classList.contains('dressed')) dom.classList.remove('dressed');
-dom.style.background = linear-gradient(90deg, ${g[0]}, ${g[1]});
+dom.style.background = `linear-gradient(90deg, ${g[0]}, ${g[1]})`;
 dom.style.webkitBackgroundClip = 'text';
 dom.style.backgroundClip = 'text';
 dom.style.color = 'transparent';
