@@ -217,7 +217,10 @@ a { color: inherit; text-decoration: none; }
   pointer-events: auto;
   transition: filter .2s, background-image .3s;
   mix-blend-mode: normal;
-
+  background-size: 100% 100%; /* يجعل التلبيس يمتد على كامل النص */
+  background-origin: border-box;
+}
+  
   /* تناسق المعاينة مع الـ JS */
   background-repeat: repeat;
   background-size: auto;
@@ -229,6 +232,10 @@ a { color: inherit; text-decoration: none; }
 
 .text-item.dressed {
   color: transparent;
+  background-repeat: repeat;
+  background-size: 100% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.4));
   image-rendering: crisp-edges;
@@ -417,4 +424,5 @@ button.open-list.open + #fontList {
 }
 
 body {
+
 
