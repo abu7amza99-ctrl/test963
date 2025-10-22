@@ -99,6 +99,17 @@ document.addEventListener('DOMContentLoaded', () => {
       document.head.appendChild(s);
     } catch (e) { /* ignore */ }
   }
+  
+function detectGitHubRepo() {
+  try {
+    const host = window.location.hostname || '';
+    if (!host.includes('github.io')) return null;
+    const owner = host.split('.github.io')[0];
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    const repo = parts.length ? parts[0] : null;
+    return { owner, repo };
+  } catch (e) { return null; }
+}
 
   // --- populate assets: fonts & dressups ---
   async function populateAssets() {
@@ -120,7 +131,9 @@ document.addEventListener('DOMContentLoaded', () => {
       refreshFontListUI();
       return;
     }
-         const repo = detectGitHubRepo();
+    
+// --- GitHub fallback listing ---
+    const repo = detectGitHubRepo();
     if (repo && repo.owner && repo.repo) {
       // try Github API listing if deployed on github pages
       try {
@@ -149,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
       refreshFontListUI();
       return;
     }
-     
+    
     // Fallback: probe common filenames
     const tryFonts = ['ReemKufi.ttf','ReemKufi-Regular.ttf','ReemKufi.woff2'];
     for (const fn of tryFonts) {
@@ -1067,4 +1080,3 @@ document.addEventListener('DOMContentLoaded', () => {
   // showInlineMessage('المحرر جاهز');
 
 }); // end DOMContentLoaded
-
