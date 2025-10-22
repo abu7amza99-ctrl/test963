@@ -24,7 +24,9 @@ body {
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  flex-direction: row-reverse; /* 🔥 يخلي الشعار بعد الاسم */
+  gap: 15px; /* 🔥 مسافة أنيقة بين الاسم والشعار */
 }
 
 .site-title h1 {
@@ -149,3 +151,13 @@ body {
   font-size: 20px;
   font-family: 'Amiri', serif;
 }
+@media (max-width: 480px) {
+  .site-title h1 {
+    font-size: 16px;
+  }
+  
+  .logo {
+    height: 35px;
+    width: 35px;
+  }
+  }
