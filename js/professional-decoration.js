@@ -860,6 +860,7 @@ const desiredW = parseInt(document.getElementById('widthInput').value) || W;
         tctx.globalCompositeOperation = 'source-in';
         tctx.fillStyle = pattern;
         tctx.fillRect(0, 0, tmp.width, tmp.height);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.drawImage(tmp, x, y);
       } catch (e) {
         ctx.fillStyle = '#000';
