@@ -1,39 +1,54 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>زخرفة الأسماء</title>
-  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/name-decoration.css" />
+
+  <!-- الخطوط -->
+  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header>
-    <div class="header-center">
-      <div class="app-title">عالم التصاميم والزخرفة</div>
-      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
+  <!-- الشريط العلوي -->
+  <header class="top-bar">
+    <img src="../assets/yhbg.png" alt="زر القائمة" class="menu-btn" id="menuBtn">
+
+    <div class="site-title">
+      <h1>عالم التصاميم والزخرفة</h1>
+      <img src="../assets/abu7amza.png" alt="شعار الموقع" class="logo">
     </div>
-    <button class="sidebar-btn">
-      <img src="../assets/yhbg.png" alt="لوحة جانبية">
-    </button>
   </header>
 
-  <aside class="sidebar">
-    <button class="close-btn">&times;</button>
-    <ul class="sidebar-menu">
-      <li><a href="../index.html">الصفحة الرئيسية</a></li>
-      <li><a href="professional-decoration.html">الزخرفة الاحترافية</a></li>
-      <li><a href="name-decoration.html">زخرفة الأسماء</a></li>
-      <li><a href="about.html">لمحة عن التطبيق</a></li>
-      <li><a href="contact.html">اتصل بنا</a></li>
+  <!-- اللوحة الجانبية -->
+  <nav class="side-panel" id="sidePanel">
+    <button id="closePanel" class="close-btn">×</button>
+    <ul>
+      <li><a href="../sections/home.html">🏠 الصفحة الرئيسية</a></li>
+      <li><a href="../sections/professional-decoration.html">🎨 الزخرفة الاحترافية</a></li>
+      <li><a href="../sections/name-decoration.html">✍️ زخرفة الأسماء</a></li>
+      <li><a href="../sections/about.html">ℹ️ لمحة عن التطبيق</a></li>
+      <li><a href="../sections/contact.html">☎️ اتصل بنا</a></li>
     </ul>
-  </aside>
+  </nav>
 
-  <main>
-    <h1>زخرفة الأسماء</h1>
-    <p>هنا يمكنك تجربة زخرفة الأسماء بأنماط متعددة وجذابة.</p>
+  <!-- الواجهة الرئيسية -->
+  <main class="main-content">
+    <section class="decoration-section">
+      <h2 class="section-title">زخرفة الأسماء</h2>
+
+      <div class="selector">
+        <button id="typeButton">اختيار نوع الزخرفة</button>
+        <div id="typeMenu" class="type-menu hidden">
+          <!-- الخيارات رح نضيفها لاحقًا -->
+        </div>
+      </div>
+
+      <div id="decorationOutput" class="decoration-output"></div>
+    </section>
   </main>
 
-  <script src="../js/script.js" defer></script>
+  <script src="../js/name-decoration.js"></script>
 </body>
-</html>
+      </html>
