@@ -123,6 +123,41 @@ document.addEventListener('DOMContentLoaded', () => {
       refreshFontListUI();
       return;
     }
+     // 👇 إذا ما كان في index.json نحاول نقرأ الملفات مباشرة من المجلدات
+try {
+  const fontDir = assetsBase + 'fonts/';
+  const dressDir = assetsBase + 'dressup/';
+  const fontExts = ['.ttf', '.woff2', '.otf'];
+  const dressExts = ['.png', '.jpg', '.jpeg', '.webp'];
+
+  // نحاول جلب قائمة من السيرفر (فقط إن وجد index أو directory listing)
+  const fontListResp = await fetch(fontDir);
+  const text = await fontListResp.text();
+  for (const ext of fontExts) {
+    const matches = text.match(new RegExp(`[^"']+\\${ext}`, 'g')) || [];
+    for (const m of matches) {
+      const url = fontDir + m.split('/').pop();
+      const name = fileNameNoExt(url);
+      AVAILABLE_FONTS.push({ name, url });
+      registerFont(name, url);
+    }
+  }
+
+  const dressResp = await fetch(dressDir);
+  const text2 = await dressResp.text();
+  for (const ext of dressExts) {
+    const matches = text2.match(new RegExp(`[^"']+\\${ext}`, 'g')) || [];
+    for (const m of matches) {
+      const url = dressDir + m.split('/').pop();
+      AVAILABLE_DRESS.push(url);
+    }
+  }
+
+  DRESSES_LOADED = true;
+  refreshFontListUI();
+} catch (e) {
+  console.warn('fallback asset scan failed', e);
+}
 
     // fallback probe (simple)
     const tryFonts = ['ReemKufi.ttf','ReemKufi-Regular.ttf','ReemKufi.woff2'];
@@ -997,3 +1032,4 @@ document.addEventListener('DOMContentLoaded', () => {
   // final ready message (quiet)
   // showInlineMessage('المحرر جاهز');
 }); // end DOMContentLoaded
+
