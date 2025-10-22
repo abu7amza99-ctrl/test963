@@ -347,16 +347,27 @@ async function displayLetters(type) {
     s.className = "letter-box";
     s.textContent = ch;
     s.title = ch;
-    s.addEventListener("click", () => {
-      const lastChar = (customResult.textContent || "").slice(-1);
-      const isConnector = (LETTER_SETS["حروف الوصل"] || []).includes(ch) || CONNECTORS.includes(ch);
-      if (isConnector) {
-        const cr = customResult.textContent || "";
-        if (!cr || cr.slice(-1) === " ") { showToast("لا يمكن إضافة وصلة هنا"); return; }
-        if ((LETTER_SETS["حروف الوصل"] || []).includes(lastChar) || CONNECTORS.includes(lastChar)) { showToast("لا يمكن تكرار الوصل مباشرة"); return; }
-      }
-      customResult.textContent += ch;
-    });
+s.addEventListener("click", () => {
+  const lastChar = (customResult.value || "").slice(-1);
+  const isConnector = (LETTER_SETS["حروف الوصل"] || []).includes(ch) || CONNECTORS.includes(ch);
+
+  if (isConnector) {
+    const cr = customResult.value || "";
+    if (!cr || cr.slice(-1) === " ") { showToast("لا يمكن إضافة وصلة هنا"); return; }
+    if ((LETTER_SETS["حروف الوصل"] || []).includes(lastChar) || CONNECTORS.includes(lastChar)) {
+      showToast("لا يمكن تكرار الوصل مباشرة");
+      return;
+    }
+  }
+
+  // أضف الحرف في المكان الذي يوجد فيه مؤشر الكتابة
+  const start = customResult.selectionStart;
+  const end = customResult.selectionEnd;
+  const text = customResult.value;
+  customResult.value = text.slice(0, start) + ch + text.slice(end);
+  customResult.selectionStart = customResult.selectionEnd = start + ch.length;
+  customResult.focus(); // حتى يفتح الكيبورد على الهاتف
+});
     return s;
   });
   fragmentAppend(lettersArea, nodes);
@@ -379,9 +390,17 @@ if (chooseTypeBtn && lettersMenu) {
 /* ============================
    مسح ونسخ للنص اليدوي
    ============================ */
-if (clearCustom) clearCustom.addEventListener("click", () => { customResult.innerText = ""; });
-if (copyCustom) copyCustom.addEventListener("click", () => {
-  const t = (customResult.textContent || "").trim();
+if (clearCustom)
+  clearCustom.addEventListener("click", () => {
+    customResult.value = "";
+  });
+
+if (copyCustom)
+  copyCustom.addEventListener("click", () => {
+    const t = (customResult.value || "").trim();
+    if (!t) return showToast("لا يوجد نص للنسخ");
+    copyText(t);
+  });
   if (!t) return showToast("لا يوجد نص للنسخ");
   copyText(t);
 });
