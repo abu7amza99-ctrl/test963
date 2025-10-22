@@ -1,29 +1,35 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>زخرفة الأسماء</title>
-  <link rel="stylesheet" href="../css/name-decoration.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>زخرفة الأسماء — عالم التصاميم والزخرفة</title>
 
-  <!-- الخطوط -->
+  <!-- ربط CSS الخاص بالقسم -->
+  <link rel="stylesheet" href="../css/name-decoration.css">
+
+  <!-- خطوط ويب -->
   <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- الشريط العلوي -->
-  <header class="top-bar">
-    <img src="../assets/yhbg.png" alt="زر القائمة" class="menu-btn" id="menuBtn">
+  <header class="top-bar" role="banner">
+    <!-- زر اللوحة الجانبية -->
+    <button id="menuBtn" class="menu-btn" aria-label="فتح القائمة">
+      <img src="../assets/yhbg.png" alt="قائمة" />
+    </button>
 
-    <div class="site-title">
+    <!-- عنوان الموقع والشعار (متمركزان) -->
+    <div class="site-title" role="heading" aria-level="1">
       <h1>عالم التصاميم والزخرفة</h1>
-      <img src="../assets/abu7amza.png" alt="شعار الموقع" class="logo">
+      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="logo">
     </div>
   </header>
 
   <!-- اللوحة الجانبية -->
-  <nav class="side-panel" id="sidePanel">
-    <button id="closePanel" class="close-btn">×</button>
+  <nav id="sidePanel" class="side-panel" aria-label="قائمة التنقل">
+    <button id="closePanel" class="close-btn" aria-label="إغلاق القائمة">×</button>
     <ul>
       <li><a href="../sections/home.html">🏠 الصفحة الرئيسية</a></li>
       <li><a href="../sections/professional-decoration.html">🎨 الزخرفة الاحترافية</a></li>
@@ -33,50 +39,75 @@
     </ul>
   </nav>
 
-  <!-- محتوى الصفحة -->
-  <main class="main-content">
-    <section class="decoration-section">
-      <h2 class="section-title">زخرفة الأسماء</h2>
+  <!-- محتوى القسم -->
+  <main class="main-content" role="main">
+    <section class="decoration-section" aria-labelledby="sectionTitle">
+      <h2 id="sectionTitle" class="section-title">زخرفة الأسماء</h2>
 
-      <!-- أنواع الزخرفة -->
+      <!-- أزرار اختيار نوع العمل -->
       <div class="decorator-container">
-        <button class="option" id="quickDecorationBtn">الزخرفة السريعة</button>
-        <button class="option" id="manualDecorationBtn">زخرف بنفسك</button>
+        <button class="option" id="quickDecorationBtn" aria-pressed="false">الزخرفة السريعة</button>
+        <button class="option" id="manualDecorationBtn" aria-pressed="false">زخرف بنفسك</button>
       </div>
 
-      <!-- القسم الأول: الزخرفة السريعة -->
-      <div class="quick-decor hidden" id="quickDecor">
+      <!-- --- القسم 1: الزخرفة السريعة --- -->
+      <div id="quickDecor" class="panel hidden" aria-hidden="true">
         <h3 class="sub-title">الزخرفة السريعة</h3>
-        <input type="text" id="quickName" placeholder="اكتب الاسم هنا..." />
-        <button id="generateBtn">زخرف</button>
-        <div id="quickResults" class="results-box"></div>
-      </div>
 
-      <!-- القسم الثاني: زخرف بنفسك -->
-      <div class="manual-decor hidden" id="manualDecor">
-        <h3 class="sub-title">زخرف بنفسك</h3>
-        <div id="customResult" class="copy-box">النص المزخرف سيظهر هنا...</div>
-        
-        <div class="select-type">
-          <button id="chooseType">اختيار نوع الحروف</button>
-          <div id="lettersMenu" class="letters-menu hidden">
-            <p>الحروف العربية</p>
-            <p>الرموز</p>
-            <p>حروف الوصل</p>
-            <p>تشكيل الأحرف</p>
-            <p>الحروف الإنجليزية</p>
-            <p>رموز ببجي</p>
+        <!-- مربع اختيار (تصميم) -->
+        <div class="choice-card">
+          <p class="choice-title">الزخرفة السريعة</p>
+          <div class="quick-controls">
+            <input type="text" id="quickName" placeholder="اكتب الاسم هنا..." aria-label="اكتب الاسم" />
+            <button id="generateBtn" class="primary-btn" aria-live="polite">زخرف</button>
           </div>
         </div>
 
-        <div id="lettersArea" class="letters-area">
-          <!-- الأحرف ستظهر هنا -->
+        <!-- نتائج: 50 نتيجة تظهر هنا (شبكة responsive) -->
+        <div id="quickResults" class="results-box" aria-live="polite" aria-atomic="true">
+          <!-- عناصر .result-item ستُضاف برمجياً -->
         </div>
       </div>
 
+      <!-- --- القسم 2: زخرف بنفسك --- -->
+      <div id="manualDecor" class="panel hidden" aria-hidden="true">
+        <h3 class="sub-title">زخرف بنفسك</h3>
+
+        <!-- مربع العرض النهائي للنص الذي يبنيه المستخدم -->
+        <div id="customResult" class="copy-box" role="region" aria-label="النص المزخرف الذي صنعته">
+          اضغط هنا لنسخ النص — النص الظاهر هو ما ستبنيه من الأحرف أدناه.
+        </div>
+
+        <!-- اختيار نوع الحروف -->
+        <div class="select-type">
+          <button id="chooseType" class="secondary-btn" aria-expanded="false">اختيار نوع الحروف</button>
+
+          <!-- تبويب الأنواع (ظاهر عند الضغط) -->
+          <div id="lettersMenu" class="letters-menu hidden" role="menu" aria-hidden="true">
+            <button class="letters-type" data-type="الحروف العربية">الحروف العربية</button>
+            <button class="letters-type" data-type="الرموز">الرموز</button>
+            <button class="letters-type" data-type="حروف الوصل">حروف الوصل</button>
+            <button class="letters-type" data-type="تشكيل الأحرف">تشكيل الأحرف</button>
+            <button class="letters-type" data-type="الحروف الإنجليزية">الحروف الإنجليزية</button>
+            <button class="letters-type" data-type="رموز ببجي">رموز ببجي</button>
+          </div>
+        </div>
+
+        <!-- منطقة عرض الأحرف / الرموز (تملأ برمجياً عند اختيار النوع) -->
+        <div id="lettersArea" class="letters-area" aria-live="polite" aria-atomic="false">
+          <!-- الحروف ستضاف هنا ديناميكياً كل حرف في .letter-box -->
+        </div>
+
+        <!-- زر لمسح النص وبناء جديد -->
+        <div class="manual-actions">
+          <button id="clearCustom" class="tertiary-btn">مسح</button>
+          <button id="copyCustom" class="primary-btn">نسخ النص</button>
+        </div>
+      </div>
     </section>
   </main>
 
+  <!-- رابط ملف JS الخاص بالقسم (سيحتوي الخوارزمية والموسوعة لاحقاً) -->
   <script src="../js/name-decoration.js"></script>
 </body>
-  </html>
+</html>
