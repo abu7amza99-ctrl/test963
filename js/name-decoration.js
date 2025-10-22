@@ -401,9 +401,6 @@ if (copyCustom)
     if (!t) return showToast("لا يوجد نص للنسخ");
     copyText(t);
   });
-  if (!t) return showToast("لا يوجد نص للنسخ");
-  copyText(t);
-});
 
 /* ============================
    DOMContentLoaded (تهيئة خفيفة)
