@@ -1,3 +1,4 @@
+<!-- professional-decoration.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -9,6 +10,7 @@
   <link rel="stylesheet" href="../css/professional-decoration.css">
 
   <style>
+    /* قواعد صغيرة خاصة بالمعاينة (لا تغييرات جوهرية) */
     #editorCanvas { position: relative; }
     .export-size {
       display: flex;
@@ -38,12 +40,6 @@
       align-items: center;
       text-align: center;
       overflow: hidden;
-    }
-    #editorCanvas .canvas-item.text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
     }
     .btn.primary.download {
       background-color: #4caf50;
@@ -101,18 +97,11 @@
 
           <label>الخط
             <div class="font-select-wrapper">
-              <button id="openFontList" class="open-list">اختر خط</button>
+              <button id="openFontList" class="open-list" aria-expanded="false">اختر خط</button>
               <div id="fontList" class="panel-list hidden" aria-hidden="true">
                 <div class="panel-scroll">
-                  <div class="font-item" style="font-family: 'أنيق';">أنيق</div>
-                  <div class="font-item" style="font-family: 'بطرس';">بطرس</div>
-                  <div class="font-item" style="font-family: 'ثلث';">ثلث</div>
-                  <div class="font-item" style="font-family: 'حجاز';">حجاز</div>
-                  <div class="font-item" style="font-family: 'دوسوقي';">دوسوقي</div>
-                  <div class="font-item" style="font-family: 'ديواني';">ديواني</div>
-                  <div class="font-item" style="font-family: 'لهب';">لهب</div>
-                  <div class="font-item" style="font-family: 'متقن';">متقن</div>
-                  <div class="font-item" style="font-family: 'مثير';">مثير</div>
+                  <!-- هذه عناصر بديلة — السكربت سيملأ القائمة بخطوط المتاحة -->
+                  <div class="font-item" data-font="ReemKufi">ReemKufi (افتراضي)</div>
                 </div>
               </div>
             </div>
@@ -140,13 +129,13 @@
           <button id="openDressGridImg" class="btn small">تلبيس للصورة</button>
         </div>
 
-        <!-- زر الإضافة خارج الأقسام -->
+        <!-- زر الإضافة -->
         <button id="btnAdd" class="btn primary">أضف</button>
       </div>
 
       <!-- المعاينة -->
       <div id="editorCanvas" class="editor-canvas" tabindex="0" role="application" aria-label="لوحة التصميم">
-        <div class="hint"></div>
+        <div class="hint">اسحب لإضافة العناصر أو اختر نص/صورة ثم اضغط أضف</div>
       </div>
 
       <div class="bottom-bar">
@@ -170,6 +159,7 @@
   <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
 
   <!-- سكربت -->
-  <script src="../js/professional-decoration.js"></script>
+  <script src="../js/professional-decoration.part1.js" defer></script>
+  <script src="../js/professional-decoration.part2.js" defer></script>
 </body>
-</html>
+          </html>
