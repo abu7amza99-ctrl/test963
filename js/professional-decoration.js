@@ -462,12 +462,13 @@ document.addEventListener('DOMContentLoaded', () => {
               const t2 = tmp.getContext('2d');
               t2.clearRect(0, 0, w, h);
               try { t2.drawImage(dimg, 0, 0, w, h); } catch (e) { /* ignore */ }
-              t2.globalCompositeOperation = 'destination-in';
-              t2.fillStyle = '#000';
-              t2.font = `${fontSize}px "${obj.font}"`;
-              t2.textBaseline = 'top';
-              t2.fillText(text, 4, 4);
-              dom.style.backgroundImage = `url(${tmp.toDataURL()})`;
+t2.globalCompositeOperation = 'destination-in';
+t2.fillStyle = 'rgba(0,0,0,1)';
+t2.font = `${fontSize}px "${obj.font}"`;
+t2.textBaseline = 'top';
+t2.fillText(text, 4, 4);
+t2.globalCompositeOperation = 'source-over';
+dom.style.backgroundImage = `url(${tmp.toDataURL('image/png')})`;
               dom.style.color = 'transparent';
             };
             dimg.onerror = () => {
@@ -843,6 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 try { t2ctx.drawImage(img, 0, 0, t2.width, t2.height); } catch (e) { /* ignore */ }
                 t2ctx.globalCompositeOperation = 'destination-in';
                 try { t2ctx.drawImage(tmp, 0, 0); } catch (e) { /* ignore */ }
+                t2ctx.globalCompositeOperation = 'source-over';
                 ctx.drawImage(t2, x, y);
                 res();
               };
