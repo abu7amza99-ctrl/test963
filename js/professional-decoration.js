@@ -120,7 +120,36 @@ document.addEventListener('DOMContentLoaded', () => {
       refreshFontListUI();
       return;
     }
+         const repo = detectGitHubRepo();
+    if (repo && repo.owner && repo.repo) {
+      // try Github API listing if deployed on github pages
+      try {
+        const resF = await fetch(`https://api.github.com/repos/${repo.owner}/${repo.repo}/contents/assets/fonts`);
+        if (resF.ok) {
+          const list = await resF.json();
+          list.filter(f => f.type === 'file' && /\.(ttf|otf|woff2?|woff)$/i.test(f.name)).forEach(f => {
+            const name = f.name.replace(/\.[^/.]+$/, '');
+            AVAILABLE_FONTS.push({ name, url: f.download_url });
+            registerFont(name, f.download_url);
+          });
+        }
+      } catch (e) { /* ignore */ }
 
+      try {
+        const resD = await fetch(`https://api.github.com/repos/${repo.owner}/${repo.repo}/contents/assets/dressup`);
+        if (resD.ok) {
+          const list2 = await resD.json();
+          list2.filter(f => f.type === 'file' && /\.(png|jpe?g|webp|svg)$/i.test(f.name)).forEach(f => {
+            AVAILABLE_DRESS.push(f.download_url);
+          });
+        }
+      } catch (e) { /* ignore */ }
+
+      DRESSES_LOADED = true;
+      refreshFontListUI();
+      return;
+    }
+     
     // Fallback: probe common filenames
     const tryFonts = ['ReemKufi.ttf','ReemKufi-Regular.ttf','ReemKufi.woff2'];
     for (const fn of tryFonts) {
@@ -1038,3 +1067,4 @@ document.addEventListener('DOMContentLoaded', () => {
   // showInlineMessage('المحرر جاهز');
 
 }); // end DOMContentLoaded
+
