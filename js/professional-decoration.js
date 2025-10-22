@@ -622,7 +622,7 @@ const txt = (textInput && textInput.value || '').trim();
 if (!txt) return alert('أدخل نصًا أولاً');
 const obj = createElementObject('text', { text: txt, font: (AVAILABLE_FONTS[0] ? AVAILABLE_FONTS[0].name : 'ReemKufiLocalFallback') });
 const dom = renderElement(obj);
-const lastDom = editorCanvas.querySelector([data-id="${obj.id}"]);
+const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
 if (lastDom) selectElement(lastDom, obj);
 if (textInput) textInput.value = '';
 } else {
@@ -779,7 +779,7 @@ if (!SELECTED) {
 const lastText = [...ELEMENTS].reverse().find(e => e.type === 'text');
 if (lastText) {
 lastText.font = fontName;
-const dom = editorCanvas.querySelector([data-id="${lastText.id}"]);
+const dom = editorCanvas.querySelector(`[data-id="${lastText.id}"]`);
 if (dom) dom.style.fontFamily = fontName;
 }
 return;
