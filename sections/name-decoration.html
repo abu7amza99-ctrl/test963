@@ -33,22 +33,50 @@
     </ul>
   </nav>
 
-  <!-- الواجهة الرئيسية -->
+  <!-- محتوى الصفحة -->
   <main class="main-content">
     <section class="decoration-section">
       <h2 class="section-title">زخرفة الأسماء</h2>
 
-      <div class="selector">
-        <button id="typeButton">اختيار نوع الزخرفة</button>
-        <div id="typeMenu" class="type-menu hidden">
-          <!-- الخيارات رح نضيفها لاحقًا -->
+      <!-- أنواع الزخرفة -->
+      <div class="decorator-container">
+        <button class="option" id="quickDecorationBtn">الزخرفة السريعة</button>
+        <button class="option" id="manualDecorationBtn">زخرف بنفسك</button>
+      </div>
+
+      <!-- القسم الأول: الزخرفة السريعة -->
+      <div class="quick-decor hidden" id="quickDecor">
+        <h3 class="sub-title">الزخرفة السريعة</h3>
+        <input type="text" id="quickName" placeholder="اكتب الاسم هنا..." />
+        <button id="generateBtn">زخرف</button>
+        <div id="quickResults" class="results-box"></div>
+      </div>
+
+      <!-- القسم الثاني: زخرف بنفسك -->
+      <div class="manual-decor hidden" id="manualDecor">
+        <h3 class="sub-title">زخرف بنفسك</h3>
+        <div id="customResult" class="copy-box">النص المزخرف سيظهر هنا...</div>
+        
+        <div class="select-type">
+          <button id="chooseType">اختيار نوع الحروف</button>
+          <div id="lettersMenu" class="letters-menu hidden">
+            <p>الحروف العربية</p>
+            <p>الرموز</p>
+            <p>حروف الوصل</p>
+            <p>تشكيل الأحرف</p>
+            <p>الحروف الإنجليزية</p>
+            <p>رموز ببجي</p>
+          </div>
+        </div>
+
+        <div id="lettersArea" class="letters-area">
+          <!-- الأحرف ستظهر هنا -->
         </div>
       </div>
 
-      <div id="decorationOutput" class="decoration-output"></div>
     </section>
   </main>
 
   <script src="../js/name-decoration.js"></script>
 </body>
-      </html>
+  </html>
