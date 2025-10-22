@@ -365,3 +365,27 @@ font-weight: bold;
     font-size: 15px;
   }
 }
+/* مربع النص القابل للتحرير (بدل div القديم) */
+#customResult {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical; /* يسمح للمستخدم بتكبير/تصغير الارتفاع */
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.6);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 18px;
+  color: #000;
+  text-align: center;
+  font-family: 'Amiri', serif;
+  font-weight: bold;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+/* تأثير عند التركيز */
+#customResult:focus {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(212, 175, 55, 0.9);
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.5);
+                   }
