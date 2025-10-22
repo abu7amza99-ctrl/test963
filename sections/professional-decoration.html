@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="../css/professional-decoration.css">
 
   <style>
-    /* تأكيد إضافي لتوافق المعاينة */
     #editorCanvas { position: relative; }
     .export-size {
       display: flex;
@@ -19,7 +18,6 @@
       flex-wrap: wrap;
       margin-top: 10px;
     }
-
     .export-size label {
       font-size: 14px;
       color: #333;
@@ -27,7 +25,6 @@
       align-items: center;
       gap: 5px;
     }
-
     .export-size input {
       width: 80px;
       padding: 4px 6px;
@@ -35,7 +32,6 @@
       border-radius: 6px;
       text-align: center;
     }
-
     #editorCanvas {
       display: flex;
       justify-content: center;
@@ -43,14 +39,12 @@
       text-align: center;
       overflow: hidden;
     }
-
     #editorCanvas .canvas-item.text {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
     }
-
     .btn.primary.download {
       background-color: #4caf50;
       color: white;
@@ -105,25 +99,25 @@
             <input id="textInput" type="text" placeholder="اكتب النص">
           </label>
 
-<label>الخط
-  <div class="font-select-wrapper">
-    <button id="openFontList" class="open-list">اختر خط</button>
+          <label>الخط
+            <div class="font-select-wrapper">
+              <button id="openFontList" class="open-list">اختر خط</button>
+              <div id="fontList" class="panel-list hidden" aria-hidden="true">
+                <div class="panel-scroll">
+                  <div class="font-item" style="font-family: 'أنيق';">أنيق</div>
+                  <div class="font-item" style="font-family: 'بطرس';">بطرس</div>
+                  <div class="font-item" style="font-family: 'ثلث';">ثلث</div>
+                  <div class="font-item" style="font-family: 'حجاز';">حجاز</div>
+                  <div class="font-item" style="font-family: 'دوسوقي';">دوسوقي</div>
+                  <div class="font-item" style="font-family: 'ديواني';">ديواني</div>
+                  <div class="font-item" style="font-family: 'لهب';">لهب</div>
+                  <div class="font-item" style="font-family: 'متقن';">متقن</div>
+                  <div class="font-item" style="font-family: 'مثير';">مثير</div>
+                </div>
+              </div>
+            </div>
+          </label>
 
-    <div id="fontList" class="panel-list hidden" aria-hidden="true">
-      <div class="panel-scroll">
-        <div class="font-item" style="font-family: 'أنيق';">أنيق</div>
-<div class="font-item" style="font-family: 'بطرس';">بطرس</div>
-<div class="font-item" style="font-family: 'ثلث';">ثلث</div>
-<div class="font-item" style="font-family: 'حجاز';">حجاز</div>
-<div class="font-item" style="font-family: 'دوسوقي';">دوسوقي</div>
-<div class="font-item" style="font-family: 'ديواني';">ديواني</div>
-<div class="font-item" style="font-family: 'لهب';">لهب</div>
-<div class="font-item" style="font-family: 'متقن';">متقن</div>
-<div class="font-item" style="font-family: 'مثير';">مثير</div>
-      </div>
-    </div>
-  </div>
-</label>
           <label>نوع اللون
             <select id="textColorMode">
               <option value="solid">لون ثابت</option>
@@ -141,6 +135,12 @@
             <input id="fileImage" type="file" accept="image/png,image/*">
           </label>
 
+          <!-- أزرار خاصة بالصورة -->
+          <button id="openColorGridImg" class="btn small">تدرج للصورة</button>
+          <button id="openDressGridImg" class="btn small">تلبيس للصورة</button>
+        </div>
+
+        <!-- زر الإضافة خارج الأقسام -->
         <button id="btnAdd" class="btn primary">أضف</button>
       </div>
 
@@ -170,12 +170,6 @@
   <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
 
   <!-- سكربت -->
-  <script src="../js/professional-decoration.js" defer></script>
+  <script src="../js/professional-decoration.js"></script>
 </body>
-  </html>
-
-
-
-
-
-
+</html>
