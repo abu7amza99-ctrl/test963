@@ -389,3 +389,30 @@ font-weight: bold;
   border-color: rgba(212, 175, 55, 0.9);
   box-shadow: 0 0 6px rgba(212, 175, 55, 0.5);
                    }
+/* زر القائمة (الدائري الشفاف) */
+.menu-btn {
+  position: relative;
+  height: 55px;
+  width: 55px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.15);
+  border: 2px solid rgba(212, 175, 55, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.menu-btn:hover {
+  background: rgba(212, 175, 55, 0.25);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+}
+
+/* أيقونة القائمة داخل الزر */
+.menu-btn img {
+  height: 28px;
+  width: 28px;
+  filter: drop-shadow(0 0 3px rgba(0,0,0,0.4));
+  }
