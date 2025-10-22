@@ -291,6 +291,28 @@ input[type="text"] {
   padding: 5px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
+/* أزرار أنواع الحروف — تصميم ذهبي أنيق */
+.letters-type {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  margin: 6px 0;
+  background: rgba(212, 175, 55, 0.2);
+  color: #000;
+  border: 1px solid rgba(212, 175, 55, 0.8);
+  border-radius: 8px;
+  font-family: 'Reem Kufi', sans-serif;
+  font-size: 17px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+
+.letters-type:hover {
+  background: rgba(212, 175, 55, 0.5);
+  color: white;
+  transform: scale(1.03);
+}
 
 .letters-area {
   margin-top: 15px;
