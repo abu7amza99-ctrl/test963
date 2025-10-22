@@ -412,7 +412,7 @@ font-weight: bold;
 
 /* أيقونة القائمة داخل الزر */
 .menu-btn img {
-  height: 28px;
-  width: 28px;
+  height: 40px;
+  width: 40px;
   filter: drop-shadow(0 0 3px rgba(0,0,0,0.4));
   }
