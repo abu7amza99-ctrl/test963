@@ -235,13 +235,23 @@ function renderQuickResults(list) {
    ============================ */
 function addCopyOnLongPress(el, text) {
   let timer = null;
-  const duration = 450;
-  el.addEventListener("mousedown", ()=> { timer = setTimeout(()=> copyText(text), duration); });
-  el.addEventListener("mouseup", ()=> { if (timer) clearTimeout(timer); });
-  el.addEventListener("mouseleave", ()=> { if (timer) clearTimeout(timer); });
-  el.addEventListener("touchstart", ()=> { timer = setTimeout(()=> copyText(text), duration); }, {passive:true});
-  el.addEventListener("touchend", ()=> { if (timer) clearTimeout(timer); });
-  el.addEventListener("click", ()=> copyText(text));
+  const duration = 600;
+  let moved = false;
+
+  el.addEventListener("mousedown", () => {
+    moved = false;
+    timer = setTimeout(() => !moved && copyText(text), duration);
+  });
+  el.addEventListener("mouseup", () => clearTimeout(timer));
+  el.addEventListener("mouseleave", () => clearTimeout(timer));
+
+  el.addEventListener("touchstart", () => {
+    moved = false;
+    timer = setTimeout(() => !moved && copyText(text), duration);
+  }, { passive: true });
+
+  el.addEventListener("touchmove", () => { moved = true; clearTimeout(timer); });
+  el.addEventListener("touchend", () => clearTimeout(timer));
 }
 
 /* ============================
@@ -381,4 +391,23 @@ if (copyCustom) copyCustom.addEventListener("click", () => {
    ============================ */
 document.addEventListener("DOMContentLoaded", () => {
   // لا تحميل افتراضي ضخم، التحميل عند الطلب من ensureLargeSets()
-});
+});function addCopyOnLongPress(el, text) {
+  let timer = null;
+  const duration = 600;
+  let moved = false;
+
+  el.addEventListener("mousedown", () => {
+    moved = false;
+    timer = setTimeout(() => !moved && copyText(text), duration);
+  });
+  el.addEventListener("mouseup", () => clearTimeout(timer));
+  el.addEventListener("mouseleave", () => clearTimeout(timer));
+
+  el.addEventListener("touchstart", (e) => {
+    moved = false;
+    timer = setTimeout(() => !moved && copyText(text), duration);
+  }, { passive: true });
+
+  el.addEventListener("touchmove", () => { moved = true; clearTimeout(timer); });
+  el.addEventListener("touchend", () => clearTimeout(timer));
+}
