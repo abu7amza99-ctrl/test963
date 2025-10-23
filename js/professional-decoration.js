@@ -823,7 +823,6 @@ tmp.height = textHeight;
     obj.gradient = g;
     applyStyleToDom(obj, dom);
   }
-}
   }
 
   function applyDressToSelected(url) {
@@ -1100,4 +1099,5 @@ tmp.height = textHeight;
   // showInlineMessage('المحرر جاهز');
 
 }); // end DOMContentLoaded
+
 
