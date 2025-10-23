@@ -2,7 +2,7 @@
    - نسخة نهائية: نفس ملفك الأصلي + ميزة تحويل النص → صورة شفافة عند تطبيق تدرج/تلبيس
    - ضع هذا الملف في ../js/professional-decoration.js (نفس مكان HTML)
 */
-alert("✅ تم تحميل ملف professional-decoration.js بنجاح!");
+
 document.addEventListener('DOMContentLoaded', () => {
   // --- DOM refs (مطابقة لملف HTML المرسل) ---
   const toggleSidebar = document.getElementById('toggleSidebar');
@@ -1085,20 +1085,4 @@ tmp.height = textHeight;
   // quiet ready (optional)
   // showInlineMessage('المحرر جاهز');
 
-}); // end DOMContentLoaded    observer.observe(editorCanvas, { childList: true });
-  }
-
-  // attach to existing items (if any)
-  document.querySelectorAll('.canvas-item').forEach(dom => {
-    const id = dom.dataset.id;
-    const model = ELEMENTS.find(it => it.id === id);
-    if (model) attachInteraction(dom, model);
-  });
-
-  // quiet ready (optional)
-  // showInlineMessage('المحرر جاهز');
-
 }); // end DOMContentLoaded
-
-
-
