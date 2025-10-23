@@ -432,15 +432,26 @@ function detectGitHubRepo() {
           try {
             const tmp = document.createElement('canvas');
             const scaleFactor = 4; // جودة أعلى للتلبيس
-            tmp.width = w * scaleFactor;
-            tmp.height = h * scaleFactor;
-            tctx.scale(scaleFactor, scaleFactor);
-            const tctx = tmp.getContext('2d');
-            tctx.font = `${fontSize}px "${obj.font}"`;
-            let w = Math.max(1, Math.ceil(tctx.measureText(text).width));
-            let h = Math.max(1, Math.ceil(fontSize * 1.1));
-            w = Math.ceil(w + 8); h = Math.ceil(h + 8);
-            tmp.width = w; tmp.height = h;
+
+           // إنشاء الـ context بعد تعريف scaleFactor
+          const tctx = tmp.getContext('2d');
+
+         // إعداد الخط لتكبير القياس قبل الحساب
+           tctx.font = `${fontSize * scaleFactor}px "${obj.font}"`;
+
+           // نحسب العرض والارتفاع بناءً على التكبير
+           let w = Math.max(1, Math.ceil(tctx.measureText(text).width));
+          let h = Math.max(1, Math.ceil(fontSize * 1.1));
+           w = Math.ceil((w + 8) * scaleFactor);
+            h = Math.ceil((h + 8) * scaleFactor);
+
+           // ضبط أبعاد الكانفس
+         tmp.width = w;
+         tmp.height = h;
+
+// نرجع مقياس الرسم للنسبة الأصلية (بحيث الصورة تكون حادة)
+tctx.scale(scaleFactor, scaleFactor);
+           
             const dimg = new Image(); dimg.crossOrigin = 'anonymous';
             dimg.onload = () => {
               const t2 = tmp.getContext('2d');
