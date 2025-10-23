@@ -431,7 +431,7 @@ function detectGitHubRepo() {
         const drawDress = () => {
           try {
             const tmp = document.createElement('canvas');
-            const scaleFactor = 4; // جودة أعلى للتلبيس
+            const scaleFactor = 2; // جودة أعلى للتلبيس
 
            // إنشاء الـ context بعد تعريف scaleFactor
           const tctx = tmp.getContext('2d');
@@ -1095,3 +1095,4 @@ tctx.scale(scaleFactor, scaleFactor);
   // showInlineMessage('المحرر جاهز');
 
 }); // end DOMContentLoaded
+
