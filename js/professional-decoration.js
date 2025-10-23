@@ -2,7 +2,7 @@
    - نسخة نهائية: نفس ملفك الأصلي + ميزة تحويل النص → صورة شفافة عند تطبيق تدرج/تلبيس
    - ضع هذا الملف في ../js/professional-decoration.js (نفس مكان HTML)
 */
-
+alert("✅ تم تحميل ملف professional-decoration.js بنجاح!");
 document.addEventListener('DOMContentLoaded', () => {
   // --- DOM refs (مطابقة لملف HTML المرسل) ---
   const toggleSidebar = document.getElementById('toggleSidebar');
@@ -1099,5 +1099,6 @@ tmp.height = textHeight;
   // showInlineMessage('المحرر جاهز');
 
 }); // end DOMContentLoaded
+
 
 
