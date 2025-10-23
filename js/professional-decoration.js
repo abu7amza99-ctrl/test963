@@ -431,6 +431,10 @@ function detectGitHubRepo() {
         const drawDress = () => {
           try {
             const tmp = document.createElement('canvas');
+            const scaleFactor = 4; // جودة أعلى للتلبيس
+            tmp.width = w * scaleFactor;
+            tmp.height = h * scaleFactor;
+            tctx.scale(scaleFactor, scaleFactor);
             const tctx = tmp.getContext('2d');
             tctx.font = `${fontSize}px "${obj.font}"`;
             let w = Math.max(1, Math.ceil(tctx.measureText(text).width));
