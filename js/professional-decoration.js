@@ -431,26 +431,16 @@ function detectGitHubRepo() {
         const drawDress = () => {
           try {
             const tmp = document.createElement('canvas');
-            const scaleFactor = 2; // جودة أعلى للتلبيس
+            const scaleFactor = 2; // خفف التكبير حتى التلبيس يطلع طبيعي
+const tctx = tmp.getContext('2d');
+const fontScaled = fontSize * scaleFactor;
+tctx.font = `${fontScaled}px "${obj.font}"`;
 
-           // إنشاء الـ context بعد تعريف scaleFactor
-          const tctx = tmp.getContext('2d');
+const textWidth = Math.ceil(tctx.measureText(text).width);
+const textHeight = Math.ceil(fontScaled * 1.1);
 
-         // إعداد الخط لتكبير القياس قبل الحساب
-           tctx.font = `${fontSize * scaleFactor}px "${obj.font}"`;
-
-           // نحسب العرض والارتفاع بناءً على التكبير
-           let w = Math.max(1, Math.ceil(tctx.measureText(text).width));
-          let h = Math.max(1, Math.ceil(fontSize * 1.1));
-           w = Math.ceil((w + 8) * scaleFactor);
-            h = Math.ceil((h + 8) * scaleFactor);
-
-           // ضبط أبعاد الكانفس
-         tmp.width = w;
-         tmp.height = h;
-
-// نرجع مقياس الرسم للنسبة الأصلية (بحيث الصورة تكون حادة)
-tctx.scale(scaleFactor, scaleFactor);
+tmp.width = textWidth;
+tmp.height = textHeight;
            
             const dimg = new Image(); dimg.crossOrigin = 'anonymous';
             dimg.onload = () => {
@@ -1095,4 +1085,3 @@ tctx.scale(scaleFactor, scaleFactor);
   // showInlineMessage('المحرر جاهز');
 
 }); // end DOMContentLoaded
-
