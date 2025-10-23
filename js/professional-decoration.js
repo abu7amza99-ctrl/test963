@@ -804,24 +804,26 @@ tmp.height = textHeight;
 
   // --- apply gradient/dress to selected (new behavior: convert text->image first) ---
   function applyGradientToSelected(g) {
-    // if nothing selected
-    if (!SELECTED) { alert('اختر عنصرًا أولاً'); return; }
-    let { obj, dom } = SELECTED;
+  if (!SELECTED) { 
+    alert('اختر عنصرًا أولاً'); 
+    return; 
+  }
 
-    // If selected is text, convert to image first (to allow masking per-letter while keeping transparent background)
-    if (obj.type === 'text') {
-      dom = convertTextToImage(obj, dom);
-      obj = ELEMENTS.find(e => e.id === obj.id);
-      // ensure SELECTED updated
-      SELECTED = { dom, obj };
-    }
+  const { obj, dom } = SELECTED;
 
-    // now obj is image
+  // ❌ لا نحول النص لصورة — يظل نص عادي
+  if (obj.type !== 'text') {
+    // إذا هو صورة، نحدث فقط overlay
     obj.fillMode = 'gradient';
     obj.gradient = g;
-    if (dom.classList && dom.classList.contains('dressed')) dom.classList.remove('dressed');
-    // update overlay
     updateImageOverlay(obj, dom);
+  } else {
+    // إذا نص، نطبّق التدرج مباشرة على النص كنص
+    obj.fillMode = 'gradient';
+    obj.gradient = g;
+    applyStyleToDom(obj, dom);
+  }
+}
   }
 
   function applyDressToSelected(url) {
@@ -1084,4 +1086,18 @@ tmp.height = textHeight;
   // quiet ready (optional)
   // showInlineMessage('المحرر جاهز');
 
+}); // end DOMContentLoaded    observer.observe(editorCanvas, { childList: true });
+  }
+
+  // attach to existing items (if any)
+  document.querySelectorAll('.canvas-item').forEach(dom => {
+    const id = dom.dataset.id;
+    const model = ELEMENTS.find(it => it.id === id);
+    if (model) attachInteraction(dom, model);
+  });
+
+  // quiet ready (optional)
+  // showInlineMessage('المحرر جاهز');
+
 }); // end DOMContentLoaded
+
