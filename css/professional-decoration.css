@@ -1,0 +1,204 @@
+/* ================================
+   professional-decoration.css — النسخة النهائية الكاملة
+   ================================ */
+
+body {
+  margin: 0;
+  font-family: 'Reem Kufi', sans-serif;
+  background: url('../assets/bg.png') no-repeat center center fixed;
+  background-size: cover;
+  color: #D4AF37;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+}
+
+/* ======= الشريط العلوي ======= */
+.top-bar {
+  background: url('../assets/shbg.png') no-repeat center;
+  background-size: cover;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  position: relative;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.menu-btn {
+  height: 55px;
+  width: 55px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.15);
+  border: 2px solid rgba(212, 175, 55, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.menu-btn img {
+  height: 40px;
+  width: 40px;
+}
+
+.site-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  gap: 15px;
+}
+
+.site-title h1 {
+  font-size: 18px;
+  color: #D4AF37;
+  text-shadow: 1px 1px 3px #000;
+}
+
+.logo {
+  height: 45px;
+  width: 45px;
+}
+
+/* ======= القائمة الجانبية ======= */
+.side-panel {
+  position: fixed;
+  top: 0;
+  right: -260px;
+  width: 250px;
+  height: 100%;
+  background: rgba(212, 175, 55, 0.15);
+  backdrop-filter: blur(6px);
+  box-shadow: -2px 0 6px rgba(0,0,0,0.2);
+  transition: right 0.4s ease;
+  z-index: 2000;
+  padding-top: 100px;
+}
+.side-panel.open { right: 0; }
+.close-btn {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: transparent;
+  border: none;
+  color: #D4AF37;
+  font-size: 26px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* ======= المحتوى الرئيسي ======= */
+main {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  gap: 25px;
+}
+
+/* ======= شريط الأدوات ======= */
+.toolbar {
+  width: 90%;
+  max-width: 900px;
+  height: auto;
+  min-height: 64px;
+  border-radius: 10px;
+  background: rgba(212, 175, 55, 0.05);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px;
+  transition: 0.3s ease all;
+}
+
+.toolbar button,
+.toolbar select,
+.toolbar input[type="text"],
+.toolbar input[type="file"] {
+  background: rgba(212,175,55,0.15);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 8px;
+  color: #D4AF37;
+  padding: 8px 12px;
+  font-family: 'Reem Kufi', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease all;
+}
+.toolbar button:hover,
+.toolbar select:hover {
+  background: rgba(212,175,55,0.25);
+}
+
+/* ======= منطقة المعاينة ======= */
+.preview-area {
+  width: 100%;
+  height: auto;
+  background: rgba(255,255,255,0.05);
+  border: 2px dashed rgba(212,175,55,0.2);
+  border-radius: 10px;
+  display: block;
+}
+
+/* مربع التحديد والتحكم */
+#transformBox {
+  border: 2px dashed #D4AF37;
+  border-radius: 8px;
+  pointer-events: none;
+  transition: 0.1s linear;
+}
+
+/* ======= تبويب الألوان ======= */
+.color-panel {
+  background: rgba(212,175,55,0.2);
+  border: 1px solid rgba(212,175,55,0.4);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.color-panel h3 {
+  color: #D4AF37;
+  margin: 0;
+  font-size: 16px;
+}
+
+.color-list, .gradient-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.color-item, .gradient-item {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid rgba(212,175,55,0.4);
+}
+
+/* ======= تجاوب الجوال ======= */
+@media (max-width: 600px) {
+  main { padding-top: 40px; }
+  .toolbar { height: auto; flex-direction: column; }
+  .preview-area { height: auto; }
+  .color-list, .gradient-list { justify-content: space-around; }
+}
