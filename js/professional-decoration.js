@@ -7,7 +7,7 @@
 */
 
 /* =============== إعداد ثابتات المسارات =============== */
-const GH_USER = "abu963";
+const GH_USER = "abu7amza99-ctrl";
 const GH_REPO = "test963";
 const BASE_RAW = `https://${GH_USER}.github.io/${GH_REPO}/`;
 const API_BASE = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/`;
