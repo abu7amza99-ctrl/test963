@@ -1,34 +1,28 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>عالم التصاميم والزخرفة — لمحة عن التطبيق</title>
-
-  <!-- خط كوفي -->
-  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لمحة عن التطبيق</title>
+  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/about.css">
 </head>
 <body>
-
-  <!-- ✅ الشريط العلوي الموحد -->
-  <header class="top-bar">
-    <button class="menu-btn" id="openMenu" aria-label="قائمة">
-      <img src="../assets/yhbg.png" alt="قائمة">
+  <!-- ===== الشريط العلوي ===== -->
+  <header>
+    <button class="sidebar-btn">
+      <img src="../assets/yhbg.png" alt="زر القائمة">
     </button>
-
-    <div class="site-title">
-      <img src="../assets/abu7amza.png" alt="لوغو" class="logo">
-      <h1>عالم التصاميم والزخرفة</h1>
+    <div class="header-center">
+      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
+      <div class="app-title">عالم التصاميم والزخرفة</div>
     </div>
   </header>
 
-  <!-- ✅ اللوحة الجانبية الموحدة -->
-  <aside class="side-panel" id="sidePanel" aria-hidden="true">
-    <button class="close-btn" id="closeMenu" aria-label="إغلاق">×</button>
-    <ul>
+  <!-- ===== اللوحة الجانبية ===== -->
+  <aside class="sidebar">
+    <button class="close-btn">&times;</button>
+    <ul class="sidebar-menu">
       <li><a href="../index.html">الصفحة الرئيسية</a></li>
       <li><a href="home.html">التصاميم الجاهزة</a></li>
       <li><a href="professional-decoration.html">الزخرفة الاحترافية</a></li>
@@ -38,34 +32,26 @@
     </ul>
   </aside>
 
-  <!-- ✅ المحتوى الرئيسي -->
-  <main class="main" style="background-image:url('../assets/bg.png')">
+  <!-- ===== محتوى القسم ===== -->
+  <main>
     <section class="about-box">
       <h1>لمحة عن التطبيق</h1>
       <p>
-        تطبيق "عالم التصاميم والزخرفة" هو مساحة إبداعية تجمع بين الجمال والفن العربي الأصيل،
-        حيث يمكنك إنشاء تصاميم زخرفية رائعة سواء كانت زخرفة نصوص أو زخارف احترافية متعددة الطبقات،
-        مع مجموعة واسعة من الأدوات والخطوط المميزة التي تعطي كل تصميم طابعًا فريدًا.
+        تطبيق عالم التصاميم والزخرفة هو مساحة إبداعية تجمع بين الفن والدقة، 
+        يوفّر أدوات متنوعة لتصميم زخارف فنية وأسماء جميلة بأسلوب احترافي،
+        مع واجهة بسيطة وألوان أنيقة تمنح المستخدم تجربة فريدة ومريحة.
       </p>
-
-      <p>
-        هدفنا هو توفير بيئة سهلة الاستخدام تجمع بين الإبداع والبساطة،
-        وتتيح للمستخدمين تجربة فنية ممتعة تجمع بين الذوق الرفيع والتقنيات الحديثة.
-      </p>
-
-      <p class="signature">تصميم وبرمجة: <strong>أبو حمزة</strong></p>
     </section>
   </main>
 
-  <!-- ✅ سكربت فتح/إغلاق القائمة -->
+  <!-- ===== سكربت التحكم ===== -->
   <script>
-    const openMenu = document.getElementById('openMenu');
-    const closeMenu = document.getElementById('closeMenu');
-    const sidePanel = document.getElementById('sidePanel');
+    const sidebar = document.querySelector('.sidebar');
+    const btn = document.querySelector('.sidebar-btn');
+    const closeBtn = document.querySelector('.close-btn');
 
-    openMenu.addEventListener('click', () => sidePanel.classList.add('open'));
-    closeMenu.addEventListener('click', () => sidePanel.classList.remove('open'));
+    btn.addEventListener('click', () => sidebar.classList.add('active'));
+    closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
   </script>
-
 </body>
 </html>
