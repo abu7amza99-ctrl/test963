@@ -807,8 +807,8 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
     const scaleY = desiredH / H;
     ctx.scale(scaleX, scaleY);
      // نحافظ على نفس تمركز المحتوى داخل الصورة عند التحميل
-const offsetX = (desiredW / scale - W) / 2;
-const offsetY = (desiredH / scale - H) / 2;
+const offsetX = (desiredW / scaleX - W) / 2;
+const offsetY = (desiredH / scaleY - H) / 2;
 ctx.translate(offsetX, offsetY);
 
     // نرسم العناصر بنفس مكانها ودقتها
@@ -1014,6 +1014,7 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
