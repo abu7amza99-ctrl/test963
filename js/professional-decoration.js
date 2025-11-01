@@ -364,8 +364,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const ctx = overlayCanvas.getContext('2d');
     // Reset transform and clear to avoid duplicates
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, dispW, dispH);
+// تحسين دقة التدرج والتلبيس
+const pixelRatio = window.devicePixelRatio || 1;
+
+// نرفع دقة الكانفس الداخلية بدون تغيير حجم العرض الظاهر
+overlayCanvas.width = dispW * pixelRatio;
+overlayCanvas.height = dispH * pixelRatio;
+overlayCanvas.style.width = dispW + 'px';
+overlayCanvas.style.height = dispH + 'px';
+
+// نضبط التحويل ونمسح الكانفس القديمة
+ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+ctx.clearRect(0, 0, dispW, dispH);
 
     const hasGradient = obj.fillMode === 'gradient' && Array.isArray(obj.gradient) && obj.gradient.length >= 2;
     const hasDress = obj.fillMode === 'dress' && obj.dress;
@@ -1016,3 +1026,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
