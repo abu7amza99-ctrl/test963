@@ -1,190 +1,207 @@
-/* about.css - النسخة الكاملة المعدّلة */
-
-/* الخطوط */
-@font-face {
-  font-family: 'ReemKufiLocalFallback';
-  src: local('Reem Kufi'), local('ReemKufi');
-}
-
-/* الألوان الجذرية */
-:root {
-  --gold1: #ffd700;
-  --gold2: #b8860b;
-  --gold-trans: rgba(207, 162, 58, 0.20);
-  --accent: #cfa23a;
-  --bg-dark: #0d0d0d;
-  --panel: rgba(255, 235, 180, 0.10);
-}
-
-/* reset */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  height: 100%;
-  font-family: 'Cairo', sans-serif;
-  background: var(--bg-dark);
-  color: #fff;
+body {
+  font-family: 'Reem Kufi', sans-serif;
+  margin: 0;
+  background: url('../assets/bg.png') no-repeat center center fixed;
+  background-size: cover;
   direction: rtl;
 }
-a { color: inherit; text-decoration: none; }
 
-/* ✅ الشريط العلوي الموحد */
-.top-bar {
+/* ===== الشريط العلوي ===== */
+header {
   background: url('../assets/shbg.png') no-repeat center;
   background-size: cover;
-  height: 80px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 15px;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-.menu-btn {
+  justify-content: center;
   position: relative;
-  height: 55px;
-  width: 55px;
-  border-radius: 50%;
-  background: rgba(212, 175, 55, 0.15);
-  border: 2px solid rgba(212, 175, 55, 0.6);
+  padding: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+  z-index: 100;
+}
+
+.header-center {
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 0 8px rgba(0,0,0,0.2);
-  transition: all 0.3s ease;
-}
-.menu-btn:hover {
-  background: rgba(212, 175, 55, 0.25);
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
-}
-.menu-btn img {
-  height: 40px;
-  width: 40px;
-  filter: drop-shadow(0 0 3px rgba(0,0,0,0.4));
-}
-.site-title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row-reverse;
-  gap: 15px;
-}
-.site-title h1 {
-  font-family: 'Reem Kufi', 'ReemKufiLocalFallback', sans-serif;
-  color: #D4AF37;
-  text-shadow: 1px 1px 2px #000;
-  font-size: 18px;
-}
-.logo {
-  height: 45px;
-  width: 45px;
+  gap: 10px;
 }
 
-/* ✅ اللوحة الجانبية الموحدة */
-.side-panel {
-  position: fixed;
-  top: 0;
-  right: -260px;
-  width: 250px;
-  height: 100%;
-  background: rgba(212, 175, 55, 0.2);
-  backdrop-filter: blur(6px);
-  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.2);
-  transition: right 0.4s ease;
-  z-index: 2000;
-  padding-top: 100px;
-}
-.side-panel.open { right: 0; }
-
-.close-btn {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  background: transparent;
-  border: none;
-  color: #D4AF37;
-  font-size: 26px;
-  font-weight: bold;
-  cursor: pointer;
-  text-shadow: 1px 1px 2px #000;
-}
-.side-panel ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  text-align: center;
-}
-.side-panel li {
-  margin: 20px 0;
-}
-.side-panel a {
-  text-decoration: none;
-  color: #D4AF37;
-  font-family: 'Reem Kufi', sans-serif;
-  font-size: 18px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  text-shadow: 1px 1px 2px black;
-  transition: all 0.2s ease;
-}
-.side-panel a:hover,
-.side-panel a.active {
-  color: black;
-  background: rgba(212, 175, 55, 0.4);
-  text-shadow: none;
+.app-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
 }
 
-/* ✅ المحتوى الرئيسي */
-.main {
-  min-height: calc(100vh - 80px);
-  padding: 30px 20px;
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-.about-box {
-  width: 100%;
-  max-width: 1000px;
-  background: var(--panel);
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-}
-.about-box h1 {
-  text-align: center;
-  font-family: 'Reem Kufi', sans-serif;
-  color: var(--accent);
-  font-size: 28px;
-  margin-bottom: 20px;
-}
-.about-box p {
-  line-height: 1.8;
-  color: #f0f0f0;
-  margin-bottom: 16px;
-  font-size: 17px;
-}
-.about-box .signature {
-  text-align: center;
-  color: var(--gold1);
-  margin-top: 25px;
-  font-size: 18px;
+.app-title {
+  font-size: 22px;
+  color: #d4af37;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+  border-bottom: 2px solid #000;
   font-weight: 700;
 }
 
-/* ✅ تجاوب الشاشات */
-@media(max-width:600px){
-  .top-bar{height:60px;padding:4px 10px;}
-  .logo{width:38px;height:38px;}
-  .site-title h1{font-size:16px;}
-  .side-panel{width:90%;right:-90%;}
-  .side-panel.open{right:0;}
-  .about-box{padding:15px;border-radius:10px;}
-  .about-box h1{font-size:22px;margin-bottom:12px;}
-  .about-box p{font-size:15px;}
+/* ===== زر القائمة الجانبية ===== */
+.sidebar-btn {
+  position: absolute;
+  right: 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  z-index: 101;
+}
+
+.sidebar-btn img {
+  width: 32px;
+  height: 32px;
+}
+
+/* ===== اللوحة الجانبية ===== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -270px;
+  width: 250px;
+  height: 100%;
+  background: rgba(184,134,11,0.2);
+  box-shadow: -3px 0 8px rgba(0,0,0,0.4);
+  transition: right 0.4s ease, opacity 0.4s ease;
+  opacity: 0;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.sidebar.active {
+  right: 0;
+  opacity: 1;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #000;
+  cursor: pointer;
+}
+
+/* ===== عناصر القائمة ===== */
+.sidebar-menu {
+  list-style: none;
+  padding: 60px 20px;
+  margin: 0;
+}
+
+.sidebar-menu li {
+  margin-bottom: 15px;
+}
+
+.sidebar-menu a {
+  text-decoration: none;
+  color: #d4af37;
+  font-size: 18px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+  transition: 0.3s;
+  border-right: 2px solid transparent;
+  padding-right: 5px;
+  display: block;
+  border-radius: 6px;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+  color: #fff;
+  background: rgba(0,0,0,0.25);
+  border-right: 3px solid #000;
+  padding-right: 10px;
+}
+
+/* ===== تبويب المحتوى ===== */
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 100px 20px;
+}
+
+.about-box {
+  background: rgba(255,255,255,0.85);
+  border-radius: 25px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3), 0 0 6px #d4af37 inset;
+  max-width: 700px;
+  text-align: center;
+  padding: 30px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+  animation: fadeInUp 0.8s ease;
+}
+
+/* إطار مزدوج أنيق */
+.about-box::before {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #000, #d4af37);
+  z-index: -1;
+}
+
+.about-box h1 {
+  color: #d4af37;
+  text-shadow: 1px 1px 2px #000;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.about-box p {
+  color: #000;
+  text-shadow: 0.5px 0.5px 1px #d4af37;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+/* ===== تأثير الدخول ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== استجابة للجوال ===== */
+@media (max-width: 600px) {
+  header {
+    padding: 6px;
+  }
+  .app-logo {
+    width: 40px;
+    height: 40px;
+  }
+  .app-title {
+    font-size: 18px;
+  }
+  .sidebar {
+    width: 80%;
+    right: -80%;
+  }
+  .sidebar-menu a {
+    font-size: 16px;
+  }
+  .about-box {
+    padding: 20px;
+    margin: 0 10px;
+  }
+  .about-box h1 {
+    font-size: 20px;
+  }
+  .about-box p {
+    font-size: 15px;
+  }
 }
