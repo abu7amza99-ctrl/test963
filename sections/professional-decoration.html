@@ -58,35 +58,32 @@
   </style>
 </head>
 <body>
-  <!-- شريط علوي -->
-  <header class="topbar" id="topbar">
-    <div class="topbar-inner">
-      <button id="toggleSidebar" class="sidebar-btn" aria-label="قائمة">
-        <img src="../assets/yhbg.png" alt="قائمة">
-      </button>
-      <div class="brand">
-        <img src="../assets/abu7amza.png" alt="لوغو" class="app-logo">
-        <div class="app-title">عالم التصاميم والزخرفة</div>
-      </div>
+
+  <!-- ✅ الشريط العلوي الموحد (من قسم زخرفة الأسماء) -->
+  <header class="top-bar" role="banner">
+    <button id="menuBtn" class="menu-btn" aria-label="فتح القائمة">
+      <img src="../assets/yhbg.png" alt="قائمة" />
+    </button>
+
+    <div class="site-title" role="heading" aria-level="1">
+      <h1>عالم التصاميم والزخرفة</h1>
+      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="logo">
     </div>
   </header>
 
-  <!-- اللوحة الجانبية -->
-  <aside id="siteSidebar" class="sidebar" aria-hidden="true">
-    <button id="closeSidebar" class="sidebar-close" aria-label="إغلاق">×</button>
-    <nav class="sidebar-menu" aria-label="القائمة الرئيسية">
-      <ul>
-        <li><a href="../index.html">الصفحة الرئيسية</a></li>
-        <li><a href="home.html">التصاميم الجاهزة</a></li>
-        <li><a href="professional-decoration.html" class="active">الزخرفة الاحترافية</a></li>
-        <li><a href="name-decoration.html">زخرفة الأسماء</a></li>
-        <li><a href="about.html">لمحة عن التطبيق</a></li>
-        <li><a href="contact.html">اتصل بنا</a></li>
-      </ul>
-    </nav>
-  </aside>
+  <!-- ✅ اللوحة الجانبية الموحدة -->
+  <nav id="sidePanel" class="side-panel" aria-label="قائمة التنقل">
+    <button id="closePanel" class="close-btn" aria-label="إغلاق القائمة">×</button>
+    <ul>
+      <li><a href="../sections/home.html">🏠 الصفحة الرئيسية</a></li>
+      <li><a href="../sections/professional-decoration.html" class="active">🎨 الزخرفة الاحترافية</a></li>
+      <li><a href="../sections/name-decoration.html">✍️ زخرفة الأسماء</a></li>
+      <li><a href="../sections/about.html">ℹ️ لمحة عن التطبيق</a></li>
+      <li><a href="../sections/contact.html">☎️ اتصل بنا</a></li>
+    </ul>
+  </nav>
 
-  <!-- المحتوى الرئيسي -->
+  <!-- ✅ المحتوى الأصلي بالكامل كما أرسلته -->
   <main class="main" id="main" style="background-image:url('../assets/bg.png')">
     <section class="editor-container">
       <h1 class="editor-title">الزخرفة الاحترافية</h1>
@@ -105,25 +102,25 @@
             <input id="textInput" type="text" placeholder="اكتب النص">
           </label>
 
-<label>الخط
-  <div class="font-select-wrapper">
-    <button id="openFontList" class="open-list">اختر خط</button>
+          <label>الخط
+            <div class="font-select-wrapper">
+              <button id="openFontList" class="open-list">اختر خط</button>
+              <div id="fontList" class="panel-list hidden" aria-hidden="true">
+                <div class="panel-scroll">
+                  <div class="font-item" style="font-family: 'أنيق';">أنيق</div>
+                  <div class="font-item" style="font-family: 'بطرس';">بطرس</div>
+                  <div class="font-item" style="font-family: 'ثلث';">ثلث</div>
+                  <div class="font-item" style="font-family: 'حجاز';">حجاز</div>
+                  <div class="font-item" style="font-family: 'دوسوقي';">دوسوقي</div>
+                  <div class="font-item" style="font-family: 'ديواني';">ديواني</div>
+                  <div class="font-item" style="font-family: 'لهب';">لهب</div>
+                  <div class="font-item" style="font-family: 'متقن';">متقن</div>
+                  <div class="font-item" style="font-family: 'مثير';">مثير</div>
+                </div>
+              </div>
+            </div>
+          </label>
 
-    <div id="fontList" class="panel-list hidden" aria-hidden="true">
-      <div class="panel-scroll">
-        <div class="font-item" style="font-family: 'أنيق';">أنيق</div>
-<div class="font-item" style="font-family: 'بطرس';">بطرس</div>
-<div class="font-item" style="font-family: 'ثلث';">ثلث</div>
-<div class="font-item" style="font-family: 'حجاز';">حجاز</div>
-<div class="font-item" style="font-family: 'دوسوقي';">دوسوقي</div>
-<div class="font-item" style="font-family: 'ديواني';">ديواني</div>
-<div class="font-item" style="font-family: 'لهب';">لهب</div>
-<div class="font-item" style="font-family: 'متقن';">متقن</div>
-<div class="font-item" style="font-family: 'مثير';">مثير</div>
-      </div>
-    </div>
-  </div>
-</label>
           <label>نوع اللون
             <select id="textColorMode">
               <option value="solid">لون ثابت</option>
@@ -140,8 +137,8 @@
           <label class="file-label">رفع صورة شفافة
             <input id="fileImage" type="file" accept="image/png,image/*">
           </label>
-
-        <button id="btnAdd" class="btn primary">أضف</button>
+          <button id="btnAdd" class="btn primary">أضف</button>
+        </div>
       </div>
 
       <!-- المعاينة -->
@@ -169,13 +166,17 @@
   <!-- نافذة التدرجات والتلبيسات -->
   <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
 
-  <!-- سكربت -->
+  <!-- ✅ كود فتح وإغلاق اللوحة الجانبية -->
+  <script>
+    const menuBtn = document.getElementById("menuBtn");
+    const sidePanel = document.getElementById("sidePanel");
+    const closePanel = document.getElementById("closePanel");
+
+    if (menuBtn) menuBtn.addEventListener("click", () => sidePanel.classList.add("open"));
+    if (closePanel) closePanel.addEventListener("click", () => sidePanel.classList.remove("open"));
+  </script>
+
+  <!-- سكربت الأصلي -->
   <script src="../js/professional-decoration.js" defer></script>
 </body>
-  </html>
-
-
-
-
-
-
+</html>
