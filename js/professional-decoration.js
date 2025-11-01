@@ -358,6 +358,8 @@ document.addEventListener('DOMContentLoaded', () => {
     overlayCanvas.style.height = dispH + 'px';
 
     const ctx = overlayCanvas.getContext('2d');
+     ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
     ctx.clearRect(0, 0, dispW, dispH);
 
     const hasGradient = obj.fillMode === 'gradient' && Array.isArray(obj.gradient) && obj.gradient.length >= 2;
@@ -1005,5 +1007,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
