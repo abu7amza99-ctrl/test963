@@ -1,196 +1,211 @@
+/* ========== إعداد عام ========== */
 body {
-  font-family: 'Reem Kufi', sans-serif;
   margin: 0;
+  font-family: 'Amiri', serif;
   background: url('../assets/bg.png') no-repeat center center fixed;
   background-size: cover;
+  color: #000;
   direction: rtl;
-  overflow-x: hidden;
 }
 
-/* ===== الشريط العلوي ===== */
-header {
+/* ========== الشريط العلوي (مطابق لقسم زخرفة الأسماء) ========== */
+.top-bar {
   background: url('../assets/shbg.png') no-repeat center;
   background-size: cover;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  position: relative;
+  z-index: 1000;
+}
+
+.menu-btn {
+  position: relative;
+  height: 55px;
+  width: 55px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.15);
+  border: 2px solid rgba(212, 175, 55, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  padding: 10px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
 }
-
-.header-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.menu-btn:hover {
+  background: rgba(212, 175, 55, 0.25);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
 }
-
-.app-logo {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: 2px solid black;
-  margin-bottom: 5px;
-}
-
-.app-title {
-  color: #d4af37;
-  font-size: 20px;
-  text-shadow: 1px 1px 2px black;
-}
-
-/* ===== زر القائمة ===== */
-.sidebar-btn {
-  position: absolute;
-  right: 15px;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.sidebar-btn img {
-  width: 40px;
+.menu-btn img {
   height: 40px;
+  width: 40px;
+  filter: drop-shadow(0 0 3px rgba(0,0,0,0.4));
 }
 
-/* ===== اللوحة الجانبية ===== */
-.sidebar {
+.site-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row-reverse;
+  gap: 15px;
+}
+.site-title h1 {
+  font-family: 'Reem Kufi', sans-serif;
+  color: #D4AF37;
+  text-shadow: 1px 1px 2px #000;
+  font-size: 18px;
+}
+.logo {
+  height: 45px;
+  width: 45px;
+}
+
+/* ========== اللوحة الجانبية (مطابقة لقسم زخرفة الأسماء) ========== */
+.side-panel {
   position: fixed;
   top: 0;
-  right: -280px;
-  width: 260px;
+  right: -260px;
+  width: 250px;
   height: 100%;
-  /* اللون الذهبي الشفاف بنسبة 15% */
-  background: rgba(212, 175, 55, 0.15);
+  background: rgba(212, 175, 55, 0.2);
+  backdrop-filter: blur(6px);
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.2);
   transition: right 0.4s ease;
-  padding: 20px;
-  box-shadow: -3px 0 8px rgba(0,0,0,0.5);
+  z-index: 2000;
+  padding-top: 100px;
 }
-
-.sidebar.active {
-  right: 0;
-}
+.side-panel.open { right: 0; }
 
 .close-btn {
-  font-size: 28px;
-  background: none;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: transparent;
   border: none;
-  color: #000;
-  text-shadow: 1px 1px 2px #d4af37;
+  color: #D4AF37;
+  font-size: 26px;
+  font-weight: bold;
   cursor: pointer;
-  float: left;
+  text-shadow: 1px 1px 2px #000;
 }
 
-.sidebar-menu {
+.side-panel ul {
   list-style: none;
   padding: 0;
-  margin-top: 60px;
+  margin: 0;
+  text-align: center;
 }
-
-.sidebar-menu li {
-  margin-bottom: 20px;
+.side-panel li {
+  margin: 20px 0;
 }
-
-.sidebar-menu a {
+.side-panel a {
   text-decoration: none;
-  color: #d4af37;
+  color: #D4AF37;
+  font-family: 'Reem Kufi', sans-serif;
   font-size: 18px;
+  padding: 8px 10px;
+  border-radius: 8px;
   text-shadow: 1px 1px 2px black;
-  border-bottom: 1px solid rgba(0,0,0,0.2);
-  padding: 5px;
-  display: block;
-  transition: 0.3s;
+  transition: all 0.2s ease;
+}
+.side-panel a:hover {
+  color: black;
+  background: rgba(212, 175, 55, 0.4);
+  text-shadow: none;
 }
 
-.sidebar-menu a:hover,
-.sidebar-menu a.active {
-  background: rgba(0,0,0,0.25);
-  border-right: 3px solid black;
-  color: #fff;
-}
-
-/* ===== تبويب اتصل بنا ===== */
-main {
+/* ========== محتوى صفحة اتصل بنا ========== */
+.contact-container {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  min-height: calc(100vh - 120px);
-  padding-top: 40px;
-  animation: fadeInUp 1s ease forwards;
+  align-items: center;
+  padding: 100px 20px 50px;
+  text-align: center;
 }
 
 .contact-box {
-  background: rgba(255,255,255,0.12);
-  border: 2px solid;
-  border-image: linear-gradient(45deg, #000, #d4af37) 1;
-  border-radius: 25px;
-  padding: 25px 30px;
-  text-align: center;
-  max-width: 450px;
-  width: 90%;
-  box-shadow: 0 0 15px rgba(0,0,0,0.4);
-  backdrop-filter: none;
-  animation: slideDown 1s ease forwards;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(212, 175, 55, 0.6);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
 }
 
 .contact-box h1 {
-  color: #d4af37;
-  font-size: 26px;
+  color: #D4AF37;
+  font-family: 'Reem Kufi', sans-serif;
+  font-size: 28px;
   text-shadow: 1px 1px 2px black;
   margin-bottom: 15px;
 }
 
 .contact-box p {
-  color: black;
+  color: #000;
   font-size: 16px;
-  border: 1px solid;
-  border-image: linear-gradient(45deg, #d4af37, #000) 1;
-  border-radius: 12px;
-  padding: 10px;
-  background: rgba(255,255,255,0.3);
-  text-shadow: 0.5px 0.5px #d4af37;
+  line-height: 1.6;
+  margin-bottom: 25px;
 }
 
-/* ===== الأيقونات ===== */
+/* أيقونات التواصل */
 .social-icons {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   flex-wrap: wrap;
-  margin-top: 25px;
+  gap: 20px;
 }
 
 .icon-item {
   text-align: center;
-  margin: 10px;
+  width: 80px;
 }
 
 .icon-item img {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 10px;
+  border: 2px solid rgba(212, 175, 55, 0.7);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .icon-item img:hover {
-  transform: scale(1.2);
-  box-shadow: 0 0 10px #d4af37;
+  transform: scale(1.15);
+  box-shadow: 0 0 10px #D4AF37;
 }
 
 .icon-item span {
   display: block;
   margin-top: 6px;
-  color: #d4af37;
+  color: #D4AF37;
   font-size: 15px;
   text-shadow: 1px 1px 2px black;
 }
 
-/* ===== الحركات ===== */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+/* الفوتر */
+.footer {
+  text-align: center;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 14px;
+  margin-top: 40px;
 }
 
-@keyframes slideDown {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+/* تجاوب */
+@media (max-width: 600px) {
+  .contact-box {
+    padding: 20px;
+    width: 90%;
   }
+  .contact-box h1 {
+    font-size: 24px;
+  }
+}
