@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return dom;
   }
 
-// --- update overlay for image (Ultra HD clarity + perfect center alignment) ---
+// --- update overlay for image (HD preview & export ready) ---
 function updateImageOverlay(obj, wrap) {
   if (!wrap) return;
   const imgEl = wrap.querySelector('img');
@@ -341,19 +341,19 @@ function updateImageOverlay(obj, wrap) {
 
   const ratio = imgEl.naturalWidth / imgEl.naturalHeight;
   const scale = obj.scale || 1;
+  const pixelRatio = window.devicePixelRatio || 1;
+
+  // ضبط المقاسات مع الحفاظ على النسبة
   let dispW = (obj.displayWidth || imgEl.naturalWidth) * scale;
   let dispH = dispW / ratio;
-  const maxH = (obj.displayHeight || imgEl.naturalHeight) * scale;
 
+  const maxH = (obj.displayHeight || imgEl.naturalHeight) * scale;
   if (dispH > maxH) {
     dispH = maxH;
     dispW = dispH * ratio;
   }
 
-  // دقة الشاشة العالية
-  const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
-
-  // ضبط أبعاد الكانفس الداخلية لتكون بنفس دقة العرض الحقيقية
+  // إعداد الكانفس بدقة HD
   overlayCanvas.width = dispW * pixelRatio;
   overlayCanvas.height = dispH * pixelRatio;
   overlayCanvas.style.width = dispW + 'px';
@@ -379,20 +379,15 @@ function updateImageOverlay(obj, wrap) {
   overlayCanvas.style.display = 'block';
   overlayCanvas.style.opacity = '1';
 
-  // تصحيح تموضع الصورة داخل الكانفس (مركز دقيق)
-  const drawX = (dispW - imgEl.naturalWidth * scale) / 2;
-  const drawY = (dispH - imgEl.naturalHeight * scale) / 2;
-
-  // معالجة التدرج أو التلبيسة
+  // رسم التدرج أو التلبيسة بدقة عالية
   if (hasGradient) {
     const g = ctx.createLinearGradient(0, 0, dispW, dispH);
     g.addColorStop(0, obj.gradient[0]);
     g.addColorStop(1, obj.gradient[1]);
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, dispW, dispH);
-
     ctx.globalCompositeOperation = 'destination-in';
-    ctx.drawImage(imgEl, drawX, drawY, dispW, dispH);
+    ctx.drawImage(imgEl, 0, 0, dispW, dispH);
     ctx.globalCompositeOperation = 'source-over';
   } else if (hasDress) {
     const dimg = new Image();
@@ -401,7 +396,7 @@ function updateImageOverlay(obj, wrap) {
       try {
         ctx.drawImage(dimg, 0, 0, dispW, dispH);
         ctx.globalCompositeOperation = 'destination-in';
-        ctx.drawImage(imgEl, drawX, drawY, dispW, dispH);
+        ctx.drawImage(imgEl, 0, 0, dispW, dispH);
       } catch (e) {
         console.error('Dress draw error:', e);
       }
@@ -1014,6 +1009,7 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
