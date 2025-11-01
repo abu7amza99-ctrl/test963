@@ -1,19 +1,14 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>عالم التصاميم والزخرفة</title>
-
-  <!-- الخط الكوفي -->
   <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
-
-  <!-- ملف التنسيق -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-  <!-- ===== الشريط العلوي الموحد ===== -->
+  <!-- ===== الشريط العلوي الموحد (مطابق لقسم زخرفة الأسماء) ===== -->
   <header>
     <button class="sidebar-btn">
       <img src="assets/yhbg.png" alt="زر القائمة">
@@ -29,36 +24,21 @@
     <button class="close-btn">&times;</button>
     <ul class="sidebar-menu">
       <li><a href="index.html" class="active">الصفحة الرئيسية</a></li>
-      <li><a href="html/home.html">التصاميم الجاهزة</a></li>
-      <li><a href="html/professional-decoration.html">الزخرفة الاحترافية</a></li>
-      <li><a href="html/name-decoration.html">زخرفة الأسماء</a></li>
-      <li><a href="html/about.html">لمحة عن التطبيق</a></li>
-      <li><a href="html/contact.html">اتصل بنا</a></li>
+      <li><a href="sections/home.html">التصاميم الجاهزة</a></li>
+      <li><a href="sections/professional-decoration.html">الزخرفة الاحترافية</a></li>
+      <li><a href="sections/name-decoration.html">زخرفة الأسماء</a></li>
+      <li><a href="sections/about.html">لمحة عن التطبيق</a></li>
+      <li><a href="sections/contact.html">اتصل بنا</a></li>
     </ul>
   </aside>
 
-  <!-- ===== المحتوى الأصلي ===== -->
+  <!-- ===== المحتوى الأصلي كما هو ===== -->
   <main>
-    <!-- كل محتوى صفحتك الأصلية يبقى كما هو -->
-    <section class="welcome-section">
-      <h1>مرحبًا بك في عالم التصاميم والزخرفة</h1>
-      <p>اكتشف أروع الأدوات لتصميم وزخرفة النصوص والأسماء بسهولة واحتراف.</p>
-      <a href="html/home.html" class="btn-start">ابدأ الآن</a>
-    </section>
+    <h1>مرحبًا بك في عالم التصاميم والزخرفة</h1>
+    <p>استخدم القائمة الجانبية للتنقل بين الأقسام المختلفة.</p>
+    <a href="sections/home.html" class="go-home-btn">الانتقال إلى التصاميم الجاهزة</a>
   </main>
 
-  <!-- ===== السكربت الأصلي ===== -->
-  <script src="js/script.js"></script>
-
-  <!-- سكربت التحكم باللوحة الجانبية (نفس زخرفة الأسماء) -->
-  <script>
-    const sidebar = document.querySelector('.sidebar');
-    const btn = document.querySelector('.sidebar-btn');
-    const closeBtn = document.querySelector('.close-btn');
-
-    btn.addEventListener('click', () => sidebar.classList.add('active'));
-    closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
-  </script>
-
+  <script src="js/script.js" defer></script>
 </body>
 </html>
