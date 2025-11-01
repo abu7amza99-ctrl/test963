@@ -802,9 +802,10 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
     ctx.imageSmoothingQuality = 'high';
     ctx.clearRect(0, 0, desiredW, desiredH);
 
-    // نحافظ على نسبة الرسم تماماً مثل المعاينة
-    const scale = Math.min(desiredW / W, desiredH / H);
-    ctx.scale(scale, scale);
+    // نحافظ على الرسم بنفس الإحداثيات الفعلية للمعاينة (بدون أي تغيير)
+    const scaleX = desiredW / W;
+    const scaleY = desiredH / H;
+    ctx.scale(scaleX, scaleY);
 
     // نرسم العناصر بنفس مكانها ودقتها
     const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
@@ -1009,6 +1010,7 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
