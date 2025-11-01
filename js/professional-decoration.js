@@ -327,119 +327,83 @@ document.addEventListener('DOMContentLoaded', () => {
     return dom;
   }
 
-  // --- update overlay for image (ensures clearing, hides base image when overlay active) ---
+// --- update overlay for image (fixed clarity & full-fit mode) ---
   function updateImageOverlay(obj, wrap) {
     if (!wrap) return;
     const imgEl = wrap.querySelector('img');
     const overlayCanvas = wrap.querySelector('.img-overlay-canvas');
     if (!imgEl || !overlayCanvas) return;
 
-    // wait for image loaded if needed
-    if (!imgEl.complete || (imgEl.naturalWidth === 0 && imgEl.naturalHeight === 0)) {
-      const once = () => {
-        imgEl.removeEventListener('load', once);
-        imgEl.removeEventListener('error', once);
-        setTimeout(() => updateImageOverlay(obj, wrap), 20);
-      };
-      imgEl.addEventListener('load', once);
-      imgEl.addEventListener('error', once);
+    if (!imgEl.complete || imgEl.naturalWidth === 0 || imgEl.naturalHeight === 0) {
+      imgEl.onload = () => updateImageOverlay(obj, wrap);
       return;
     }
 
-    // compute displayed width/height (consider scale)
-    const baseDispW = (obj.displayWidth || parseInt(imgEl.style.width) || imgEl.naturalWidth) || 1;
-    const dispW = Math.max(1, Math.round(baseDispW * (obj.scale || 1)));
-    const baseDispH = (obj.displayHeight || Math.round(imgEl.naturalHeight * (baseDispW / (imgEl.naturalWidth || baseDispW)))) || 1;
-    const dispH = Math.max(1, Math.round(baseDispH * (obj.scale || 1)));
+    // حساب العرض والارتفاع مع الحفاظ على النسبة الأصلية
+    const ratio = imgEl.naturalWidth / imgEl.naturalHeight;
+    const scale = obj.scale || 1;
+    let dispW = (obj.displayWidth || imgEl.naturalWidth) * scale;
+    let dispH = dispW / ratio;
 
-    // update overlay canvas pixel dims and css dims
-    if (overlayCanvas.width !== dispW || overlayCanvas.height !== dispH) {
-      overlayCanvas.width = dispW;
-      overlayCanvas.height = dispH;
-      overlayCanvas.style.width = dispW + 'px';
-      overlayCanvas.style.height = dispH + 'px';
+    // إذا تجاوز الارتفاع الحد، نعيد الضبط
+    const maxH = (obj.displayHeight || imgEl.naturalHeight) * scale;
+    if (dispH > maxH) {
+      dispH = maxH;
+      dispW = dispH * ratio;
     }
-    overlayCanvas.style.left = '0px';
-    overlayCanvas.style.top = '0px';
+
+    overlayCanvas.width = dispW;
+    overlayCanvas.height = dispH;
+    overlayCanvas.style.width = dispW + 'px';
+    overlayCanvas.style.height = dispH + 'px';
 
     const ctx = overlayCanvas.getContext('2d');
-    // Reset transform and clear to avoid duplicates
-// تحسين دقة التدرج والتلبيس
-const pixelRatio = window.devicePixelRatio || 1;
-
-// نرفع دقة الكانفس الداخلية بدون تغيير حجم العرض الظاهر
-overlayCanvas.width = dispW * pixelRatio;
-overlayCanvas.height = dispH * pixelRatio;
-overlayCanvas.style.width = dispW + 'px';
-overlayCanvas.style.height = dispH + 'px';
-
-// نضبط التحويل ونمسح الكانفس القديمة
-ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-ctx.clearRect(0, 0, dispW, dispH);
+    ctx.clearRect(0, 0, dispW, dispH);
 
     const hasGradient = obj.fillMode === 'gradient' && Array.isArray(obj.gradient) && obj.gradient.length >= 2;
     const hasDress = obj.fillMode === 'dress' && obj.dress;
     const overlayActive = hasGradient || hasDress;
 
-    if (overlayActive) {
-      imgEl.style.opacity = '0';
-      overlayCanvas.style.display = 'block';
-      overlayCanvas.style.opacity = '1';
-    } else {
+    if (!overlayActive) {
       imgEl.style.opacity = '1';
-      overlayCanvas.style.opacity = '0';
       overlayCanvas.style.display = 'none';
       return;
     }
 
+    imgEl.style.opacity = '0';
+    overlayCanvas.style.display = 'block';
+    overlayCanvas.style.opacity = '1';
+
     if (hasGradient) {
-      const g = ctx.createLinearGradient(0, 0, dispW, 0);
-      g.addColorStop(0, obj.gradient[0]); g.addColorStop(1, obj.gradient[1]);
+      const g = ctx.createLinearGradient(0, 0, dispW, dispH);
+      g.addColorStop(0, obj.gradient[0]);
+      g.addColorStop(1, obj.gradient[1]);
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, dispW, dispH);
 
-ctx.globalCompositeOperation = 'destination-in';
-try {
-    // نحسب التوسيط الحقيقي وحجم الصورة لتناسب الكانفس
-    const scaleFix = Math.min(
-        overlayCanvas.width / imgEl.naturalWidth,
-        overlayCanvas.height / imgEl.naturalHeight
-    );
-
-    const newW = imgEl.naturalWidth * scaleFix;
-    const newH = imgEl.naturalHeight * scaleFix;
-    const drawX = (overlayCanvas.width - newW) / 2;
-    const drawY = (overlayCanvas.height - newH) / 2;
-
-    ctx.drawImage(imgEl, drawX, drawY, newW, newH);
-} catch (e) {
-    /* ignore cross-origin drawing errors */
-}
-ctx.globalCompositeOperation = 'source-over';
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.drawImage(imgEl, 0, 0, dispW, dispH);
+      ctx.globalCompositeOperation = 'source-over';
     } else if (hasDress) {
       const dimg = new Image();
       dimg.crossOrigin = 'anonymous';
       dimg.onload = () => {
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, dispW, dispH);
-        try { ctx.drawImage(dimg, 0, 0, dispW, dispH); } catch (e) { /* ignore */ }
-        ctx.globalCompositeOperation = 'destination-in';
-        try { ctx.drawImage(imgEl, 0, 0, dispW, dispH); } catch (e) { /* ignore */ }
+        try {
+          ctx.drawImage(dimg, 0, 0, dispW, dispH);
+          ctx.globalCompositeOperation = 'destination-in';
+          ctx.drawImage(imgEl, 0, 0, dispW, dispH);
+        } catch (e) {
+          console.error('Draw dress error:', e);
+        }
         ctx.globalCompositeOperation = 'source-over';
       };
       dimg.onerror = () => {
-        overlayCanvas.style.opacity = '0';
         overlayCanvas.style.display = 'none';
         imgEl.style.opacity = '1';
       };
       dimg.src = obj.dress;
-    } else {
-      overlayCanvas.style.opacity = 0;
-      overlayCanvas.style.display = 'none';
-      imgEl.style.opacity = '1';
     }
   }
-
   // --- apply styles to DOM element (text/image) ---
   function applyStyleToDom(obj, dom) {
     if (!dom) return;
@@ -1041,6 +1005,5 @@ ctx.globalCompositeOperation = 'source-over';
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-
 
 
