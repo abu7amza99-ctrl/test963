@@ -3,37 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>اتصل بنا</title>
-  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
+  <title>اتصل بنا - عالم التصاميم والزخرفة</title>
   <link rel="stylesheet" href="../css/contact.css">
+  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- الشريط العلوي -->
-  <header>
-    <button class="sidebar-btn">
-      <img src="../assets/yhbg.png" alt="زر القائمة">
+
+  <!-- ✅ الشريط العلوي (مطابق لقسم زخرفة الأسماء) -->
+  <header class="top-bar" role="banner">
+    <button id="menuBtn" class="menu-btn" aria-label="فتح القائمة">
+      <img src="../assets/yhbg.png" alt="قائمة" />
     </button>
-    <div class="header-center">
-      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
-      <div class="app-title">عالم التصاميم والزخرفة</div>
+
+    <div class="site-title" role="heading" aria-level="1">
+      <h1>عالم التصاميم والزخرفة</h1>
+      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="logo">
     </div>
   </header>
 
-  <!-- اللوحة الجانبية -->
-  <aside class="sidebar">
-    <button class="close-btn">&times;</button>
-    <ul class="sidebar-menu">
-      <li><a href="../index.html">الصفحة الرئيسية</a></li>
-        <li><a href="home.html">التصاميم الجاهزة</a></li>
-      <li><a href="professional-decoration.html">الزخرفة الاحترافية</a></li>
-      <li><a href="name-decoration.html">زخرفة الأسماء</a></li>
-      <li><a href="about.html">لمحة عن التطبيق</a></li>
-      <li><a href="contact.html" class="active">اتصل بنا</a></li>
+  <!-- ✅ اللوحة الجانبية (مطابقة لقسم زخرفة الأسماء) -->
+  <nav id="sidePanel" class="side-panel" aria-label="قائمة التنقل">
+    <button id="closePanel" class="close-btn" aria-label="إغلاق القائمة">×</button>
+    <ul>
+      <li><a href="../sections/home.html">🏠 الصفحة الرئيسية</a></li>
+      <li><a href="../sections/professional-decoration.html">🎨 الزخرفة الاحترافية</a></li>
+      <li><a href="../sections/name-decoration.html">✍️ زخرفة الأسماء</a></li>
+      <li><a href="../sections/about.html">ℹ️ لمحة عن التطبيق</a></li>
+      <li><a href="../sections/contact.html" class="active">☎️ اتصل بنا</a></li>
     </ul>
-  </aside>
+  </nav>
 
-  <!-- المحتوى الرئيسي -->
-  <main>
+  <!-- ✅ المحتوى الأصلي لصفحة اتصل بنا -->
+  <main class="contact-container">
     <section class="contact-box">
       <h1>اتصل بنا</h1>
       <p>
@@ -70,12 +72,19 @@
     </section>
   </main>
 
+  <footer class="footer">
+    <p>© 2025 عالم التصاميم والزخرفة. جميع الحقوق محفوظة.</p>
+  </footer>
+
+  <!-- ✅ كود تشغيل القائمة الجانبية -->
   <script>
-    const sidebar = document.querySelector('.sidebar');
-    const btn = document.querySelector('.sidebar-btn');
-    const closeBtn = document.querySelector('.close-btn');
-    btn.addEventListener('click', () => sidebar.classList.add('active'));
-    closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
+    const menuBtn = document.getElementById("menuBtn");
+    const sidePanel = document.getElementById("sidePanel");
+    const closePanel = document.getElementById("closePanel");
+
+    if (menuBtn) menuBtn.addEventListener("click", () => sidePanel.classList.add("open"));
+    if (closePanel) closePanel.addEventListener("click", () => sidePanel.classList.remove("open"));
   </script>
+
 </body>
 </html>
