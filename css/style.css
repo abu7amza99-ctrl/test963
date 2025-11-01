@@ -1,13 +1,13 @@
-/* ===== الإعدادات العامة ===== */
 body {
-  font-family: 'Reem Kufi', sans-serif;
   margin: 0;
-  background: url('../assets/bg.png') no-repeat center center fixed;
+  font-family: 'Reem Kufi', sans-serif;
+  background-image: url('../assets/bg.png');
   background-size: cover;
-  direction: rtl;
+  background-position: center;
+  background-attachment: fixed;
 }
 
-/* ===== الشريط العلوي ===== */
+/* ===== الشريط العلوي (مطابق لزخرفة الأسماء) ===== */
 header {
   background: url('../assets/shbg.png') no-repeat center;
   background-size: cover;
@@ -57,7 +57,7 @@ header {
   height: 32px;
 }
 
-/* ===== اللوحة الجانبية ===== */
+/* ===== اللوحة الجانبية (مطابقة لزخرفة الأسماء) ===== */
 .sidebar {
   position: fixed;
   top: 0;
@@ -72,7 +72,8 @@ header {
   backdrop-filter: blur(5px);
 }
 
-.sidebar.active {
+.sidebar.active,
+.sidebar.open {
   right: 0;
   opacity: 1;
 }
@@ -119,75 +120,7 @@ header {
   padding-right: 10px;
 }
 
-/* ===== تنسيقات الصفحة الرئيسية ===== */
-main {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 120px 20px;
-  text-align: center;
-}
-
-.welcome-section h1 {
-  color: #d4af37;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
-  font-size: 28px;
-  margin-bottom: 15px;
-}
-
-.welcome-section p {
-  color: #fff;
-  font-size: 18px;
-  margin-bottom: 25px;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
-}
-
-.btn-start {
-  display: inline-block;
-  background: linear-gradient(135deg, #000, #d4af37);
-  color: #fff;
-  padding: 10px 25px;
-  border-radius: 25px;
-  font-size: 18px;
-  text-decoration: none;
-  transition: 0.3s;
-}
-
-.btn-start:hover {
-  background: linear-gradient(135deg, #d4af37, #000);
-}
-
-/* ===== استجابة للجوال ===== */
-@media (max-width: 600px) {
-  header {
-    padding: 6px;
-  }
-  .app-logo {
-    width: 40px;
-    height: 40px;
-  }
-  .app-title {
-    font-size: 18px;
-  }
-  .sidebar {
-    width: 80%;
-    right: -80%;
-  }
-  .sidebar-menu a {
-    font-size: 16px;
-  }
-  .welcome-section h1 {
-    font-size: 22px;
-  }
-  .welcome-section p {
-    font-size: 16px;
-  }
-    }
-.sidebar-menu li a:hover {
-  color: white;
-}
-
-/* المحتوى */
+/* ===== باقي الصفحة كما هو ===== */
 main {
   text-align: center;
   padding: 30px;
@@ -229,7 +162,6 @@ h1 {
   transform: scale(1.08);
 }
 
-/* موبايل */
 @media (max-width: 768px) {
   .gallery {
     grid-template-columns: repeat(2, 1fr);
@@ -237,7 +169,6 @@ h1 {
   }
 }
 
-/* نافذة العرض */
 .modal {
   display: none;
   position: fixed;
