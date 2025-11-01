@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return dom;
   }
 
-// --- update overlay for image (final HD fix version) ---
+// --- update overlay for image (Ultra HD clarity + perfect center alignment) ---
 function updateImageOverlay(obj, wrap) {
   if (!wrap) return;
   const imgEl = wrap.querySelector('img');
@@ -343,15 +343,17 @@ function updateImageOverlay(obj, wrap) {
   const scale = obj.scale || 1;
   let dispW = (obj.displayWidth || imgEl.naturalWidth) * scale;
   let dispH = dispW / ratio;
-
   const maxH = (obj.displayHeight || imgEl.naturalHeight) * scale;
+
   if (dispH > maxH) {
     dispH = maxH;
     dispW = dispH * ratio;
   }
 
-  // رفع الدقة الداخلية حسب شاشة الجهاز
-  const pixelRatio = window.devicePixelRatio || 1;
+  // دقة الشاشة العالية
+  const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
+
+  // ضبط أبعاد الكانفس الداخلية لتكون بنفس دقة العرض الحقيقية
   overlayCanvas.width = dispW * pixelRatio;
   overlayCanvas.height = dispH * pixelRatio;
   overlayCanvas.style.width = dispW + 'px';
@@ -377,6 +379,11 @@ function updateImageOverlay(obj, wrap) {
   overlayCanvas.style.display = 'block';
   overlayCanvas.style.opacity = '1';
 
+  // تصحيح تموضع الصورة داخل الكانفس (مركز دقيق)
+  const drawX = (dispW - imgEl.naturalWidth * scale) / 2;
+  const drawY = (dispH - imgEl.naturalHeight * scale) / 2;
+
+  // معالجة التدرج أو التلبيسة
   if (hasGradient) {
     const g = ctx.createLinearGradient(0, 0, dispW, dispH);
     g.addColorStop(0, obj.gradient[0]);
@@ -385,7 +392,7 @@ function updateImageOverlay(obj, wrap) {
     ctx.fillRect(0, 0, dispW, dispH);
 
     ctx.globalCompositeOperation = 'destination-in';
-    ctx.drawImage(imgEl, 0, 0, dispW, dispH);
+    ctx.drawImage(imgEl, drawX, drawY, dispW, dispH);
     ctx.globalCompositeOperation = 'source-over';
   } else if (hasDress) {
     const dimg = new Image();
@@ -394,7 +401,7 @@ function updateImageOverlay(obj, wrap) {
       try {
         ctx.drawImage(dimg, 0, 0, dispW, dispH);
         ctx.globalCompositeOperation = 'destination-in';
-        ctx.drawImage(imgEl, 0, 0, dispW, dispH);
+        ctx.drawImage(imgEl, drawX, drawY, dispW, dispH);
       } catch (e) {
         console.error('Dress draw error:', e);
       }
@@ -407,7 +414,7 @@ function updateImageOverlay(obj, wrap) {
     dimg.src = obj.dress;
   }
 }
-  // --- apply styles to DOM element (text/image) ---
+   // --- apply styles to DOM element (text/image) ---
   function applyStyleToDom(obj, dom) {
     if (!dom) return;
     const sc = typeof obj.scale === 'number' ? obj.scale : 1;
@@ -1008,6 +1015,7 @@ function updateImageOverlay(obj, wrap) {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
