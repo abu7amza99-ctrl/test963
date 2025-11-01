@@ -4,43 +4,41 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>التصاميم الجاهزة - عالم التصاميم والزخرفة</title>
+
+  <!-- ربط ملف CSS الخاص بالصفحة -->
   <link rel="stylesheet" href="../css/home.css">
+
+  <!-- الخطوط -->
+  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- الشريط العلوي -->
-  <header class="topbar" role="banner" aria-hidden="false">
-    <div class="topbar-bg-wrap">
-      <img src="../assets/shbg.png" alt="" class="topbar-bg">
-    </div>
-    <div class="topbar-content">
-      <button class="sidebar-btn" aria-label="فتح القائمة">
-        <img src="../assets/yhbg.png" alt="زر القائمة">
-      </button>
+  <!-- ✅ الشريط العلوي (مطابق لقسم زخرفة الأسماء) -->
+  <header class="top-bar" role="banner">
+    <button id="menuBtn" class="menu-btn" aria-label="فتح القائمة">
+      <img src="../assets/yhbg.png" alt="قائمة" />
+    </button>
 
-      <div class="app-center">
-        <img src="../assets/abu7amza.png" alt="لوغو" class="app-logo">
-        <div class="app-name">عالم التصاميم والزخرفة</div>
-      </div>
+    <div class="site-title" role="heading" aria-level="1">
+      <h1>عالم التصاميم والزخرفة</h1>
+      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="logo">
     </div>
   </header>
 
-  <!-- اللوحة الجانبية -->
-  <aside class="sidebar" aria-hidden="true">
-    <button class="sidebar-close" aria-label="إغلاق القائمة">×</button>
-    <nav class="sidebar-menu" aria-label="القائمة الرئيسية">
-      <ul>
-        <li><a href="../index.html">الصفحة الرئيسية</a></li>
-        <li><a href="sections/home.html"class="active">التصاميم الجاهزة</a></li>
-        <li><a href="professional-decoration.html">الزخرفة الاحترافية</a></li>
-        <li><a href="name-decoration.html">زخرفة الأسماء</a></li>
-        <li><a href="about.html">لمحة عن التطبيق</a></li>
-        <li><a href="contact.html">اتصل بنا</a></li>
-      </ul>
-    </nav>
-  </aside>
+  <!-- ✅ اللوحة الجانبية (مطابقة لقسم زخرفة الأسماء) -->
+  <nav id="sidePanel" class="side-panel" aria-label="قائمة التنقل">
+    <button id="closePanel" class="close-btn" aria-label="إغلاق القائمة">×</button>
+    <ul>
+      <li><a href="../sections/home.html">🏠 الصفحة الرئيسية</a></li>
+      <li><a href="../sections/professional-decoration.html">🎨 الزخرفة الاحترافية</a></li>
+      <li><a href="../sections/name-decoration.html">✍️ زخرفة الأسماء</a></li>
+      <li><a href="../sections/about.html">ℹ️ لمحة عن التطبيق</a></li>
+      <li><a href="../sections/contact.html">☎️ اتصل بنا</a></li>
+    </ul>
+  </nav>
 
-  <!-- المحتوى الرئيسي -->
+  <!-- ✅ المحتوى الأصلي للقسم (بدون أي تعديل) -->
   <main class="main">
     <section class="hero">
       <h1 class="page-title">الصفحة الرئيسية</h1>
@@ -54,7 +52,7 @@
     </section>
   </main>
 
-  <!-- Lightbox -->
+  <!-- ✅ Lightbox كما هو -->
   <div id="lightbox" class="lightbox" aria-hidden="true">
     <button class="lightbox-close" aria-label="إغلاق">×</button>
     <div class="lightbox-inner">
@@ -67,27 +65,6 @@
 
   <!-- سكربت الصفحة الأساسي -->
   <script src="../js/home.js" defer></script>
-
-  <!-- ✅ سكربت عرض الصور من ملف JSON -->
-  <script>
-  fetch('../assets/images.json')
-    .then(res => res.json())
-    .then(data => {
-      const gallery = document.getElementById('gallery');
-      data.images.forEach(name => {
-        const img = document.createElement('img');
-        img.src = `../assets/home/${name}`;
-        img.alt = name;
-        img.loading = 'lazy';
-        img.style.width = '180px';
-        img.style.margin = '5px';
-        img.style.borderRadius = '10px';
-        img.style.cursor = 'pointer';
-        gallery.appendChild(img);
-      });
-    })
-    .catch(err => console.error('حدث خطأ أثناء تحميل الصور:', err));
-  </script>
 
 </body>
 </html>
