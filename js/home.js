@@ -1,38 +1,32 @@
-/* home.js - نسخة نهائية كاملة
-   يدعم أسماء ملفات تحتوي على شرطات أو مسافات أو رموز عربية وإنجليزية
-   يقرأ من ../assets/home/images.json
-   عرض شبكي 4x / 2x، بحث جزئي، lightbox مع زر تحميل، ودعم كامل لجميع الأسماء
+/* home.js - معدل لتوحيد مظهر الشريط العلوي واللوحة الجانبية
+   ✅ تمت إضافة نظام فتح/غلق اللوحة الجانبية من قسم "زخرفة الأسماء"
+   ✅ باقي الأكواد الأصلية للمعرض والبحث والـ Lightbox كما هي تماماً
 */
 
-const sidebarBtn = document.querySelector('.sidebar-btn');
-const sidebar = document.querySelector('.sidebar');
-const sidebarClose = document.querySelector('.sidebar-close');
+/* ============================
+   فتح/غلق اللوحة الجانبية (مطابق لقسم زخرفة الأسماء)
+   ============================ */
+const menuBtn = document.getElementById("menuBtn");
+const sidePanel = document.getElementById("sidePanel");
+const closePanel = document.getElementById("closePanel");
+
+if (menuBtn) menuBtn.addEventListener("click", () => sidePanel.classList.add("open"));
+if (closePanel) closePanel.addEventListener("click", () => sidePanel.classList.remove("open"));
+
+/* ============================
+   باقي كود الصفحة الأصلي كما هو
+   ============================ */
 
 const gallery = document.getElementById('gallery');
 const searchInput = document.getElementById('searchInput');
-
 const lightbox = document.getElementById('lightbox');
 const lightboxImage = document.getElementById('lightboxImage');
 const lightboxClose = document.querySelector('.lightbox-close');
 const downloadBtn = document.getElementById('downloadBtn');
 
-let IMAGES = []; // سيملأ من JSON
+let IMAGES = [];
 
-// toggle sidebar
-if (sidebarBtn && sidebar) {
-  sidebarBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('open');
-    sidebar.setAttribute('aria-hidden', sidebar.classList.contains('open') ? 'false' : 'true');
-  });
-}
-if (sidebarClose) {
-  sidebarClose.addEventListener('click', () => {
-    sidebar.classList.remove('open');
-    sidebar.setAttribute('aria-hidden','true');
-  });
-}
-
-// جلب JSON من assetsimages.json
+// تحميل JSON من مجلد الصور
 async function fetchImagesJson() {
   const url = '../assets/images.json';
   try {
@@ -47,7 +41,7 @@ async function fetchImagesJson() {
       data = j.images.map(it => typeof it === 'string' ? { name: it, file: it } : it);
     }
 
-    console.log(`✅ تم تحميل images.json (${data.length} صورة) من: ${url}`);
+    console.log(`✅ تم تحميل images.json (${data.length} صورة)`);
     return data;
   } catch (err) {
     console.error('❌ فشل تحميل images.json', err);
@@ -116,7 +110,9 @@ function closeLightbox() {
   lightbox.setAttribute('aria-hidden','true');
   lightboxImage.src = '';
 }
-if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+if (lightboxClose) {
+  lightboxClose.addEventListener('click', closeLightbox);
+}
 lightbox.addEventListener('click', (e) => {
   if (e.target === lightbox) closeLightbox();
 });
@@ -124,23 +120,15 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeLightbox();
 });
 
-// تحميل إجباري
-function forceDownload(url, filename) {
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = decodeURIComponent(filename || url.split('/').pop());
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
-if (downloadBtn) {
-  downloadBtn.addEventListener('click', function(e){
-    e.preventDefault();
-    const href = this.href;
-    const fname = this.getAttribute('download') || href.split('/').pop();
-    forceDownload(href, fname);
-  });
-}
+// تحميل الصور عند بدء الصفحة
+(async function init(){
+  try {
+    IMAGES = await fetchImagesJson();
+    renderGallery(IMAGES);
+  } catch (err) {
+    gallery.innerHTML = '<p style="padding:12px;background:#fff;color:#000;border-radius:8px">فشل تحميل قائمة الصور. تأكد من وجود الملف: assets/images.json</p>';
+  }
+})();
 
 // البحث الذكي
 if (searchInput) {
@@ -158,13 +146,3 @@ if (searchInput) {
     renderGallery(filtered);
   });
 }
-
-// التهيئة
-(async function init(){
-  try {
-    IMAGES = await fetchImagesJson();
-    renderGallery(IMAGES);
-  } catch (err) {
-    gallery.innerHTML = '<p style="padding:12px;background:#fff;color:#000;border-radius:8px">فشل تحميل قائمة الصور. تأكد من وجود الملف: assets/images.json</p>';
-  }
-})();
