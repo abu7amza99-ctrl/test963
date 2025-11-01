@@ -778,43 +778,40 @@ function updateImageOverlay(obj, wrap) {
     if (obj.type === 'text' && obj.fillMode === 'dress') applyStyleToDom(obj, dom);
   }
 
-  // --- export / download as PNG ---
+// --- export / download as PNG (Perfect preview match) ---
 if (downloadImage) downloadImage.addEventListener('click', async () => {
   try {
-    // نحافظ على أبعاد المعاينة تماماً
+    // نأخذ أبعاد المعاينة الأصلية
     const rect = editorCanvas.getBoundingClientRect();
     const W = Math.round(rect.width);
     const H = Math.round(rect.height);
 
-    // نستخدم قيم المدخلات لكن بدون تشويه النسبة أو الموقع
+    // نستخدم القيم المطلوبة إن وجدت
     const desiredW = parseInt(document.getElementById('widthInput').value) || W;
     const desiredH = parseInt(document.getElementById('heightInput').value) || H;
 
-    // إنشاء كانفس بالحجم الفعلي المطلوب
-const out = document.createElement('canvas');
-const ctx = out.getContext('2d');
+    // إنشاء كانفس بنفس نسب المعاينة
+    const out = document.createElement('canvas');
+    const ctx = out.getContext('2d');
 
-// نستخدم دقة الشاشة الفعلية لتحسين جودة التحميل
-const pixelRatio = window.devicePixelRatio || 1;
+    // دقة الشاشة (للحفاظ على الجودة)
+    const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
+    out.width = desiredW * pixelRatio;
+    out.height = desiredH * pixelRatio;
+    out.style.width = desiredW + 'px';
+    out.style.height = desiredH + 'px';
 
-// نحافظ على نفس أبعاد المعاينة تماماً لكن بدقة أعلى
-out.width = Math.max(1, Math.round(desiredW * pixelRatio));
-out.height = Math.max(1, Math.round(desiredH * pixelRatio));
-out.style.width = desiredW + 'px';
-out.style.height = desiredH + 'px';
+    // نضبط المقياس بنفس نسب المعاينة تماماً
+    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.clearRect(0, 0, desiredW, desiredH);
 
-// نضبط المقياس لتطابق النسبة
-ctx.scale(pixelRatio, pixelRatio);
-ctx.imageSmoothingEnabled = true;
-ctx.imageSmoothingQuality = 'high';
-ctx.clearRect(0, 0, desiredW, desiredH);
+    // نحافظ على نسبة الرسم تماماً مثل المعاينة
+    const scale = Math.min(desiredW / W, desiredH / H);
+    ctx.scale(scale, scale);
 
-    // حساب نسبة التكبير بدقة عالية
-    const scaleX = desiredW / W;
-    const scaleY = desiredH / H;
-    ctx.scale(scaleX, scaleY);
-
-    // نرسم العناصر بنفس إحداثياتها من المعاينة
+    // نرسم العناصر بنفس مكانها ودقتها
     const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
     for (const dom of domChildren) {
       const id = dom.dataset.id;
@@ -853,28 +850,31 @@ ctx.clearRect(0, 0, desiredW, desiredH);
           const text = obj.text || '';
           const w = Math.ceil(ctx.measureText(text).width);
           const h = Math.ceil(fontSize * 1.1);
-          tmp.width = w; tmp.height = h;
+          tmp.width = w;
+          tmp.height = h;
           tctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
           tctx.textBaseline = 'top';
           tctx.fillStyle = '#000';
           tctx.fillText(text, 0, 0);
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          img.onload = () => {
-            const pat = document.createElement('canvas');
-            const pctx = pat.getContext('2d');
-            pat.width = w; pat.height = h;
-            pctx.drawImage(img, 0, 0, w, h);
-            pctx.globalCompositeOperation = 'destination-in';
-            pctx.drawImage(tmp, 0, 0);
-            ctx.drawImage(pat, 0, 0);
-          };
-          img.src = obj.dress;
+          await new Promise((res) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+              const pat = document.createElement('canvas');
+              const pctx = pat.getContext('2d');
+              pat.width = w; pat.height = h;
+              pctx.drawImage(img, 0, 0, w, h);
+              pctx.globalCompositeOperation = 'destination-in';
+              pctx.drawImage(tmp, 0, 0);
+              ctx.drawImage(pat, 0, 0);
+              res();
+            };
+            img.onerror = res;
+            img.src = obj.dress;
+          });
         }
         ctx.restore();
-      }
-
-      else if (obj.type === 'image') {
+      } else if (obj.type === 'image') {
         const imgEl = dom.querySelector('img');
         if (!imgEl) continue;
         const drawW = parseFloat(imgEl.style.width) || obj.displayWidth || imgEl.naturalWidth;
@@ -888,7 +888,7 @@ ctx.clearRect(0, 0, desiredW, desiredH);
       }
     }
 
-    // حفظ الملف النهائي بدقة المعاينة
+    // حفظ الصورة النهائية
     const url = out.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = url;
@@ -1014,6 +1014,7 @@ ctx.clearRect(0, 0, desiredW, desiredH);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
