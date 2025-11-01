@@ -791,14 +791,23 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
     const desiredH = parseInt(document.getElementById('heightInput').value) || H;
 
     // إنشاء كانفس بالحجم الفعلي المطلوب
-    const out = document.createElement('canvas');
-    out.width = desiredW;
-    out.height = desiredH;
+const out = document.createElement('canvas');
+const ctx = out.getContext('2d');
 
-    const ctx = out.getContext('2d');
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.clearRect(0, 0, desiredW, desiredH);
+// نستخدم دقة الشاشة الفعلية لتحسين جودة التحميل
+const pixelRatio = window.devicePixelRatio || 1;
+
+// نحافظ على نفس أبعاد المعاينة تماماً لكن بدقة أعلى
+out.width = Math.max(1, Math.round(desiredW * pixelRatio));
+out.height = Math.max(1, Math.round(desiredH * pixelRatio));
+out.style.width = desiredW + 'px';
+out.style.height = desiredH + 'px';
+
+// نضبط المقياس لتطابق النسبة
+ctx.scale(pixelRatio, pixelRatio);
+ctx.imageSmoothingEnabled = true;
+ctx.imageSmoothingQuality = 'high';
+ctx.clearRect(0, 0, desiredW, desiredH);
 
     // حساب نسبة التكبير بدقة عالية
     const scaleX = desiredW / W;
@@ -1005,6 +1014,7 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
