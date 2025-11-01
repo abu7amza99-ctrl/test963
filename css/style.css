@@ -1,78 +1,81 @@
+/* ===== الإعدادات العامة ===== */
 body {
-  margin: 0;
   font-family: 'Reem Kufi', sans-serif;
-  background-image: url('../assets/bg.png');
+  margin: 0;
+  background: url('../assets/bg.png') no-repeat center center fixed;
   background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  direction: rtl;
 }
 
-/* الشريط العلوي */
+/* ===== الشريط العلوي ===== */
 header {
+  background: url('../assets/shbg.png') no-repeat center;
+  background-size: cover;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 70px;
-  background-image: url('../assets/shbg.png');
-  background-size: cover;
-  background-position: center;
-  border-bottom: 4px solid #D4AF37;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.6);
   position: relative;
+  padding: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+  z-index: 100;
 }
 
 .header-center {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.app-title {
-  font-size: 28px;
-  font-weight: bold;
-  color: #D4AF37;
-  text-shadow: 2px 2px 0 #000;
-  margin-right: 10px;
+  gap: 10px;
 }
 
 .app-logo {
   width: 50px;
   height: 50px;
+  object-fit: contain;
 }
 
+.app-title {
+  font-size: 22px;
+  color: #d4af37;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+  border-bottom: 2px solid #000;
+  font-weight: 700;
+}
+
+/* ===== زر القائمة الجانبية ===== */
 .sidebar-btn {
   position: absolute;
   right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 50px;
-  height: 50px;
-  background: transparent;
+  background: none;
   border: none;
   cursor: pointer;
+  padding: 5px;
+  z-index: 101;
 }
 
 .sidebar-btn img {
-  width: 100%;
-  height: 100%;
+  width: 32px;
+  height: 32px;
 }
 
-/* اللوحة الجانبية */
+/* ===== اللوحة الجانبية ===== */
 .sidebar {
   position: fixed;
   top: 0;
-  right: -100%;
-  width: 300px;
+  right: -270px;
+  width: 250px;
   height: 100%;
-  background-color: rgba(212, 175, 55, 0.15);
-  box-shadow: -4px 0 10px rgba(0,0,0,0.6);
-  border-left: 2px solid #D4AF37;
-  transition: right 0.4s ease;
+  background: rgba(184,134,11,0.2);
+  box-shadow: -3px 0 8px rgba(0,0,0,0.4);
+  transition: right 0.4s ease, opacity 0.4s ease;
+  opacity: 0;
   z-index: 1000;
-  padding: 20px;
+  backdrop-filter: blur(5px);
 }
 
-.sidebar.open { right: 0; }
+.sidebar.active {
+  right: 0;
+  opacity: 1;
+}
 
 .close-btn {
   position: absolute;
@@ -81,27 +84,105 @@ header {
   background: none;
   border: none;
   font-size: 28px;
-  color: #D4AF37;
+  color: #000;
   cursor: pointer;
 }
 
+/* ===== عناصر القائمة ===== */
 .sidebar-menu {
   list-style: none;
-  margin-top: 60px;
-  padding: 0;
+  padding: 60px 20px;
+  margin: 0;
 }
 
 .sidebar-menu li {
-  margin: 18px 0;
+  margin-bottom: 15px;
 }
 
-.sidebar-menu li a {
-  color: #D4AF37;
+.sidebar-menu a {
   text-decoration: none;
-  font-size: 22px;
+  color: #d4af37;
+  font-size: 18px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+  transition: 0.3s;
+  border-right: 2px solid transparent;
+  padding-right: 5px;
+  display: block;
+  border-radius: 6px;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+  color: #fff;
+  background: rgba(0,0,0,0.25);
+  border-right: 3px solid #000;
+  padding-right: 10px;
+}
+
+/* ===== تنسيقات الصفحة الرئيسية ===== */
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 120px 20px;
+  text-align: center;
+}
+
+.welcome-section h1 {
+  color: #d4af37;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+  font-size: 28px;
+  margin-bottom: 15px;
+}
+
+.welcome-section p {
+  color: #fff;
+  font-size: 18px;
+  margin-bottom: 25px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+}
+
+.btn-start {
+  display: inline-block;
+  background: linear-gradient(135deg, #000, #d4af37);
+  color: #fff;
+  padding: 10px 25px;
+  border-radius: 25px;
+  font-size: 18px;
+  text-decoration: none;
   transition: 0.3s;
 }
 
+.btn-start:hover {
+  background: linear-gradient(135deg, #d4af37, #000);
+}
+
+/* ===== استجابة للجوال ===== */
+@media (max-width: 600px) {
+  header {
+    padding: 6px;
+  }
+  .app-logo {
+    width: 40px;
+    height: 40px;
+  }
+  .app-title {
+    font-size: 18px;
+  }
+  .sidebar {
+    width: 80%;
+    right: -80%;
+  }
+  .sidebar-menu a {
+    font-size: 16px;
+  }
+  .welcome-section h1 {
+    font-size: 22px;
+  }
+  .welcome-section p {
+    font-size: 16px;
+  }
+    }
 .sidebar-menu li a:hover {
   color: white;
 }
