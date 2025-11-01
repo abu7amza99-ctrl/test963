@@ -806,6 +806,10 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
     const scaleX = desiredW / W;
     const scaleY = desiredH / H;
     ctx.scale(scaleX, scaleY);
+     // نحافظ على نفس تمركز المحتوى داخل الصورة عند التحميل
+const offsetX = (desiredW / scale - W) / 2;
+const offsetY = (desiredH / scale - H) / 2;
+ctx.translate(offsetX, offsetY);
 
     // نرسم العناصر بنفس مكانها ودقتها
     const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
@@ -1010,6 +1014,7 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
