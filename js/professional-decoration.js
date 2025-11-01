@@ -354,17 +354,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // update overlay canvas pixel dims and css dims
     if (overlayCanvas.width !== dispW || overlayCanvas.height !== dispH) {
-      overlayCanvas.width = dispW;
-      overlayCanvas.height = dispH;
-      overlayCanvas.style.width = dispW + 'px';
-      overlayCanvas.style.height = dispH + 'px';
-    }
+      // ✅ تحسين الدقة بدون التأثير على المعاينة
+const pixelRatio = window.devicePixelRatio || 1;
+
+// نحافظ على حجم العرض الظاهر
+overlayCanvas.style.width = dispW + 'px';
+overlayCanvas.style.height = dispH + 'px';
+
+// نجعل الكانفاس الداخلي أعلى دقة
+overlayCanvas.width = Math.round(dispW * pixelRatio);
+overlayCanvas.height = Math.round(dispH * pixelRatio);
     overlayCanvas.style.left = '0px';
     overlayCanvas.style.top = '0px';
 
     const ctx = overlayCanvas.getContext('2d');
+     ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
     // Reset transform and clear to avoid duplicates
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, dispW, dispH);
 
     const hasGradient = obj.fillMode === 'gradient' && Array.isArray(obj.gradient) && obj.gradient.length >= 2;
@@ -1016,3 +1021,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
