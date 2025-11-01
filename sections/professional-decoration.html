@@ -2,105 +2,180 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>الزخرفة الاحترافية — عالم التصاميم والزخرفة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>عالم التصاميم والزخرفة — الزخرفة الاحترافية</title>
 
-  <!-- ربط CSS -->
-  <link rel="stylesheet" href="/test963/css/professional-decoration.css">
+  <!-- رابط CSS -->
+  <link rel="stylesheet" href="../css/professional-decoration.css">
 
-  <!-- تعريف خطوط افتراضية (ستُستبدل أو تُكمّل تلقائياً عبر JS عند وجود خطوط في repo) -->
   <style>
-    @font-face {
-      font-family: 'KufiCustom';
-      src: url('/test963/assets/fonts/kufi-bold.ttf') format('truetype');
-      font-weight: 700;
-      font-style: normal;
-      font-display: swap;
+    /* تأكيد إضافي لتوافق المعاينة */
+    #editorCanvas { position: relative; }
+    .export-size {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
     }
-    @font-face {
-      font-family: 'SerifDecor';
-      src: url('/test963/assets/fonts/amiri.ttf') format('truetype');
-      font-weight: 400;
-      font-style: normal;
-      font-display: swap;
+
+    .export-size label {
+      font-size: 14px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .export-size input {
+      width: 80px;
+      padding: 4px 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    #editorCanvas {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    #editorCanvas .canvas-item.text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .btn.primary.download {
+      background-color: #4caf50;
+      color: white;
     }
   </style>
-
-  <!-- الخط الكوفي الافتراضي -->
-  <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- الشريط العلوي -->
-  <header class="top-bar" role="banner">
-    <button id="menuBtn" class="menu-btn" aria-label="فتح القائمة">
-      <img src="/test963/assets/yhbg.png" alt="قائمة" />
-    </button>
-
-    <div class="site-title" role="heading" aria-level="1">
-      <h1>عالم التصاميم والزخرفة</h1>
-      <img src="/test963/assets/abu7amza.png" alt="شعار التطبيق" class="logo">
+  <!-- شريط علوي -->
+  <header class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <button id="toggleSidebar" class="sidebar-btn" aria-label="قائمة">
+        <img src="../assets/yhbg.png" alt="قائمة">
+      </button>
+      <div class="brand">
+        <img src="../assets/abu7amza.png" alt="لوغو" class="app-logo">
+        <div class="app-title">عالم التصاميم والزخرفة</div>
+      </div>
     </div>
   </header>
 
-  <!-- القائمة الجانبية -->
-  <nav id="sidePanel" class="side-panel" aria-label="قائمة التنقل">
-    <button id="closePanel" class="close-btn" aria-label="إغلاق القائمة">×</button>
-    <ul>
-      <li><a href="/test963/sections/home.html">🏠 الصفحة الرئيسية</a></li>
-      <li><a href="/test963/sections/professional-decoration.html" class="active">🎨 الزخرفة الاحترافية</a></li>
-      <li><a href="/test963/sections/name-decoration.html">✍️ زخرفة الأسماء</a></li>
-      <li><a href="/test963/sections/about.html">ℹ️ لمحة عن التطبيق</a></li>
-      <li><a href="/test963/sections/contact.html">☎️ اتصل بنا</a></li>
-    </ul>
-  </nav>
+  <!-- اللوحة الجانبية -->
+  <aside id="siteSidebar" class="sidebar" aria-hidden="true">
+    <button id="closeSidebar" class="sidebar-close" aria-label="إغلاق">×</button>
+    <nav class="sidebar-menu" aria-label="القائمة الرئيسية">
+      <ul>
+        <li><a href="../index.html">الصفحة الرئيسية</a></li>
+        <li><a href="home.html">التصاميم الجاهزة</a></li>
+        <li><a href="professional-decoration.html" class="active">الزخرفة الاحترافية</a></li>
+        <li><a href="name-decoration.html">زخرفة الأسماء</a></li>
+        <li><a href="about.html">لمحة عن التطبيق</a></li>
+        <li><a href="contact.html">اتصل بنا</a></li>
+      </ul>
+    </nav>
+  </aside>
 
   <!-- المحتوى الرئيسي -->
-  <main class="main-content" role="main">
-    <!-- اسم القسم تحت الشريط العلوي مباشرة -->
-    <section class="section-title" style="width:90%;max-width:900px;margin-top:8px;">
-      <h2 class="section-name" id="sectionName" style="
-        font-family: 'KufiCustom', 'Reem Kufi', sans-serif;
-        font-size: 28px;
-        color: #D4AF37;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
-        margin: 8px 0;
-      ">الزخرفة الاحترافية</h2>
+  <main class="main" id="main" style="background-image:url('../assets/bg.png')">
+    <section class="editor-container">
+      <h1 class="editor-title">الزخرفة الاحترافية</h1>
+
+      <div class="toolbar" role="toolbar" aria-label="أدوات المحرر">
+        <label>النوع
+          <select id="modeSelect">
+            <option value="text">نص</option>
+            <option value="image">صورة</option>
+          </select>
+        </label>
+
+        <!-- تحكمات النص -->
+        <div id="textControls" class="conditional">
+          <label>النص
+            <input id="textInput" type="text" placeholder="اكتب النص">
+          </label>
+
+<label>الخط
+  <div class="font-select-wrapper">
+    <button id="openFontList" class="open-list">اختر خط</button>
+
+    <div id="fontList" class="panel-list hidden" aria-hidden="true">
+      <div class="panel-scroll">
+        <div class="font-item" style="font-family: 'أنيق';">أنيق</div>
+<div class="font-item" style="font-family: 'بطرس';">بطرس</div>
+<div class="font-item" style="font-family: 'ثلث';">ثلث</div>
+<div class="font-item" style="font-family: 'حجاز';">حجاز</div>
+<div class="font-item" style="font-family: 'دوسوقي';">دوسوقي</div>
+<div class="font-item" style="font-family: 'ديواني';">ديواني</div>
+<div class="font-item" style="font-family: 'لهب';">لهب</div>
+<div class="font-item" style="font-family: 'متقن';">متقن</div>
+<div class="font-item" style="font-family: 'مثير';">مثير</div>
+      </div>
+    </div>
+  </div>
+</label>
+          <label>نوع اللون
+            <select id="textColorMode">
+              <option value="solid">لون ثابت</option>
+              <option value="gradient">تدرج</option>
+              <option value="dress">تلبيس</option>
+            </select>
+          </label>
+          <button id="openColorGrid" class="btn small">التدرجات</button>
+          <button id="openDressGrid" class="btn small">التلبيسات</button>
+        </div>
+
+        <!-- تحكمات الصورة -->
+        <div id="imageControls" class="conditional hidden">
+          <label class="file-label">رفع صورة شفافة
+            <input id="fileImage" type="file" accept="image/png,image/*">
+          </label>
+
+        <button id="btnAdd" class="btn primary">أضف</button>
+      </div>
+
+      <!-- المعاينة -->
+      <div id="editorCanvas" class="editor-canvas" tabindex="0" role="application" aria-label="لوحة التصميم">
+        <div class="hint"></div>
+      </div>
+
+      <div class="bottom-bar">
+        <button id="deleteSelected" class="btn danger">حذف المحدد</button>
+
+        <div class="export-size">
+          <label>العرض (px)
+            <input id="widthInput" type="number" placeholder="العرض" value="3000" min="100" step="100">
+          </label>
+          <label>الارتفاع (px)
+            <input id="heightInput" type="number" placeholder="الارتفاع" value="3000" min="100" step="100">
+          </label>
+        </div>
+
+        <button id="downloadImage" class="btn primary download">تحميل التصميم</button>
+      </div>
     </section>
-
-    <!-- شريط الأدوات (يُملأ ديناميكياً بواسطة JS) -->
-    <div id="toolbar" class="toolbar" aria-label="شريط أدوات الزخرفة">
-      <!-- عناصر التحكم ستضاف لاحقًا عبر JS -->
-    </div>
-
-    <!-- مربع المعاينة: نستخدم canvas لرندر عالي الدقة -->
-    <div id="previewWrapper" style="width:90%;max-width:900px;position:relative;">
-      <canvas id="previewCanvas" class="preview-area" width="900" height="400" aria-label="معاينة التصميم"></canvas>
-      <!-- إطار التحديد والتحكم الذي يظهر عند تحديد عنصر -->
-      <div id="transformBox" style="position:absolute;display:none;z-index:3000;pointer-events:none;"></div>
-    </div>
-
-    <!-- عناصر التحكم الأسفل (أبعاد + تحميل) -->
-    <div id="controlsRow" style="width:90%;max-width:900px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin-top:12px;">
-      <label style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:14px;color:rgba(212,175,55,0.9);">أبعاد (عرض × ارتفاع):</span>
-        <input id="widthInput" type="number" min="200" value="1250" style="width:110px;padding:8px;border-radius:8px;border:none;box-shadow:0 2px 6px rgba(0,0,0,0.2);">
-        <span style="font-size:14px;color:rgba(212,175,55,0.9);">×</span>
-        <input id="heightInput" type="number" min="200" value="1250" style="width:110px;padding:8px;border-radius:8px;border:none;box-shadow:0 2px 6px rgba(0,0,0,0.2);">
-      </label>
-
-      <button id="downloadBtn" style="padding:10px 18px;border-radius:10px;background:rgba(212,175,55,0.3);border:none;font-weight:bold;cursor:pointer;">
-        تحميل الصورة (دقة عالية)
-      </button>
-    </div>
-
-    <!-- عنصر لمنبثق اختيار الألوان والتلبيس (يُملأ ديناميكياً) -->
-    <div id="colorPanelContainer" style="width:90%;max-width:900px;margin-top:10px;"></div>
-
-    <!-- شريط الأزرار السفلي الإضافي -->
-    <div id="actionBar" class="action-bar" aria-hidden="true"></div>
   </main>
 
-  <!-- سكربت (المسار مضبوط لمستودع GitHub Pages الخاص بك) -->
-  <script src="/test963/js/professional-decoration.js" defer></script>
+  <!-- نافذة التدرجات والتلبيسات -->
+  <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
+
+  <!-- سكربت -->
+  <script src="../js/professional-decoration.js" defer></script>
 </body>
-</html>
+  </html>
+
+
+
+
+
+
