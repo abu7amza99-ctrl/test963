@@ -354,10 +354,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // update overlay canvas pixel dims and css dims
     if (overlayCanvas.width !== dispW || overlayCanvas.height !== dispH) {
-      overlayCanvas.width = dispW;
-      overlayCanvas.height = dispH;
-      overlayCanvas.style.width = dispW + 'px';
-      overlayCanvas.style.height = dispH + 'px';
+// ✨ تحسين الدقة في التدرج/التلبيس
+const pixelRatio = window.devicePixelRatio || 1;
+overlayCanvas.width = Math.round(dispW * pixelRatio);
+overlayCanvas.height = Math.round(dispH * pixelRatio);
+overlayCanvas.style.width = dispW + 'px';
+overlayCanvas.style.height = dispH + 'px';
+
+// موازنة مقياس الرسم
+const ctx = overlayCanvas.getContext('2d');
+ctx.scale(pixelRatio, pixelRatio);
     }
     overlayCanvas.style.left = '0px';
     overlayCanvas.style.top = '0px';
@@ -1016,3 +1022,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
