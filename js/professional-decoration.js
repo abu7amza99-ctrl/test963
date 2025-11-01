@@ -398,9 +398,17 @@ ctx.clearRect(0, 0, dispW, dispH);
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, dispW, dispH);
 
-      ctx.globalCompositeOperation = 'destination-in';
-      try { ctx.drawImage(imgEl, 0, 0, dispW, dispH); } catch (e) { /* ignore cross-origin drawing errors */ }
-      ctx.globalCompositeOperation = 'source-over';
+ctx.globalCompositeOperation = 'destination-in';
+try {
+    // نرسم الصورة في منتصف الكانفس بالحجم الصحيح حسب دقة الشاشة
+    const pixelRatio = window.devicePixelRatio || 1;
+    const drawX = (overlayCanvas.width / 2) - (dispW * pixelRatio / 2);
+    const drawY = (overlayCanvas.height / 2) - (dispH * pixelRatio / 2);
+    ctx.drawImage(imgEl, drawX, drawY, dispW * pixelRatio, dispH * pixelRatio);
+} catch (e) {
+    /* ignore cross-origin drawing errors */
+}
+ctx.globalCompositeOperation = 'source-over';
     } else if (hasDress) {
       const dimg = new Image();
       dimg.crossOrigin = 'anonymous';
@@ -1026,4 +1034,5 @@ ctx.clearRect(0, 0, dispW, dispH);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
