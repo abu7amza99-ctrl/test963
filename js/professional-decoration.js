@@ -367,8 +367,7 @@ ctx.scale(pixelRatio, pixelRatio);
     }
     overlayCanvas.style.left = '0px';
     overlayCanvas.style.top = '0px';
-
-    const ctx = overlayCanvas.getContext('2d');
+     
     // Reset transform and clear to avoid duplicates
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, dispW, dispH);
@@ -1022,4 +1021,5 @@ ctx.scale(pixelRatio, pixelRatio);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
