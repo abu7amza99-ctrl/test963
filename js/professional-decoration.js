@@ -779,128 +779,118 @@ function updateImageOverlay(obj, wrap) {
   }
 
   // --- export / download as PNG ---
-  if (downloadImage) downloadImage.addEventListener('click', async () => {
-    try {
-      const rect = editorCanvas.getBoundingClientRect();
-      const W = Math.round(rect.width);
-      const H = Math.round(rect.height);
+if (downloadImage) downloadImage.addEventListener('click', async () => {
+  try {
+    // نحافظ على أبعاد المعاينة تماماً
+    const rect = editorCanvas.getBoundingClientRect();
+    const W = Math.round(rect.width);
+    const H = Math.round(rect.height);
 
-      const desiredW = parseInt(document.getElementById('widthInput').value) || W;
-      const desiredH = parseInt(document.getElementById('heightInput').value) || H;
-      const scaleX = desiredW / W;
-      const scaleY = desiredH / H;
-      const scale = Math.min(scaleX, scaleY);
+    // نستخدم قيم المدخلات لكن بدون تشويه النسبة أو الموقع
+    const desiredW = parseInt(document.getElementById('widthInput').value) || W;
+    const desiredH = parseInt(document.getElementById('heightInput').value) || H;
 
-      const out = document.createElement('canvas');
-      const ctx = out.getContext('2d');
-      out.width = Math.max(1, Math.round(W * scale));
-      out.height = Math.max(1, Math.round(H * scale));
-      ctx.scale(scale, scale);
-      ctx.imageSmoothingQuality = 'high';
-      ctx.clearRect(0, 0, W, H);
+    // إنشاء كانفس بالحجم الفعلي المطلوب
+    const out = document.createElement('canvas');
+    out.width = desiredW;
+    out.height = desiredH;
 
-      const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
-      for (const dom of domChildren) {
-        const id = dom.dataset.id;
-        const obj = ELEMENTS.find(e => e.id === id);
-        if (!obj) continue;
+    const ctx = out.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.clearRect(0, 0, desiredW, desiredH);
 
-        if (obj.type === 'text') {
-          const x = Math.round((parseFloat(dom.style.left) || obj.x || 0));
-          const y = Math.round((parseFloat(dom.style.top) || obj.y || 0));
-          const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
-          ctx.save();
-          const bboxW = dom.offsetWidth || (fontSize * (obj.text ? obj.text.length : 1));
-          const bboxH = dom.offsetHeight || fontSize;
-          const cx = x + bboxW / 2; const cy = y + bboxH / 2;
-          ctx.translate(cx, cy); ctx.rotate(obj.rotation || 0); ctx.translate(-cx, -cy);
-          ctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
-          ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    // حساب نسبة التكبير بدقة عالية
+    const scaleX = desiredW / W;
+    const scaleY = desiredH / H;
+    ctx.scale(scaleX, scaleY);
 
-          if (obj.fillMode === 'solid' || !obj.gradient) {
-            ctx.fillStyle = obj.color || '#000';
-            if (obj.stroke && obj.stroke > 0) { ctx.lineWidth = obj.stroke; ctx.strokeStyle = obj.strokeColor || '#000'; ctx.strokeText(obj.text, x, y); }
-            ctx.fillText(obj.text, x, y);
-          } else if (obj.fillMode === 'gradient' && obj.gradient) {
-            const g = ctx.createLinearGradient(x, y, x + bboxW, y);
-            g.addColorStop(0, obj.gradient[0]); g.addColorStop(1, obj.gradient[1]);
-            ctx.fillStyle = g;
-            if (obj.stroke && obj.stroke > 0) { ctx.lineWidth = obj.stroke; ctx.strokeStyle = obj.strokeColor || '#000'; ctx.strokeText(obj.text, x, y); }
-            ctx.fillText(obj.text, x, y);
-          } else if (obj.fillMode === 'dress' && obj.dress) {
-            const tmp = document.createElement('canvas'); tmp.width = Math.max(1, Math.round(bboxW)); tmp.height = Math.max(1, Math.round(bboxH));
-            const tctx = tmp.getContext('2d');
-            tctx.clearRect(0, 0, tmp.width, tmp.height);
-            tctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
-            tctx.textAlign = 'left'; tctx.textBaseline = 'top';
-            tctx.fillStyle = '#000'; tctx.fillText(obj.text, 0, 0);
-            await new Promise((res) => {
-              const img = new Image(); img.crossOrigin = 'anonymous';
-              img.onload = () => {
-                const t2 = document.createElement('canvas'); t2.width = tmp.width; t2.height = tmp.height;
-                const t2ctx = t2.getContext('2d');
-                try { t2ctx.drawImage(img, 0, 0, t2.width, t2.height); } catch (e) { /* ignore */ }
-                t2ctx.globalCompositeOperation = 'destination-in';
-                try { t2ctx.drawImage(tmp, 0, 0); } catch (e) { /* ignore */ }
-                ctx.drawImage(t2, x, y);
-                res();
-              };
-              img.onerror = () => { ctx.fillStyle = '#000'; ctx.fillText(obj.text, x, y); res(); };
-              img.src = obj.dress;
-            });
+    // نرسم العناصر بنفس إحداثياتها من المعاينة
+    const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
+    for (const dom of domChildren) {
+      const id = dom.dataset.id;
+      const obj = ELEMENTS.find(e => e.id === id);
+      if (!obj) continue;
+
+      const left = parseFloat(dom.style.left) || obj.x || 0;
+      const top = parseFloat(dom.style.top) || obj.y || 0;
+
+      if (obj.type === 'text') {
+        const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
+        ctx.save();
+        ctx.translate(left, top);
+        ctx.rotate(obj.rotation || 0);
+        ctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
+        ctx.textBaseline = 'top';
+        ctx.textAlign = 'left';
+
+        if (obj.fillMode === 'solid' || !obj.gradient) {
+          ctx.fillStyle = obj.color || '#000';
+          if (obj.stroke && obj.stroke > 0) {
+            ctx.lineWidth = obj.stroke;
+            ctx.strokeStyle = obj.strokeColor || '#000';
+            ctx.strokeText(obj.text, 0, 0);
           }
-          ctx.restore();
-        } else if (obj.type === 'image') {
-          const wrap = dom;
-          const imgEl = wrap.querySelector('img');
-          if (!imgEl) continue;
-          await new Promise((res) => {
-            const img = new Image(); img.crossOrigin = 'anonymous';
-            img.onload = async () => {
-              const left = Math.round(parseFloat(wrap.style.left) || obj.x || 0);
-              const top = Math.round(parseFloat(wrap.style.top) || obj.y || 0);
-              const drawW = parseInt(imgEl.style.width) || ((obj.displayWidth || img.naturalWidth) * (obj.scale || 1)) || img.naturalWidth;
-              const drawH = parseInt(imgEl.style.height) || ((obj.displayHeight || img.naturalHeight) * (obj.scale || 1)) || img.naturalHeight;
+          ctx.fillText(obj.text, 0, 0);
+        } else if (obj.fillMode === 'gradient' && obj.gradient) {
+          const g = ctx.createLinearGradient(0, 0, obj.text.length * fontSize, 0);
+          g.addColorStop(0, obj.gradient[0]);
+          g.addColorStop(1, obj.gradient[1]);
+          ctx.fillStyle = g;
+          ctx.fillText(obj.text, 0, 0);
+        } else if (obj.fillMode === 'dress' && obj.dress) {
+          const tmp = document.createElement('canvas');
+          const tctx = tmp.getContext('2d');
+          const text = obj.text || '';
+          const w = Math.ceil(ctx.measureText(text).width);
+          const h = Math.ceil(fontSize * 1.1);
+          tmp.width = w; tmp.height = h;
+          tctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
+          tctx.textBaseline = 'top';
+          tctx.fillStyle = '#000';
+          tctx.fillText(text, 0, 0);
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            const pat = document.createElement('canvas');
+            const pctx = pat.getContext('2d');
+            pat.width = w; pat.height = h;
+            pctx.drawImage(img, 0, 0, w, h);
+            pctx.globalCompositeOperation = 'destination-in';
+            pctx.drawImage(tmp, 0, 0);
+            ctx.drawImage(pat, 0, 0);
+          };
+          img.src = obj.dress;
+        }
+        ctx.restore();
+      }
 
-              if (obj.fillMode === 'gradient' && obj.gradient) {
-                const tmp = document.createElement('canvas'); tmp.width = Math.max(1, Math.round(drawW)); tmp.height = Math.max(1, Math.round(drawH));
-                const tctx = tmp.getContext('2d');
-                const g = tctx.createLinearGradient(0, 0, tmp.width, 0);
-                g.addColorStop(0, obj.gradient[0]); g.addColorStop(1, obj.gradient[1]);
-                tctx.fillStyle = g; tctx.fillRect(0, 0, tmp.width, tmp.height);
-                tctx.globalCompositeOperation = 'destination-in';
-                try { tctx.drawImage(img, 0, 0, tmp.width, tmp.height); } catch (e) { /* ignore */ }
-                ctx.drawImage(tmp, left, top, tmp.width, tmp.height);
-                res();
-              } else if (obj.fillMode === 'dress' && obj.dress) {
-                const dressImg = new Image(); dressImg.crossOrigin = 'anonymous';
-                dressImg.onload = () => {
-                  const tmp = document.createElement('canvas'); tmp.width = Math.max(1, Math.round(drawW)); tmp.height = Math.max(1, Math.round(drawH));
-                  const tctx = tmp.getContext('2d');
-                  try { tctx.drawImage(dressImg, 0, 0, tmp.width, tmp.height); } catch (e) { /* ignore */ }
-                  tctx.globalCompositeOperation = 'destination-in';
-                  try { tctx.drawImage(img, 0, 0, tmp.width, tmp.height); } catch (e) { /* ignore */ }
-                  ctx.drawImage(tmp, left, top, tmp.width, tmp.height);
-                  res();
-                };
-                dressImg.onerror = () => { ctx.drawImage(img, left, top, drawW, drawH); res(); };
-                dressImg.src = obj.dress;
-              } else {
-                ctx.drawImage(img, left, top, drawW, drawH); res();
-              }
-            };
-            img.onerror = () => res();
-            img.src = imgEl.src;
-          });
+      else if (obj.type === 'image') {
+        const imgEl = dom.querySelector('img');
+        if (!imgEl) continue;
+        const drawW = parseFloat(imgEl.style.width) || obj.displayWidth || imgEl.naturalWidth;
+        const drawH = parseFloat(imgEl.style.height) || obj.displayHeight || imgEl.naturalHeight;
+        const overlay = dom.querySelector('.img-overlay-canvas');
+        if (overlay && overlay.style.display === 'block') {
+          ctx.drawImage(overlay, left, top, drawW, drawH);
+        } else {
+          ctx.drawImage(imgEl, left, top, drawW, drawH);
         }
       }
-      const url = out.toDataURL('image/png');
-      const a = document.createElement('a'); a.href = url; a.download = 'design.png'; a.click();
-    } catch (err) {
-      console.error(err);
-      alert('حدث خطأ أثناء التصدير: ' + (err && err.message || err));
     }
-  });
+
+    // حفظ الملف النهائي بدقة المعاينة
+    const url = out.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'design.png';
+    a.click();
+
+  } catch (err) {
+    console.error(err);
+    alert('حدث خطأ أثناء التصدير: ' + (err && err.message || err));
+  }
+});
 
   // --- helpers specific for text ---
   function applyGradientToText(g) {
@@ -1015,6 +1005,7 @@ function updateImageOverlay(obj, wrap) {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
