@@ -327,85 +327,86 @@ document.addEventListener('DOMContentLoaded', () => {
     return dom;
   }
 
-// --- update overlay for image (fixed clarity & full-fit mode) ---
-  function updateImageOverlay(obj, wrap) {
-    if (!wrap) return;
-    const imgEl = wrap.querySelector('img');
-    const overlayCanvas = wrap.querySelector('.img-overlay-canvas');
-    if (!imgEl || !overlayCanvas) return;
+// --- update overlay for image (final HD fix version) ---
+function updateImageOverlay(obj, wrap) {
+  if (!wrap) return;
+  const imgEl = wrap.querySelector('img');
+  const overlayCanvas = wrap.querySelector('.img-overlay-canvas');
+  if (!imgEl || !overlayCanvas) return;
 
-    if (!imgEl.complete || imgEl.naturalWidth === 0 || imgEl.naturalHeight === 0) {
-      imgEl.onload = () => updateImageOverlay(obj, wrap);
-      return;
-    }
-
-    // حساب العرض والارتفاع مع الحفاظ على النسبة الأصلية
-    const ratio = imgEl.naturalWidth / imgEl.naturalHeight;
-    const scale = obj.scale || 1;
-    let dispW = (obj.displayWidth || imgEl.naturalWidth) * scale;
-    let dispH = dispW / ratio;
-
-    // إذا تجاوز الارتفاع الحد، نعيد الضبط
-    const maxH = (obj.displayHeight || imgEl.naturalHeight) * scale;
-    if (dispH > maxH) {
-      dispH = maxH;
-      dispW = dispH * ratio;
-    }
-
-    overlayCanvas.width = dispW;
-    overlayCanvas.height = dispH;
-    overlayCanvas.style.width = dispW + 'px';
-    overlayCanvas.style.height = dispH + 'px';
-
-    const ctx = overlayCanvas.getContext('2d');
-     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.clearRect(0, 0, dispW, dispH);
-
-    const hasGradient = obj.fillMode === 'gradient' && Array.isArray(obj.gradient) && obj.gradient.length >= 2;
-    const hasDress = obj.fillMode === 'dress' && obj.dress;
-    const overlayActive = hasGradient || hasDress;
-
-    if (!overlayActive) {
-      imgEl.style.opacity = '1';
-      overlayCanvas.style.display = 'none';
-      return;
-    }
-
-    imgEl.style.opacity = '0';
-    overlayCanvas.style.display = 'block';
-    overlayCanvas.style.opacity = '1';
-
-    if (hasGradient) {
-      const g = ctx.createLinearGradient(0, 0, dispW, dispH);
-      g.addColorStop(0, obj.gradient[0]);
-      g.addColorStop(1, obj.gradient[1]);
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, dispW, dispH);
-
-      ctx.globalCompositeOperation = 'destination-in';
-      ctx.drawImage(imgEl, 0, 0, dispW, dispH);
-      ctx.globalCompositeOperation = 'source-over';
-    } else if (hasDress) {
-      const dimg = new Image();
-      dimg.crossOrigin = 'anonymous';
-      dimg.onload = () => {
-        try {
-          ctx.drawImage(dimg, 0, 0, dispW, dispH);
-          ctx.globalCompositeOperation = 'destination-in';
-          ctx.drawImage(imgEl, 0, 0, dispW, dispH);
-        } catch (e) {
-          console.error('Draw dress error:', e);
-        }
-        ctx.globalCompositeOperation = 'source-over';
-      };
-      dimg.onerror = () => {
-        overlayCanvas.style.display = 'none';
-        imgEl.style.opacity = '1';
-      };
-      dimg.src = obj.dress;
-    }
+  if (!imgEl.complete || imgEl.naturalWidth === 0 || imgEl.naturalHeight === 0) {
+    imgEl.onload = () => updateImageOverlay(obj, wrap);
+    return;
   }
+
+  const ratio = imgEl.naturalWidth / imgEl.naturalHeight;
+  const scale = obj.scale || 1;
+  let dispW = (obj.displayWidth || imgEl.naturalWidth) * scale;
+  let dispH = dispW / ratio;
+
+  const maxH = (obj.displayHeight || imgEl.naturalHeight) * scale;
+  if (dispH > maxH) {
+    dispH = maxH;
+    dispW = dispH * ratio;
+  }
+
+  // رفع الدقة الداخلية حسب شاشة الجهاز
+  const pixelRatio = window.devicePixelRatio || 1;
+  overlayCanvas.width = dispW * pixelRatio;
+  overlayCanvas.height = dispH * pixelRatio;
+  overlayCanvas.style.width = dispW + 'px';
+  overlayCanvas.style.height = dispH + 'px';
+
+  const ctx = overlayCanvas.getContext('2d');
+  ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.clearRect(0, 0, dispW, dispH);
+
+  const hasGradient = obj.fillMode === 'gradient' && Array.isArray(obj.gradient) && obj.gradient.length >= 2;
+  const hasDress = obj.fillMode === 'dress' && obj.dress;
+  const overlayActive = hasGradient || hasDress;
+
+  if (!overlayActive) {
+    imgEl.style.opacity = '1';
+    overlayCanvas.style.display = 'none';
+    return;
+  }
+
+  imgEl.style.opacity = '0';
+  overlayCanvas.style.display = 'block';
+  overlayCanvas.style.opacity = '1';
+
+  if (hasGradient) {
+    const g = ctx.createLinearGradient(0, 0, dispW, dispH);
+    g.addColorStop(0, obj.gradient[0]);
+    g.addColorStop(1, obj.gradient[1]);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, dispW, dispH);
+
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.drawImage(imgEl, 0, 0, dispW, dispH);
+    ctx.globalCompositeOperation = 'source-over';
+  } else if (hasDress) {
+    const dimg = new Image();
+    dimg.crossOrigin = 'anonymous';
+    dimg.onload = () => {
+      try {
+        ctx.drawImage(dimg, 0, 0, dispW, dispH);
+        ctx.globalCompositeOperation = 'destination-in';
+        ctx.drawImage(imgEl, 0, 0, dispW, dispH);
+      } catch (e) {
+        console.error('Dress draw error:', e);
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    };
+    dimg.onerror = () => {
+      overlayCanvas.style.display = 'none';
+      imgEl.style.opacity = '1';
+    };
+    dimg.src = obj.dress;
+  }
+}
   // --- apply styles to DOM element (text/image) ---
   function applyStyleToDom(obj, dom) {
     if (!dom) return;
@@ -1007,6 +1008,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
