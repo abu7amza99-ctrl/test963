@@ -888,45 +888,42 @@ ctx.translate(offsetX, offsetY);
       }
     }
 
-// حفظ الصورة النهائية (آمن للموقع والتطبيق مع زر تحميل داخل التطبيق)
 const url = out.toDataURL('image/png');
 
-// نتحقق إن كنا داخل WebView (تطبيق) أو متصفح عادي
-if (/webview|wv|android/i.test(navigator.userAgent)) {
-  // داخل التطبيق
-  const win = window.open();
-  if (win) {
-    win.document.write(`
-      <body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;">
-        <img src="${url}" style="width:100%;height:auto;max-width:100%;">
-        <a href="${url}" download="design.png"
-           style="margin-top:20px;padding:12px 20px;
-                  background:#d4af37;color:#000;font-weight:bold;
-                  text-decoration:none;border-radius:10px;
-                  font-size:18px;box-shadow:0 0 10px rgba(0,0,0,0.5);">
-          💾 حفظ الصورة
-        </a>
-      </body>
-    `);
-    win.document.close();
+// التحقق من بيئة التشغيل
+try {
+  // نتحقق إذا كنا داخل تطبيق WebView (مثل WepIntoApp)
+  if (/wv|webview|android/i.test(navigator.userAgent)) {
+    const newWin = window.open('', '_blank');
+    if (newWin) {
+      newWin.document.write(`
+        <body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;">
+          <img src="${url}" style="width:100%;height:auto;max-width:100%;">
+          <a href="${url}" download="design.png"
+             style="margin-top:20px;padding:12px 20px;
+                    background:#d4af37;color:#000;font-weight:bold;
+                    text-decoration:none;border-radius:10px;
+                    font-size:18px;box-shadow:0 0 10px rgba(0,0,0,0.5);">
+            💾 تحميل الصورة
+          </a>
+        </body>
+      `);
+      newWin.document.close();
+    } else {
+      alert('تم إنشاء الصورة، احفظها يدويًا من المعاينة.');
+    }
   } else {
-    alert('تم إنشاء الصورة بنجاح، يمكنك حفظها يدويًا.');
+    // المتصفح العادي
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'design.png';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   }
-} else {
-  // في المتصفح العادي
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'design.png';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+} catch (err) {
+  alert('حدث خطأ أثناء الحفظ: ' + err.message);
 }
-  } catch (err) {
-    console.error(err);
-    alert('حدث خطأ أثناء التصدير: ' + (err && err.message || err));
-  }
-});
-
   // --- helpers specific for text ---
   function applyGradientToText(g) {
     if (!SELECTED || SELECTED.obj.type !== 'text') { alert('اختر نصاً أولاً'); return; }
@@ -1040,6 +1037,7 @@ if (/webview|wv|android/i.test(navigator.userAgent)) {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
