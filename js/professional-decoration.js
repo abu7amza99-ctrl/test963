@@ -888,16 +888,7 @@ ctx.translate(offsetX, offsetY);
       }
     }
 
-
-
-  // --- helpers specific for text ---
-  function applyGradientToText(g) {
-    if (!SELECTED || SELECTED.obj.type !== 'text') { alert('اختر نصاً أولاً'); return; }
-    const { obj, dom } = SELECTED;
-    obj.fillMode = 'gradient';
-    obj.gradient = g;
-    if (dom && dom.classList.contains('dressed')) dom.classList.remove('dressed');
-    dom.style.background = `linear-gradient(90deg, ${g[0]// 🔒 تحميل متوافق مع الموقع والتطبيق (WepIntoApp)
+// 🔒 تحميل متوافق مع الموقع والتطبيق (WepIntoApp)
 const url = out.toDataURL('image/png');
 
 // نتحقق هل المستخدم داخل تطبيق (WebView)
@@ -919,7 +910,16 @@ if (window.navigator.userAgent.includes('wv') || window.location.href.includes('
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-                                                     }}, ${g[1]})`;
+}
+
+  // --- helpers specific for text ---
+  function applyGradientToText(g) {
+    if (!SELECTED || SELECTED.obj.type !== 'text') { alert('اختر نصاً أولاً'); return; }
+    const { obj, dom } = SELECTED;
+    obj.fillMode = 'gradient';
+    obj.gradient = g;
+    if (dom && dom.classList.contains('dressed')) dom.classList.remove('dressed');
+    dom.style.background = `linear-gradient(90deg, ${g[0]}, ${g[1]})`;
     dom.style.webkitBackgroundClip = 'text';
     dom.style.backgroundClip = 'text';
     dom.style.color = 'transparent';
@@ -1025,8 +1025,6 @@ if (window.navigator.userAgent.includes('wv') || window.location.href.includes('
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-
-
 
 
 
