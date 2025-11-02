@@ -888,33 +888,7 @@ ctx.translate(offsetX, offsetY);
       }
     }
 
-// 🔒 طريقة آمنة للعمل على الموقع والتطبيق معاً
-const url = out.toDataURL('image/png');
 
-// إذا التطبيق داخل WebView أو WepIntoApp، نعرض الصورة بدل التحميل المباشر
-if (window.navigator.userAgent.includes('wv') || window.location.href.includes('wepintoapp')) {
-  const win = window.open();
-  if (win) {
-    win.document.write('<title>نتيجة التحميل</title>');
-    win.document.write('<img src="' + url + '" style="max-width:100%;height:auto;display:block;margin:auto;">');
-    win.document.close();
-  } else {
-    alert('تم إنشاء الصورة. يرجى أخذ لقطة شاشة أو الضغط مطولًا للحفظ.');
-  }
-} else {
-  // تحميل مباشر للويب العادي
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'design.png';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-  } catch (err) {
-    console.error(err);
-    alert('حدث خطأ أثناء التصدير: ' + (err && err.message || err));
-  }
-});
 
   // --- helpers specific for text ---
   function applyGradientToText(g) {
@@ -923,7 +897,29 @@ if (window.navigator.userAgent.includes('wv') || window.location.href.includes('
     obj.fillMode = 'gradient';
     obj.gradient = g;
     if (dom && dom.classList.contains('dressed')) dom.classList.remove('dressed');
-    dom.style.background = `linear-gradient(90deg, ${g[0]}, ${g[1]})`;
+    dom.style.background = `linear-gradient(90deg, ${g[0]// 🔒 تحميل متوافق مع الموقع والتطبيق (WepIntoApp)
+const url = out.toDataURL('image/png');
+
+// نتحقق هل المستخدم داخل تطبيق (WebView)
+if (window.navigator.userAgent.includes('wv') || window.location.href.includes('wepintoapp')) {
+  // داخل التطبيق: عرض الصورة بدل التحميل المباشر
+  const win = window.open();
+  if (win) {
+    win.document.write('<title>نتيجة التحميل</title>');
+    win.document.write('<img src="' + url + '" style="max-width:100%;height:auto;display:block;margin:auto;">');
+    win.document.close();
+  } else {
+    alert('تم إنشاء الصورة بنجاح. اضغط مطولًا على الصورة لحفظها.');
+  }
+} else {
+  // في المتصفح العادي: تحميل مباشر
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'design.png';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+                                                     }}, ${g[1]})`;
     dom.style.webkitBackgroundClip = 'text';
     dom.style.backgroundClip = 'text';
     dom.style.color = 'transparent';
@@ -1029,6 +1025,7 @@ if (window.navigator.userAgent.includes('wv') || window.location.href.includes('
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
