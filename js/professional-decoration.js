@@ -888,29 +888,18 @@ ctx.translate(offsetX, offsetY);
       }
     }
 
-// 🔒 تحميل متوافق مع الموقع والتطبيق (WepIntoApp)
-const url = out.toDataURL('image/png');
+    // حفظ الصورة النهائية
+    const url = out.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'design.png';
+    a.click();
 
-// نتحقق هل المستخدم داخل تطبيق (WebView)
-if (window.navigator.userAgent.includes('wv') || window.location.href.includes('wepintoapp')) {
-  // داخل التطبيق: عرض الصورة بدل التحميل المباشر
-  const win = window.open();
-  if (win) {
-    win.document.write('<title>نتيجة التحميل</title>');
-    win.document.write('<img src="' + url + '" style="max-width:100%;height:auto;display:block;margin:auto;">');
-    win.document.close();
-  } else {
-    alert('تم إنشاء الصورة بنجاح. اضغط مطولًا على الصورة لحفظها.');
+  } catch (err) {
+    console.error(err);
+    alert('حدث خطأ أثناء التصدير: ' + (err && err.message || err));
   }
-} else {
-  // في المتصفح العادي: تحميل مباشر
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'design.png';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
+});
 
   // --- helpers specific for text ---
   function applyGradientToText(g) {
