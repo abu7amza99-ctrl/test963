@@ -895,19 +895,69 @@ ctx.translate(offsetX, offsetY);
       }
     }
 
-    // حفظ الصورة النهائية
-    const url = out.toDataURL('image/png');
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'design.png';
-    a.click();
+try {
+  const url = out.toDataURL('image/png');
 
-  } catch (err) {
-    console.error(err);
-    alert('حدث خطأ أثناء التصدير: ' + (err && err.message || err));
-  }
-});
+  // إنشاء طبقة عرض للصورة داخل نفس الصفحة
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  `;
 
+  const img = document.createElement('img');
+  img.src = url;
+  img.style.cssText = `
+    max-width: 90%;
+    max-height: 70%;
+    border: 4px solid gold;
+    border-radius: 12px;
+    box-shadow: 0 0 25px #000;
+    background: white;
+  `;
+
+  const btn = document.createElement('a');
+  btn.href = url;
+  btn.download = 'design.png';
+  btn.textContent = 'تحميل الصورة';
+  btn.style.cssText = `
+    margin-top: 20px;
+    background: gold;
+    color: black;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 18px;
+  `;
+
+  const close = document.createElement('button');
+  close.textContent = 'إغلاق';
+  close.style.cssText = `
+    margin-top: 12px;
+    background: crimson;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+  `;
+  close.onclick = () => overlay.remove();
+
+  overlay.appendChild(img);
+  overlay.appendChild(btn);
+  overlay.appendChild(close);
+  document.body.appendChild(overlay);
+} catch (err) {
+  console.error(err);
+  alert('حدث خطأ أثناء التحميل: ' + (err && err.message || err));
+}
   // --- helpers specific for text ---
   function applyGradientToText(g) {
     if (!SELECTED || SELECTED.obj.type !== 'text') { alert('اختر نصاً أولاً'); return; }
@@ -1021,17 +1071,3 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-
-
-
-
-
-
-
-
-
-
-
-
-
-
