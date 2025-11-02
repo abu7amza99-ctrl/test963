@@ -888,28 +888,19 @@ ctx.translate(offsetX, offsetY);
       }
     }
 
-// حفظ الصورة النهائية (آمن للموقع والتطبيق)
-const url = out.toDataURL('image/png');
+    // حفظ الصورة النهائية
+    const url = out.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'design.png';
+    a.click();
 
-try {
-  // فتح الصورة في صفحة جديدة (آمن داخل WebView والتطبيق)
-  const newTab = window.open();
-  if (newTab) {
-    newTab.document.write(`
-      <html><head><title>معاينة التصميم</title></head>
-      <body style="background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;">
-        <img src="${url}" style="max-width:90%;max-height:80%;border:4px solid gold;border-radius:12px;box-shadow:0 0 25px rgba(0,0,0,0.8);">
-        <a href="${url}" download="design.png" style="margin-top:20px;background:gold;color:black;padding:12px 22px;border-radius:10px;font-weight:bold;text-decoration:none;">تحميل الصورة</a>
-      </body></html>
-    `);
-    newTab.document.close();
-  } else {
-    alert('يرجى السماح بفتح النوافذ المنبثقة لعرض الصورة.');
+  } catch (err) {
+    console.error(err);
+    alert('حدث خطأ أثناء التصدير: ' + (err && err.message || err));
   }
-} catch (err) {
-  console.error(err);
-  alert('حدث خطأ أثناء التصيير: ' + (err && err.message || err));
-}
+});
+
   // --- helpers specific for text ---
   function applyGradientToText(g) {
     if (!SELECTED || SELECTED.obj.type !== 'text') { alert('اختر نصاً أولاً'); return; }
@@ -1023,7 +1014,6 @@ try {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-
 
 
 
