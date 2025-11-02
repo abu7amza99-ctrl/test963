@@ -600,66 +600,59 @@ function updateImageOverlay(obj, wrap) {
   }
 
   // --- Add element (text/image) ---
-if (btnAdd) btnAdd.addEventListener('click', () => {
-  if (!modeSelect) return;
+  if (btnAdd) btnAdd.addEventListener('click', () => {
+    if (!modeSelect) return;
+    if (modeSelect.value === 'text') {
+      const txt = (textInput && textInput.value || '').trim();
+      if (!txt) return alert('أدخل نصًا أولاً');
+      const obj = createElementObject('text', { text: txt, font: (AVAILABLE_FONTS[0] ? AVAILABLE_FONTS[0].name : 'ReemKufiLocalFallback') });
+      const dom = renderElement(obj);
+      const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
+      if (lastDom) selectElement(lastDom, obj);
+      if (textInput) textInput.value = '';
+    } else {
+      const f = fileImage && fileImage.files && fileImage.files[0];
+      if (!f) return alert('اختر صورة شفافة من جهازك');
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const dataUrl = ev.target.result;
+        const preload = new Image();
+        preload.onload = () => {
+          const obj = createElementObject('image', { img: dataUrl });
+          const editorW = Math.max(200, editorCanvas.clientWidth || 300);
+          const canvasPadding = 40;
+          const maxw = Math.min(Math.max(200, editorW - canvasPadding), preload.naturalWidth || editorW);
+          obj.displayWidth = Math.min(480, maxw);
+          obj.displayHeight = Math.round(obj.displayWidth * (preload.naturalHeight / preload.naturalWidth));
 
-  if (modeSelect.value === 'text') {
-    const txt = (textInput && textInput.value || '').trim();
-    if (!txt) return alert('أدخل نصًا أولاً');
-    const obj = createElementObject('text', {
-      text: txt,
-      font: (AVAILABLE_FONTS[0] ? AVAILABLE_FONTS[0].name : 'ReemKufiLocalFallback')
-    });
-    const dom = renderElement(obj);
-    const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
-    if (lastDom) selectElement(lastDom, obj);
-    if (textInput) textInput.value = '';
-    return;
-  }
-
-  // وضع تحميل الصورة
-  const f = fileImage && fileImage.files && fileImage.files[0];
-  if (!f) return alert('اختر صورة شفافة من جهازك');
-
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const dataUrl = ev.target.result;
-
-    // إنشاء العنصر فورًا لضمان العرض في تطبيق WebView
-    const obj = createElementObject('image', { img: dataUrl });
-    const dom = renderElement(obj);
-
-    const centerX = Math.max(0, (editorCanvas.clientWidth - 300) / 2);
-    const centerY = Math.max(0, (editorCanvas.clientHeight - 300) / 2);
-    obj.x = centerX;
-    obj.y = centerY;
-    dom.style.left = centerX + 'px';
-    dom.style.top = centerY + 'px';
-
-    // تحديث فوري للعرض
-    const img = dom.querySelector('img');
-    img.onload = () => {
-      const w = Math.min(480, img.naturalWidth);
-      const h = w * (img.naturalHeight / img.naturalWidth);
-      obj.displayWidth = w;
-      obj.displayHeight = h;
-      img.style.width = w + 'px';
-      img.style.height = h + 'px';
-      updateImageOverlay(obj, dom);
-      selectElement(dom, obj);
-    };
-
-    // تحديث عرض مباشر في تطبيقات WebView
-    requestAnimationFrame(() => {
-      updateImageOverlay(obj, dom);
-      selectElement(dom, obj);
-    });
-  };
-  reader.readAsDataURL(f);
-
-  // تصفير حقل الصورة لتعمل إعادة تحميل لاحقاً
-  if (fileImage) fileImage.value = '';
-});
+          const dom = renderElement(obj);
+          const centerX = Math.max(0, (editorCanvas.clientWidth - obj.displayWidth) / 2);
+          const centerY = Math.max(0, (editorCanvas.clientHeight - obj.displayHeight) / 2);
+          obj.x = centerX;
+          obj.y = centerY;
+          dom.style.left = centerX + 'px';
+          dom.style.top = centerY + 'px';
+          if (DRESSES_LOADED && AVAILABLE_DRESS.length && obj.fillMode === 'dress') {
+            applySmartDressToObj(obj, dom);
+          }
+          const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
+          if (lastDom) selectElement(lastDom, obj);
+        };
+        preload.onerror = () => {
+          const obj = createElementObject('image', { img: dataUrl });
+          const dom = renderElement(obj);
+          if (DRESSES_LOADED && AVAILABLE_DRESS.length && obj.fillMode === 'dress') {
+            applySmartDressToObj(obj, dom);
+          }
+          const lastDom = editorCanvas.querySelector(`[data-id="${obj.id}"]`);
+          if (lastDom) selectElement(lastDom, obj);
+        };
+        preload.src = dataUrl;
+      };
+      reader.readAsDataURL(f);
+      if (fileImage) fileImage.value = '';
+    }
+  });
 
   // --- delete selected ---
   if (deleteSelected) deleteSelected.addEventListener('click', () => {
@@ -813,6 +806,10 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
     const scaleX = desiredW / W;
     const scaleY = desiredH / H;
     ctx.scale(scaleX, scaleY);
+// ضبط تمركز الصورة تماماً في المنتصف
+const offsetX = (desiredW / scaleX - W) / 2;
+const offsetY = (desiredH / scaleY - H) / 2;
+ctx.translate(offsetX, offsetY);
      // نحافظ على نفس تمركز المحتوى داخل الصورة عند التحميل
 const offsetX = (desiredW / scaleX - W) / 2;
 const offsetY = (desiredH / scaleY - H) / 2;
@@ -895,71 +892,19 @@ ctx.translate(offsetX, offsetY);
       }
     }
 
-try {
-  out.toBlob(blob => {
-    const url = URL.createObjectURL(blob);
+    // حفظ الصورة النهائية
+    const url = out.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'design.png';
+    a.click();
 
-    // إنشاء طبقة عرض للصورة داخل نفس الصفحة
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    `;
+  } catch (err) {
+    console.error(err);
+    alert('حدث خطأ أثناء التصدير: ' + (err && err.message || err));
+  }
+});
 
-    const img = document.createElement('img');
-    img.src = url;
-    img.style.cssText = `
-      max-width: 90%;
-      max-height: 70%;
-      border: 4px solid gold;
-      border-radius: 12px;
-      box-shadow: 0 0 25px #000;
-      background: white;
-    `;
-
-    const btn = document.createElement('a');
-    btn.href = url;
-    btn.download = 'design.png';
-    btn.textContent = 'تحميل الصورة';
-    btn.style.cssText = `
-      margin-top: 20px;
-      background: gold;
-      color: black;
-      padding: 10px 20px;
-      border-radius: 12px;
-      font-weight: bold;
-      text-decoration: none;
-      font-size: 18px;
-    `;
-
-    const close = document.createElement('button');
-    close.textContent = 'إغلاق';
-    close.style.cssText = `
-      margin-top: 12px;
-      background: crimson;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: bold;
-    `;
-    close.onclick = () => overlay.remove();
-
-    overlay.appendChild(img);
-    overlay.appendChild(btn);
-    overlay.appendChild(close);
-    document.body.appendChild(overlay);
-  }, 'image/png');
-} catch (err) {
-  console.error(err);
-  alert('حدث خطأ أثناء التحميل: ' + (err && err.message || err));
-}
   // --- helpers specific for text ---
   function applyGradientToText(g) {
     if (!SELECTED || SELECTED.obj.type !== 'text') { alert('اختر نصاً أولاً'); return; }
@@ -1073,4 +1018,16 @@ try {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
+
+
+
+
+
+
+
+
+
+
+
 
