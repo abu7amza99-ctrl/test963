@@ -513,7 +513,8 @@ function updateImageOverlay(obj, wrap) {
       if (ev.target === handle) return;
       dragging = true;
       sx = ev.clientX; sy = ev.clientY;
-      sl = parseFloat(dom.style.left) || 0;
+
+                               sl = parseFloat(dom.style.left) || 0;
       st = parseFloat(dom.style.top) || 0;
       try { dom.setPointerCapture && dom.setPointerCapture(ev.pointerId); } catch (e) { /* ignore */ }
       ev.preventDefault();
@@ -774,49 +775,50 @@ function updateImageOverlay(obj, wrap) {
   }
 
 // --- export / download as PNG (Perfect preview match) ---
-
 if (downloadImage) downloadImage.addEventListener('click', async () => {
   try {
+    // نأخذ أبعاد المعاينة الأصلية
     const rect = editorCanvas.getBoundingClientRect();
     const W = Math.round(rect.width);
     const H = Math.round(rect.height);
 
-    const desiredW = parseInt(document.getElementById('widthInput')?.value) || W;
-    const desiredH = parseInt(document.getElementById('heightInput')?.value) || H;
+    // نستخدم القيم المطلوبة إن وجدت
+    const desiredW = parseInt(document.getElementById('widthInput').value) || W;
+    const desiredH = parseInt(document.getElementById('heightInput').value) || H;
 
+    // إنشاء كانفس بنفس نسب المعاينة
     const out = document.createElement('canvas');
     const ctx = out.getContext('2d');
 
+    // دقة الشاشة (للحفاظ على الجودة)
     const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
     out.width = desiredW * pixelRatio;
     out.height = desiredH * pixelRatio;
     out.style.width = desiredW + 'px';
     out.style.height = desiredH + 'px';
 
+    // نضبط المقياس بنفس نسب المعاينة تماماً
     ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     ctx.clearRect(0, 0, desiredW, desiredH);
 
-    const rectPreview = editorCanvas.getBoundingClientRect();
-    const previewW = Math.round(rectPreview.width);
-    const previewH = Math.round(rectPreview.height);
-
-    // maintain layout scale
-    const scaleX = desiredW / previewW;
-    const scaleY = desiredH / previewH;
+    // نحافظ على الرسم بنفس الإحداثيات الفعلية للمعاينة (بدون أي تغيير)
+    const scaleX = desiredW / W;
+    const scaleY = desiredH / H;
     ctx.scale(scaleX, scaleY);
+     // نحافظ على نفس تمركز المحتوى داخل الصورة عند التحميل
+const offsetX = (desiredW / scaleX - W) / 2;
+const offsetY = (desiredH / scaleY - H) / 2;
+ctx.translate(offsetX, offsetY);
 
-    // center content so exported matches preview centering
-    const offsetX = 0; // preview coordinates already used below
-    const offsetY = 0;
-    ctx.translate(offsetX, offsetY);
-
+    // نرسم العناصر بنفس مكانها ودقتها
     const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
     for (const dom of domChildren) {
       const id = dom.dataset.id;
       const obj = ELEMENTS.find(e => e.id === id);
       if (!obj) continue;
+
       const left = parseFloat(dom.style.left) || obj.x || 0;
       const top = parseFloat(dom.style.top) || obj.y || 0;
 
@@ -828,6 +830,7 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
         ctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
+
         if (obj.fillMode === 'solid' || !obj.gradient) {
           ctx.fillStyle = obj.color || '#000';
           if (obj.stroke && obj.stroke > 0) {
@@ -837,18 +840,16 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
           }
           ctx.fillText(obj.text, 0, 0);
         } else if (obj.fillMode === 'gradient' && obj.gradient) {
-          const g = ctx.createLinearGradient(0, 0, Math.max(100, obj.text.length * fontSize), 0);
+          const g = ctx.createLinearGradient(0, 0, obj.text.length * fontSize, 0);
           g.addColorStop(0, obj.gradient[0]);
           g.addColorStop(1, obj.gradient[1]);
           ctx.fillStyle = g;
           ctx.fillText(obj.text, 0, 0);
         } else if (obj.fillMode === 'dress' && obj.dress) {
-          // draw dress using temporary canvas
           const tmp = document.createElement('canvas');
           const tctx = tmp.getContext('2d');
           const text = obj.text || '';
-          tctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
-          const w = Math.ceil(tctx.measureText(text).width) || Math.ceil(fontSize * text.length * 0.6);
+          const w = Math.ceil(ctx.measureText(text).width);
           const h = Math.ceil(fontSize * 1.1);
           tmp.width = w;
           tmp.height = h;
@@ -856,90 +857,23 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
           tctx.textBaseline = 'top';
           tctx.fillStyle = '#000';
           tctx.fillText(text, 0, 0);
-          /* try to draw dress image */
-          try {
+          await new Promise((res) => {
             const img = new Image();
             img.crossOrigin = 'anonymous';
-            await new Promise((res) => {
-              img.onload = () => {
-                const pat = document.createElement('canvas');
-                const pctx = pat.getContext('2d');
-                pat.width = w; pat.height = h;
-                pctx.drawImage(img, 0, 0, w, h);
-                pctx.globalCompositeOperation = 'destination-in';
-                pctx.drawImage(tmp, 0, 0);
-                ctx.drawImage(pat, 0, 0);
-                res();
-              };
-              img.onerror = () => res();
-              img.src = obj.dress;
-            });
-          } catch (e) { /* ignore */ }
+            img.onload = () => {
+              const pat = document.createElement('canvas');
+              const pctx = pat.getContext('2d');
+              pat.width = w; pat.height = h;
+              pctx.drawImage(img, 0, 0, w, h);
+              pctx.globalCompositeOperation = 'destination-in';
+              pctx.drawImage(tmp, 0, 0);
+              ctx.drawImage(pat, 0, 0);
+              res();
+            };
+            img.onerror = res;
+            img.src = obj.dress;
+          });
         }
-        ctx.restore();
-      } else if (obj.type === 'image') {
-        const imgEl = dom.querySelector('img');
-        if (!imgEl) continue;
-        const drawW = parseFloat(imgEl.style.width) || obj.displayWidth || imgEl.naturalWidth;
-        const drawH = parseFloat(imgEl.style.height) || obj.displayHeight || imgEl.naturalHeight;
-        const overlay = dom.querySelector('.img-overlay-canvas');
-        if (overlay && overlay.style.display === 'block') {
-          // draw overlay canvas contents to export canvas
-          try {
-            ctx.drawImage(overlay, left, top, drawW, drawH);
-          } catch (e) {
-            // fallback to image element
-            ctx.drawImage(imgEl, left, top, drawW, drawH);
-          }
-        } else {
-          ctx.drawImage(imgEl, left, top, drawW, drawH);
-        }
-      }
-    }
-
-    // Use Blob + objectURL (better for WebViews)
-    out.toBlob((blob) => {
-      if (!blob) return alert('فشل إنشاء الصورة، حاول مجددًا.');
-      const objectUrl = URL.createObjectURL(blob);
-
-      // Try to open preview in new window/tab (works on browsers or permissive WebViews)
-      const newWin = window.open('', '_blank');
-      if (!newWin || newWin.closed) {
-        // fallback: show inline overlay with download link
-        const overlay = document.createElement('div');
-        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;';
-        const img = document.createElement('img');
-        img.src = objectUrl;
-        img.style.cssText = 'max-width:90%;max-height:75vh;border:4px solid gold;border-radius:12px;background:#fff;';
-        const a = document.createElement('a');
-        a.href = objectUrl; a.download = 'design.png'; a.textContent = 'تحميل الصورة';
-        a.style.cssText = 'margin-top:16px;background:gold;color:#000;padding:10px 18px;border-radius:12px;text-decoration:none;font-weight:700;';
-        const close = document.createElement('button');
-        close.textContent = 'إغلاق'; close.style.cssText = 'margin-top:12px;background:#c0392b;color:#fff;padding:8px 14px;border-radius:8px;border:none;';
-        close.onclick = () => { overlay.remove(); setTimeout(()=>URL.revokeObjectURL(objectUrl),2000); };
-        overlay.appendChild(img); overlay.appendChild(a); overlay.appendChild(close);
-        document.body.appendChild(overlay);
-        return;
-      }
-
-      try {
-        const html = `<!doctype html><html lang="ar"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>معاينة</title><style>body{margin:0;background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;text-align:center}img{max-width:90%;max-height:75vh;border:4px solid gold;border-radius:12px;background:#fff}a{margin-top:16px;display:inline-block;background:gold;color:#000;text-decoration:none;padding:10px 18px;border-radius:12px;font-weight:700}</style></head><body><h3>معاينة التصميم</h3><img src="${objectUrl}" alt="design"><a href="${objectUrl}" download="design.png">تحميل الصورة</a></body></html>`;
-        newWin.document.open();
-        newWin.document.write(html);
-        newWin.document.close();
-      } catch (e) {
-        try { newWin.location.href = objectUrl; } catch (err) { alert('تعذر فتح المعاينة — جرب على المتصفح مباشرة.'); URL.revokeObjectURL(objectUrl); }
-      }
-
-      // revoke later as safety
-      setTimeout(()=>{ try{ URL.revokeObjectURL(objectUrl);}catch(e){} }, 30000);
-    }, 'image/png');
-  } catch (err) {
-    console.error(err);
-    alert('حدث خطأ أثناء التصدير: ' + (err && err.message || err));
-  }
-});
-}
         ctx.restore();
       } else if (obj.type === 'image') {
         const imgEl = dom.querySelector('img');
@@ -1081,16 +1015,4 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-
-
-
-
-
-
-
-
-
-
-
-
-
+       
