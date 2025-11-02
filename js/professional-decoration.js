@@ -773,45 +773,31 @@ function updateImageOverlay(obj, wrap) {
     if (obj.type === 'text' && obj.fillMode === 'dress') applyStyleToDom(obj, dom);
   }
 
-// --- export / download as PNG (Perfect preview match) ---
+   // --- export / download as PNG (Perfect preview match) ---
 if (downloadImage) downloadImage.addEventListener('click', async () => {
   try {
-    // نأخذ أبعاد المعاينة الأصلية
     const rect = editorCanvas.getBoundingClientRect();
     const W = Math.round(rect.width);
     const H = Math.round(rect.height);
 
-    // نستخدم القيم المطلوبة إن وجدت
     const desiredW = parseInt(document.getElementById('widthInput').value) || W;
     const desiredH = parseInt(document.getElementById('heightInput').value) || H;
 
-    // إنشاء كانفس بنفس نسب المعاينة
     const out = document.createElement('canvas');
     const ctx = out.getContext('2d');
 
-    // دقة الشاشة (للحفاظ على الجودة)
     const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
     out.width = desiredW * pixelRatio;
     out.height = desiredH * pixelRatio;
-    out.style.width = desiredW + 'px';
-    out.style.height = desiredH + 'px';
-
-    // نضبط المقياس بنفس نسب المعاينة تماماً
     ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     ctx.clearRect(0, 0, desiredW, desiredH);
 
-    // نحافظ على الرسم بنفس الإحداثيات الفعلية للمعاينة (بدون أي تغيير)
     const scaleX = desiredW / W;
     const scaleY = desiredH / H;
     ctx.scale(scaleX, scaleY);
-     // نحافظ على نفس تمركز المحتوى داخل الصورة عند التحميل
-const offsetX = (desiredW / scaleX - W) / 2;
-const offsetY = (desiredH / scaleY - H) / 2;
-ctx.translate(offsetX, offsetY);
 
-    // نرسم العناصر بنفس مكانها ودقتها
     const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
     for (const dom of domChildren) {
       const id = dom.dataset.id;
@@ -832,11 +818,6 @@ ctx.translate(offsetX, offsetY);
 
         if (obj.fillMode === 'solid' || !obj.gradient) {
           ctx.fillStyle = obj.color || '#000';
-          if (obj.stroke && obj.stroke > 0) {
-            ctx.lineWidth = obj.stroke;
-            ctx.strokeStyle = obj.strokeColor || '#000';
-            ctx.strokeText(obj.text, 0, 0);
-          }
           ctx.fillText(obj.text, 0, 0);
         } else if (obj.fillMode === 'gradient' && obj.gradient) {
           const g = ctx.createLinearGradient(0, 0, obj.text.length * fontSize, 0);
@@ -845,28 +826,13 @@ ctx.translate(offsetX, offsetY);
           ctx.fillStyle = g;
           ctx.fillText(obj.text, 0, 0);
         } else if (obj.fillMode === 'dress' && obj.dress) {
-          const tmp = document.createElement('canvas');
-          const tctx = tmp.getContext('2d');
-          const text = obj.text || '';
-          const w = Math.ceil(ctx.measureText(text).width);
-          const h = Math.ceil(fontSize * 1.1);
-          tmp.width = w;
-          tmp.height = h;
-          tctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
-          tctx.textBaseline = 'top';
-          tctx.fillStyle = '#000';
-          tctx.fillText(text, 0, 0);
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
           await new Promise((res) => {
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
             img.onload = () => {
-              const pat = document.createElement('canvas');
-              const pctx = pat.getContext('2d');
-              pat.width = w; pat.height = h;
-              pctx.drawImage(img, 0, 0, w, h);
-              pctx.globalCompositeOperation = 'destination-in';
-              pctx.drawImage(tmp, 0, 0);
-              ctx.drawImage(pat, 0, 0);
+              const pat = ctx.createPattern(img, 'repeat');
+              ctx.fillStyle = pat;
+              ctx.fillText(obj.text, 0, 0);
               res();
             };
             img.onerror = res;
@@ -876,10 +842,9 @@ ctx.translate(offsetX, offsetY);
         ctx.restore();
       } else if (obj.type === 'image') {
         const imgEl = dom.querySelector('img');
-        if (!imgEl) continue;
+        const overlay = dom.querySelector('.img-overlay-canvas');
         const drawW = parseFloat(imgEl.style.width) || obj.displayWidth || imgEl.naturalWidth;
         const drawH = parseFloat(imgEl.style.height) || obj.displayHeight || imgEl.naturalHeight;
-        const overlay = dom.querySelector('.img-overlay-canvas');
         if (overlay && overlay.style.display === 'block') {
           ctx.drawImage(overlay, left, top, drawW, drawH);
         } else {
@@ -888,42 +853,39 @@ ctx.translate(offsetX, offsetY);
       }
     }
 
-const url = out.toDataURL('image/png');
+    const url = out.toDataURL('image/png');
 
-// التحقق من بيئة التشغيل
-try {
-  // نتحقق إذا كنا داخل تطبيق WebView (مثل WepIntoApp)
-  if (/wv|webview|android/i.test(navigator.userAgent)) {
-    const newWin = window.open('', '_blank');
-    if (newWin) {
-      newWin.document.write(`
-        <body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;">
-          <img src="${url}" style="width:100%;height:auto;max-width:100%;">
-          <a href="${url}" download="design.png"
-             style="margin-top:20px;padding:12px 20px;
-                    background:#d4af37;color:#000;font-weight:bold;
-                    text-decoration:none;border-radius:10px;
-                    font-size:18px;box-shadow:0 0 10px rgba(0,0,0,0.5);">
-            💾 تحميل الصورة
-          </a>
-        </body>
-      `);
-      newWin.document.close();
+    // ✅ هذا الجزء هو الحل الجذري لمشكلة WebIntoApp
+    if (/wv|webview|android/i.test(navigator.userAgent)) {
+      const newWin = window.open('', '_blank');
+      if (newWin) {
+        newWin.document.write(`
+          <body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;">
+            <img src="${url}" style="width:100%;max-width:100%;">
+            <a href="${url}" download="design.png"
+               style="margin-top:20px;padding:12px 20px;background:#d4af37;color:#000;font-weight:bold;
+                      text-decoration:none;border-radius:10px;font-size:18px;box-shadow:0 0 10px rgba(0,0,0,0.5);">
+              💾 تحميل الصورة
+            </a>
+          </body>
+        `);
+        newWin.document.close();
+      } else {
+        alert('تم إنشاء الصورة، احفظها يدويًا من المعاينة.');
+      }
     } else {
-      alert('تم إنشاء الصورة، احفظها يدويًا من المعاينة.');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'design.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     }
-  } else {
-    // المتصفح العادي
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'design.png';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+  } catch (err) {
+    alert('حدث خطأ أثناء الحفظ: ' + err.message);
   }
-} catch (err) {
-  alert('حدث خطأ أثناء الحفظ: ' + err.message);
-}
+});
+
   // --- helpers specific for text ---
   function applyGradientToText(g) {
     if (!SELECTED || SELECTED.obj.type !== 'text') { alert('اختر نصاً أولاً'); return; }
@@ -1037,19 +999,3 @@ try {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
