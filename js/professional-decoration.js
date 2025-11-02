@@ -888,13 +888,27 @@ ctx.translate(offsetX, offsetY);
       }
     }
 
-    // حفظ الصورة النهائية
+// حفظ الصورة النهائية (آمن للموقع والتطبيق)
     const url = out.toDataURL('image/png');
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'design.png';
-    a.click();
 
+    // في المتصفح العادي نحفظ كملف، وفي التطبيق نفتح نافذة عرض
+    if (/webview|wv|android/i.test(navigator.userAgent)) {
+      // إذا التطبيق (WebView)
+      const win = window.open();
+      if (win) {
+        win.document.write(`<img src="${url}" style="width:100%;height:auto;display:block;margin:auto;">`);
+      } else {
+        alert('تم إنشاء الصورة بنجاح، لكن المتصفح لا يسمح بفتحها تلقائياً.');
+      }
+    } else {
+      // في الموقع العادي
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'design.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
   } catch (err) {
     console.error(err);
     alert('حدث خطأ أثناء التصدير: ' + (err && err.message || err));
@@ -1014,6 +1028,7 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
