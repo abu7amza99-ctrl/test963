@@ -888,13 +888,28 @@ ctx.translate(offsetX, offsetY);
       }
     }
 
-    // حفظ الصورة النهائية
-    const url = out.toDataURL('image/png');
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'design.png';
-    a.click();
+// 🔒 طريقة آمنة للعمل على الموقع والتطبيق معاً
+const url = out.toDataURL('image/png');
 
+// إذا التطبيق داخل WebView أو WepIntoApp، نعرض الصورة بدل التحميل المباشر
+if (window.navigator.userAgent.includes('wv') || window.location.href.includes('wepintoapp')) {
+  const win = window.open();
+  if (win) {
+    win.document.write('<title>نتيجة التحميل</title>');
+    win.document.write('<img src="' + url + '" style="max-width:100%;height:auto;display:block;margin:auto;">');
+    win.document.close();
+  } else {
+    alert('تم إنشاء الصورة. يرجى أخذ لقطة شاشة أو الضغط مطولًا للحفظ.');
+  }
+} else {
+  // تحميل مباشر للويب العادي
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'design.png';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
   } catch (err) {
     console.error(err);
     alert('حدث خطأ أثناء التصدير: ' + (err && err.message || err));
@@ -1014,6 +1029,7 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
