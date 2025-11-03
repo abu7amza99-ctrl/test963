@@ -1015,16 +1015,31 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-// حل نهائي لتفادي خطأ WebView Download (بدون صلاحيات)
-document.addEventListener('click', function(e) {
+// --- منع كراش WebView أثناء تحميل الصورة ---
+document.addEventListener('click', function (e) {
   const btn = e.target.closest('#downloadImage');
   if (!btn) return;
 
-  // نتحقق إذا آخر تحميل كان بصيغة base64
   const imgLink = document.querySelector('a[download]');
-  if (imgLink && imgLink.href && imgLink.href.startsWith('data:image')) {
+  if (!imgLink || !imgLink.href) return;
+
+  const url = imgLink.href;
+
+  // التحقق إذا التطبيق داخل WebView أو wepintoapp
+  const inWebView =
+    navigator.userAgent.toLowerCase().includes('wv') ||
+    window.location.href.startsWith('file://');
+
+  if (inWebView && url.startsWith('data:image')) {
     e.preventDefault();
-    window.open(imgLink.href, '_blank');
-    alert('تم فتح الصورة — احفظها يدويًا بالضغط المطوّل');
+    window.open(url, '_blank');
+    alert('تم فتح الصورة — اضغط مطولًا لحفظها يدويًا');
+    return;
   }
+
+  // تحميل عادي إذا كان في متصفح طبيعي
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'design.png';
+  a.click();
 });
