@@ -1015,4 +1015,38 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-       
+// --- حل مشكلة التحميل في تطبيق WebView (APK) بدون التأثير على الموقع ---
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('#downloadImage');
+  if (!btn) return;
+
+  // مراقبة التحميل لمنع تعطل WebView
+  setTimeout(() => {
+    const aTags = document.getElementsByTagName('a');
+    for (let a of aTags) {
+      if (a.download && a.href.startsWith('data:image/png')) {
+        try {
+          // إنشاء رابط آمن للتحميل في WebView
+          const blob = dataURLtoBlob(a.href);
+          const blobUrl = URL.createObjectURL(blob);
+          a.href = blobUrl;
+          a.target = '_blank';
+        } catch (err) {
+          console.warn('WebView-safe download fallback', err);
+          window.open(a.href, '_blank');
+        }
+      }
+    }
+  }, 500);
+
+  function dataURLtoBlob(dataurl) {
+    const arr = dataurl.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) u8arr[n] = bstr.charCodeAt(n);
+    return new Blob([u8arr], { type: mime });
+  }
+});
+
