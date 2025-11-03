@@ -1017,7 +1017,7 @@ ctx.translate(offsetX, offsetY);
 }); // end DOMContentLoaded
 // --- حل مشكلة التحميل في تطبيق WebView (APK) بدون التأثير على الموقع ---
 document.addEventListener('click', function (e) {
-  const btn = e.target.closest('#downloadImage');
+  const btn = e.target.closest('#DownloadImage');
   if (!btn) return;
 
   // مراقبة التحميل لمنع تعطل WebView
