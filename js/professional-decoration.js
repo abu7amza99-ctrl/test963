@@ -1015,7 +1015,7 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-// --- منع كراش WebView أثناء تحميل الصورة ---
+// --- منع أي تحميل مباشر داخل WebView (حل نهائي لمشكلة الكراش) ---
 document.addEventListener('click', function (e) {
   const btn = e.target.closest('#downloadImage');
   if (!btn) return;
@@ -1025,19 +1025,20 @@ document.addEventListener('click', function (e) {
 
   const url = imgLink.href;
 
-  // التحقق إذا التطبيق داخل WebView أو wepintoapp
-  const inWebView =
-    navigator.userAgent.toLowerCase().includes('wv') ||
-    window.location.href.startsWith('file://');
-
-  if (inWebView && url.startsWith('data:image')) {
+  // إذا الرابط base64 نمنع التحميل تمامًا قبل ما يوصل للويب فيو
+  if (url.startsWith('data:image')) {
     e.preventDefault();
-    window.open(url, '_blank');
-    alert('تم فتح الصورة — اضغط مطولًا لحفظها يدويًا');
+    try {
+      const win = window.open();
+      win.document.write('<img src="' + url + '" style="max-width:100%;height:auto;" />');
+      alert('تم فتح الصورة — اضغط مطولًا لحفظها يدويًا');
+    } catch (err) {
+      alert('تم إنشاء الصورة — احفظها من الشاشة مباشرة');
+    }
     return;
   }
 
-  // تحميل عادي إذا كان في متصفح طبيعي
+  // تحميل طبيعي للمتصفح فقط
   const a = document.createElement('a');
   a.href = url;
   a.download = 'design.png';
