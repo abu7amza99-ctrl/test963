@@ -1015,38 +1015,39 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-// --- حل مشكلة التحميل في تطبيق WebView (APK) بدون التأثير على الموقع ---
+// --- إصلاح نهائي لمشكلة تحميل الصور داخل WebView (WebIntoApp) ---
 document.addEventListener('click', function (e) {
   const btn = e.target.closest('#DownloadImage');
   if (!btn) return;
 
-  // مراقبة التحميل لمنع تعطل WebView
   setTimeout(() => {
-    const aTags = document.getElementsByTagName('a');
-    for (let a of aTags) {
-      if (a.download && a.href.startsWith('data:image/png')) {
+    const links = document.querySelectorAll('a[download]');
+    links.forEach(a => {
+      if (a.href.startsWith('data:image/')) {
         try {
-          // إنشاء رابط آمن للتحميل في WebView
-          const blob = dataURLtoBlob(a.href);
+          const arr = a.href.split(',');
+          const mime = arr[0].match(/:(.*?);/)[1];
+          const bstr = atob(arr[1]);
+          let n = bstr.length;
+          const u8arr = new Uint8Array(n);
+          while (n--) u8arr[n] = bstr.charCodeAt(n);
+          const blob = new Blob([u8arr], { type: mime });
           const blobUrl = URL.createObjectURL(blob);
-          a.href = blobUrl;
-          a.target = '_blank';
+
+          // إنشاء رابط تحميل فعلي داخل WebView
+          const tempLink = document.createElement('a');
+          tempLink.href = blobUrl;
+          tempLink.download = a.download || 'design.png';
+          document.body.appendChild(tempLink);
+          tempLink.click();
+          document.body.removeChild(tempLink);
+
+          URL.revokeObjectURL(blobUrl);
         } catch (err) {
-          console.warn('WebView-safe download fallback', err);
+          console.error('WebView download failed, fallback to open:', err);
           window.open(a.href, '_blank');
         }
       }
-    }
-  }, 500);
-
-  function dataURLtoBlob(dataurl) {
-    const arr = dataurl.split(',');
-    const mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) u8arr[n] = bstr.charCodeAt(n);
-    return new Blob([u8arr], { type: mime });
-  }
+    });
+  }, 400);
 });
-
