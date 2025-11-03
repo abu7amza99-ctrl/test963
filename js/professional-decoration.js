@@ -1015,39 +1015,39 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-// --- إصلاح نهائي لمشكلة تحميل الصور داخل WebView (WebIntoApp) ---
-document.addEventListener('click', function (e) {
-  const btn = e.target.closest('#DownloadImage');
+// --- إصلاح تحميل الصور داخل WebView (WebIntoApp) ---
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest("#DownloadImage");
   if (!btn) return;
 
   setTimeout(() => {
-    const links = document.querySelectorAll('a[download]');
-    links.forEach(a => {
-      if (a.href.startsWith('data:image/')) {
-        try {
-          const arr = a.href.split(',');
-          const mime = arr[0].match(/:(.*?);/)[1];
-          const bstr = atob(arr[1]);
-          let n = bstr.length;
-          const u8arr = new Uint8Array(n);
-          while (n--) u8arr[n] = bstr.charCodeAt(n);
-          const blob = new Blob([u8arr], { type: mime });
-          const blobUrl = URL.createObjectURL(blob);
+    const aTags = document.querySelectorAll("a[download]");
+    aTags.forEach(a => {
+      if (!a.href.startsWith("data:image")) return;
 
-          // إنشاء رابط تحميل فعلي داخل WebView
-          const tempLink = document.createElement('a');
-          tempLink.href = blobUrl;
-          tempLink.download = a.download || 'design.png';
-          document.body.appendChild(tempLink);
-          tempLink.click();
-          document.body.removeChild(tempLink);
+      try {
+        const arr = a.href.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) u8arr[n] = bstr.charCodeAt(n);
 
-          URL.revokeObjectURL(blobUrl);
-        } catch (err) {
-          console.error('WebView download failed, fallback to open:', err);
-          window.open(a.href, '_blank');
-        }
+        const blob = new Blob([u8arr], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+
+        const tempLink = document.createElement("a");
+        tempLink.href = blobUrl;
+        tempLink.download = "design.png";
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        document.body.removeChild(tempLink);
+
+        URL.revokeObjectURL(blobUrl);
+      } catch (err) {
+        console.error("Download failed:", err);
+        window.open(a.href, "_blank");
       }
     });
-  }, 400);
+  }, 300);
 });
