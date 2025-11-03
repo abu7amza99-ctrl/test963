@@ -889,12 +889,27 @@ ctx.translate(offsetX, offsetY);
       }
     }
 
-    // حفظ الصورة النهائية
-    const url = out.toDataURL('image/png');
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'design.png';
-    a.click();
+    // حفظ الصورة النهائية باستخدام Blob
+    out.toBlob((blob) => {
+        if (!blob) {
+            console.error("فشل في إنشاء البيانات (Blob).");
+            alert('حدث خطأ أثناء التصدير: فشل في إنشاء بيانات الصورة.');
+            return;
+        }
+        
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'design.png'; // الاسم الافتراضي
+        a.click();
+        
+        // تنظيف ذاكرة المتصفح
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+        }, 100); 
+        
+    }, 'image/png');
+
 
   } catch (err) {
     console.error(err);
