@@ -1017,11 +1017,13 @@ ctx.translate(offsetX, offsetY);
 }); // end DOMContentLoaded
 // حل نهائي لتفادي خطأ WebView Download (بدون صلاحيات)
 document.addEventListener('click', function(e) {
-  const btn = e.target.closest('#DownloadImage');
+  const btn = e.target.closest('#downloadImage');
   if (!btn) return;
 
+  // نتحقق إذا آخر تحميل كان بصيغة base64
   const imgLink = document.querySelector('a[download]');
-  if (imgLink && imgLink.href.startsWith('data:image')) {
+  if (imgLink && imgLink.href && imgLink.href.startsWith('data:image')) {
+    e.preventDefault();
     window.open(imgLink.href, '_blank');
     alert('تم فتح الصورة — احفظها يدويًا بالضغط المطوّل');
   }
