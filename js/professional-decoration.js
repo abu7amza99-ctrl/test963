@@ -1015,39 +1015,14 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-// --- إصلاح تحميل الصور داخل WebView (WebIntoApp) ---
-document.addEventListener("click", function (e) {
-  const btn = e.target.closest("#DownloadImage");
+// حل نهائي لتفادي خطأ WebView Download (بدون صلاحيات)
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('#DownloadImage');
   if (!btn) return;
 
-  setTimeout(() => {
-    const aTags = document.querySelectorAll("a[download]");
-    aTags.forEach(a => {
-      if (!a.href.startsWith("data:image")) return;
-
-      try {
-        const arr = a.href.split(',');
-        const mime = arr[0].match(/:(.*?);/)[1];
-        const bstr = atob(arr[1]);
-        let n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        while (n--) u8arr[n] = bstr.charCodeAt(n);
-
-        const blob = new Blob([u8arr], { type: mime });
-        const blobUrl = URL.createObjectURL(blob);
-
-        const tempLink = document.createElement("a");
-        tempLink.href = blobUrl;
-        tempLink.download = "design.png";
-        document.body.appendChild(tempLink);
-        tempLink.click();
-        document.body.removeChild(tempLink);
-
-        URL.revokeObjectURL(blobUrl);
-      } catch (err) {
-        console.error("Download failed:", err);
-        window.open(a.href, "_blank");
-      }
-    });
-  }, 300);
+  const imgLink = document.querySelector('a[download]');
+  if (imgLink && imgLink.href.startsWith('data:image')) {
+    window.open(imgLink.href, '_blank');
+    alert('تم فتح الصورة — احفظها يدويًا بالضغط المطوّل');
+  }
 });
