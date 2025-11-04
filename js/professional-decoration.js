@@ -513,8 +513,7 @@ function updateImageOverlay(obj, wrap) {
       if (ev.target === handle) return;
       dragging = true;
       sx = ev.clientX; sy = ev.clientY;
-
-                               sl = parseFloat(dom.style.left) || 0;
+      sl = parseFloat(dom.style.left) || 0;
       st = parseFloat(dom.style.top) || 0;
       try { dom.setPointerCapture && dom.setPointerCapture(ev.pointerId); } catch (e) { /* ignore */ }
       ev.preventDefault();
@@ -889,27 +888,12 @@ ctx.translate(offsetX, offsetY);
       }
     }
 
-    // حفظ الصورة النهائية باستخدام Blob
-    out.toBlob((blob) => {
-        if (!blob) {
-            console.error("فشل في إنشاء البيانات (Blob).");
-            alert('حدث خطأ أثناء التصدير: فشل في إنشاء بيانات الصورة.');
-            return;
-        }
-        
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'design.png'; // الاسم الافتراضي
-        a.click();
-        
-        // تنظيف ذاكرة المتصفح
-        setTimeout(() => {
-            URL.revokeObjectURL(url);
-        }, 100); 
-        
-    }, 'image/png');
-
+    // حفظ الصورة النهائية
+    const url = out.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'design.png';
+    a.click();
 
   } catch (err) {
     console.error(err);
@@ -1030,32 +1014,16 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-// --- منع أي تحميل مباشر داخل WebView (حل نهائي لمشكلة الكراش) ---
-document.addEventListener('click', function (e) {
-  const btn = e.target.closest('#downloadImage');
-  if (!btn) return;
 
-  const imgLink = document.querySelector('a[download]');
-  if (!imgLink || !imgLink.href) return;
 
-  const url = imgLink.href;
 
-  // إذا الرابط base64 نمنع التحميل تمامًا قبل ما يوصل للويب فيو
-  if (url.startsWith('data:image')) {
-    e.preventDefault();
-    try {
-      const win = window.open();
-      win.document.write('<img src="' + url + '" style="max-width:100%;height:auto;" />');
-      alert('تم فتح الصورة — اضغط مطولًا لحفظها يدويًا');
-    } catch (err) {
-      alert('تم إنشاء الصورة — احفظها من الشاشة مباشرة');
-    }
-    return;
-  }
 
-  // تحميل طبيعي للمتصفح فقط
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'design.png';
-  a.click();
-});
+
+
+
+
+
+
+
+
+
