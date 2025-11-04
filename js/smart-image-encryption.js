@@ -87,8 +87,8 @@ async function removeBgViaProxy(blob) {
   }
   return await res.blob();
 }
-// ===== زر حذف الخلفية (remove.bg API مباشر بدقّة عالية وشفافية تامة) =====
-removeBgBtn.addEventListener('click', async () => {
+// ===== حذف الخلفية بدقة باستخدام remove.bg API =====
+removeBgBtn.addEventListener("click", async () => {
   if (!previewImage.src) return alert("أضف صورة أولاً.");
 
   const apikey = "NaNaf5aHtgVJGqVfd2eKmeBY"; // مفتاحك
@@ -100,26 +100,26 @@ removeBgBtn.addEventListener('click', async () => {
     const form = new FormData();
     form.append("image_file", blob);
     form.append("size", "auto");
-    form.append("bg_color", "transparent"); // شفافية تامة بدون أي لون
-    form.append("crop", "true"); // قصّ دقيق حول العنصر
+    form.append("bg_color", "transparent");
+    form.append("crop", "true");
 
     const response = await fetch("https://api.remove.bg/v1.0/removebg", {
       method: "POST",
       headers: { "X-Api-Key": apikey },
-      body: form,
+      body: form
     });
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error("API error: " + response.status + " " + text);
+      console.error("Remove.bg error:", text);
+      return alert("فشل الاتصال بخدمة remove.bg:\n" + text);
     }
 
     const resultBlob = await response.blob();
     const resultURL = URL.createObjectURL(resultBlob);
     previewImage.src = resultURL;
-
   } catch (err) {
-    console.error("Remove.bg Error:", err.message);
+    console.error("Remove.bg API Error:", err);
     alert("حدث خطأ أثناء حذف الخلفية، حاول مرة أخرى.");
   }
 });
