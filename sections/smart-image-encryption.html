@@ -1,26 +1,22 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>تشفيف الصور الذكي</title>
   <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/smart-image-encryption.css">
 </head>
 <body>
-  <!-- ===== الشريط العلوي الموحد ===== -->
   <header>
-    <button class="sidebar-btn">
-      <img src="../assets/yhbg.png" alt="زر القائمة">
-    </button>
+    <button class="sidebar-btn"><img src="../assets/yhbg.png" alt="زر القائمة"></button>
     <div class="header-center">
-      <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
+      <img src="../assets/abu7amza.png" alt="شعار" class="app-logo">
       <div class="app-title">تشفيف الصور الذكي</div>
     </div>
   </header>
 
-  <!-- ===== اللوحة الجانبية الموحدة ===== -->
   <aside class="sidebar">
     <button class="close-btn">&times;</button>
     <ul class="sidebar-menu">
@@ -34,22 +30,18 @@
     </ul>
   </aside>
 
-  <!-- ===== المحتوى الرئيسي للقسم ===== -->
   <main class="smart-main">
     <h1>تشفيف الصور الذكي</h1>
 
-    <!-- زر إضافة الصورة -->
     <div class="upload-section">
       <input type="file" id="imageInput" accept="image/*" hidden>
       <button id="uploadBtn">📸 إضافة صورة من الهاتف</button>
     </div>
 
-    <!-- مربع المعاينة -->
     <div class="preview-container" id="previewContainer">
       <img id="previewImage" src="" alt="معاينة الصورة" style="display:none;">
     </div>
 
-    <!-- أزرار التحكم -->
     <div class="action-buttons" id="actionButtons" style="display:none;">
       <button id="removeTextBtn">🧹 حذف النص</button>
       <button id="removeBgBtn">🌄 حذف الخلفية</button>
@@ -58,16 +50,15 @@
     </div>
   </main>
 
-<!-- remove.bg API لا يحتاج مكتبات -->
+  <!-- Libraries (ordered) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0.5/dist/body-pix.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stackblur-canvas/2.2.0/stackblur.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.3/dist/tesseract.min.js"></script>
 
-<!-- StackBlur (لتنعيم/توزيع القناع) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stackblur-canvas/2.2.0/stackblur.min.js"></script>
-
-<!-- Tesseract.js -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.3/dist/tesseract.min.js"></script>
-
-<!-- سكربت القسم -->
-<script src="../js/smart-image-encryption.js" defer></script>
-
-<!-- سكربت التطبيق العام -->
-<script src="../js/script.js" defer></script>
+  <!-- app scripts -->
+  <script src="../js/smart-image-encryption.js" defer></script>
+  <script src="../js/script.js" defer></script>
+</body>
+</html>
