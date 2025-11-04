@@ -87,76 +87,43 @@ async function removeBgViaProxy(blob) {
   }
   return await res.blob();
 }
-
-/* ---------- زر حذف الخلفية (يحاول البروكسي أولاً ثم fallback محلي) ---------- */
+// ===== زر حذف الخلفية (remove.bg API مباشر بدقّة عالية وشفافية تامة) =====
 removeBgBtn.addEventListener('click', async () => {
   if (!previewImage.src) return alert("أضف صورة أولاً.");
 
+  const apikey = "NaNaf5aHtgVJGqVfd2eKmeBY"; // مفتاحك
+
   try {
-    // جلب الصورة كـ blob
-    const r = await fetch(previewImage.src);
-    const blob = await r.blob();
+    const res = await fetch(previewImage.src);
+    const blob = await res.blob();
 
-    // إذا عندك بروكسي مضبوط - استخدمه (يوصي للحماية)
-    if (PROXY_URL) {
-      const resultBlob = await removeBgViaProxy(blob);
-      previewImage.src = URL.createObjectURL(resultBlob);
-      return;
+    const form = new FormData();
+    form.append("image_file", blob);
+    form.append("size", "auto");
+    form.append("bg_color", "transparent"); // شفافية تامة بدون أي لون
+    form.append("crop", "true"); // قصّ دقيق حول العنصر
+
+    const response = await fetch("https://api.remove.bg/v1.0/removebg", {
+      method: "POST",
+      headers: { "X-Api-Key": apikey },
+      body: form,
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error("API error: " + response.status + " " + text);
     }
 
-    // fallback محلي: استخدم MediaPipe SelfieSegmentation إن متوفر
-    if (typeof SelfieSegmentation !== 'undefined') {
-      const segmentation = new SelfieSegmentation({ locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
-      }});
-      segmentation.setOptions({ modelSelection: 1 });
-      const maskCanvas = document.createElement('canvas');
-      maskCanvas.width = previewImage.naturalWidth || previewImage.width;
-      maskCanvas.height = previewImage.naturalHeight || previewImage.height;
-      const mctx = maskCanvas.getContext('2d');
-
-      const resultPromise = new Promise((resolve) => {
-        segmentation.onResults((results) => {
-          mctx.clearRect(0,0,maskCanvas.width,maskCanvas.height);
-          mctx.drawImage(results.segmentationMask, 0, 0, maskCanvas.width, maskCanvas.height);
-          resolve();
-        });
-      });
-
-      await segmentation.send({ image: previewImage });
-      await resultPromise;
-
-      applyFeatherToMask(maskCanvas, 14);
-      const out = compositeWithMask(previewImage, maskCanvas, true);
-      previewImage.src = out.toDataURL('image/png');
-      return;
-    }
-
-    // آخر حل: BodyPix (إن كانت موجودة)
-    if (typeof bodyPix !== 'undefined') {
-      const net = await bodyPix.load();
-      const seg = await net.segmentPerson(previewImage);
-      const canvas = document.createElement('canvas');
-      canvas.width = previewImage.naturalWidth || previewImage.width;
-      canvas.height = previewImage.naturalHeight || previewImage.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(previewImage, 0, 0, canvas.width, canvas.height);
-      const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
-      for (let i = 0; i < seg.data.length; i++) {
-        if (seg.data[i] === 0) imageData.data[i*4 + 3] = 0;
-      }
-      ctx.putImageData(imageData,0,0);
-      previewImage.src = canvas.toDataURL('image/png');
-      return;
-    }
-
-    throw new Error('No available method to remove background (add PROXY_URL or include libraries).');
+    const resultBlob = await response.blob();
+    const resultURL = URL.createObjectURL(resultBlob);
+    previewImage.src = resultURL;
 
   } catch (err) {
-    console.error(err);
-    alert("فشل إزالة الخلفية: " + err.message);
+    console.error("Remove.bg Error:", err.message);
+    alert("حدث خطأ أثناء حذف الخلفية، حاول مرة أخرى.");
   }
 });
+
 
 /* ---------- حذف الشخصية (يحاول PROXY ثم محلي) ---------- */
 removePersonBtn.addEventListener('click', async () => {
