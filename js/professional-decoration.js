@@ -773,9 +773,29 @@ function updateImageOverlay(obj, wrap) {
     if (obj.type === 'text' && obj.fillMode === 'dress') applyStyleToDom(obj, dom);
   }
 
-// --- export / download as PNG (Perfect preview match) ---
+// --- عرض المعاينة قبل التحميل ---
 if (downloadImage) downloadImage.addEventListener('click', async () => {
   try {
+    const modal = document.getElementById('previewModal');
+    const previewCanvas = document.getElementById('previewCanvas');
+    if (!modal || !previewCanvas) return;
+
+    const ctxPrev = previewCanvas.getContext('2d');
+    const rect = editorCanvas.getBoundingClientRect();
+    previewCanvas.width = rect.width;
+    previewCanvas.height = rect.height;
+    ctxPrev.clearRect(0, 0, rect.width, rect.height);
+
+    // لقطة معاينة للمحتوى الحالي
+    html2canvas(editorCanvas, { backgroundColor: null, useCORS: true, scale: 1 })
+      .then(canvas => ctxPrev.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height));
+
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+  } catch (err) {
+    alert('حدث خطأ أثناء المعاينة: ' + err.message);
+  }
+});
     // نأخذ أبعاد المعاينة الأصلية
     const rect = editorCanvas.getBoundingClientRect();
     const W = Math.round(rect.width);
@@ -1014,6 +1034,7 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
