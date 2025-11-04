@@ -35,17 +35,74 @@ imageInput.addEventListener('change', (e) => {
 // ===== زر حذف النص =====
 removeTextBtn.addEventListener('click', async () => {
   if (!previewImage.src) return alert("أضف صورة أولاً.");
-  alert("ضع هنا كود Tesseract.js لحذف النص.");
+  const result = await Tesseract.recognize(previewImage.src, 'eng');
+const boxes = result.data.words;
+
+const canvas = document.createElement("canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = previewImage.width;
+canvas.height = previewImage.height;
+ctx.drawImage(previewImage, 0, 0);
+
+// تغطية النصوص باللون الأبيض
+ctx.fillStyle = "white";
+boxes.forEach(word => {
+  const { x0, y0, x1, y1 } = word.bbox;
+  ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+});
+
+previewImage.src = canvas.toDataURL("image/png");
 });
 
 // ===== زر حذف الخلفية =====
 removeBgBtn.addEventListener('click', async () => {
   if (!previewImage.src) return alert("أضف صورة أولاً.");
-  alert("ضع هنا كود BodyPix لحذف الخلفية.");
+  // تحميل الموديل
+const net = await bodyPix.load();
+const segmentation = await net.segmentPerson(previewImage);
+
+// إنشاء كانفاس بنفس حجم الصورة
+const canvas = document.createElement("canvas");
+canvas.width = previewImage.width;
+canvas.height = previewImage.height;
+const ctx = canvas.getContext("2d");
+ctx.drawImage(previewImage, 0, 0);
+
+// الحصول على بيانات الصورة
+const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+// جعل الخلفية شفافة
+for (let i = 0; i < segmentation.data.length; i++) {
+  if (segmentation.data[i] === 0) {
+    imageData.data[i * 4 + 3] = 0; // alpha = 0 يعني شفافية
+  }
+}
+
+ctx.putImageData(imageData, 0, 0);
+previewImage.src = canvas.toDataURL("image/png");
 });
 
 // ===== زر حذف الشخصية =====
 removePersonBtn.addEventListener('click', async () => {
   if (!previewImage.src) return alert("أضف صورة أولاً.");
-  alert("ضع هنا كود BodyPix لعكس القناع وحذف الشخص.");
+  const net = await bodyPix.load();
+const segmentation = await net.segmentPerson(previewImage);
+
+const canvas = document.createElement("canvas");
+canvas.width = previewImage.width;
+canvas.height = previewImage.height;
+const ctx = canvas.getContext("2d");
+ctx.drawImage(previewImage, 0, 0);
+
+const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+// جعل الشخص شفاف والخلفية تبقى
+for (let i = 0; i < segmentation.data.length; i++) {
+  if (segmentation.data[i] === 1) {
+    imageData.data[i * 4 + 3] = 0;
+  }
+}
+
+ctx.putImageData(imageData, 0, 0);
+previewImage.src = canvas.toDataURL("image/png");
 });
