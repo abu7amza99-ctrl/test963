@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>عالم التصاميم والزخرفة</title>
+  <title>تشفيف الصور الذكي</title>
   <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/smart-image-encryption.css">
 </head>
 <body>
   <!-- ===== الشريط العلوي الموحد ===== -->
@@ -15,7 +16,7 @@
     </button>
     <div class="header-center">
       <img src="../assets/abu7amza.png" alt="شعار التطبيق" class="app-logo">
-      <div class="app-title">عالم التصاميم والزخرفة</div>
+      <div class="app-title">تشفيف الصور الذكي</div>
     </div>
   </header>
 
@@ -33,12 +34,35 @@
     </ul>
   </aside>
 
-  <!-- ===== منطقة المحتوى (فارغة حالياً) ===== -->
-  <main>
+  <!-- ===== المحتوى الرئيسي للقسم ===== -->
+  <main class="smart-main">
     <h1>تشفيف الصور الذكي</h1>
-    <p>سيتم إضافة محتوى هذا القسم لاحقًا.</p>
+
+    <!-- زر إضافة الصورة -->
+    <div class="upload-section">
+      <input type="file" id="imageInput" accept="image/*" hidden>
+      <button id="uploadBtn">📸 إضافة صورة من الهاتف</button>
+    </div>
+
+    <!-- مربع المعاينة -->
+    <div class="preview-container" id="previewContainer">
+      <img id="previewImage" src="" alt="معاينة الصورة" style="display:none;">
+    </div>
+
+    <!-- أزرار التحكم -->
+    <div class="action-buttons" id="actionButtons" style="display:none;">
+      <button id="removeTextBtn">🧹 حذف النص</button>
+      <button id="removeBgBtn">🌄 حذف الخلفية</button>
+      <button id="removePersonBtn">👤 حذف الشخصية</button>
+      <button id="downloadBtn">💾 تحميل الصورة</button>
+    </div>
   </main>
 
+  <!-- مكتبة TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <!-- سكريبت القسم -->
+  <script src="../js/smart-image-encryption.js" defer></script>
+  <!-- سكريبت اللوحة الجانبية -->
   <script src="../js/script.js" defer></script>
 </body>
 </html>
