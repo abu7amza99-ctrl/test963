@@ -884,7 +884,7 @@ if (obj.type === 'image') {
   const drawH = parseFloat(imgEl.style.height) || obj.displayHeight || imgEl.naturalHeight;
   // فقط نرسم الصورة الأصلية كما هي
   ctx.save();
-  ctx.globalCompositeOperation = 'source-over';
+ctx.globalCompositeOperation = 'source-over';
   ctx.drawImage(imgEl, left, top, drawW, drawH);
   ctx.restore();
 }
@@ -892,6 +892,8 @@ if (obj.type === 'image') {
     }
 
     // حفظ الصورة النهائية
+     // إصلاح خاص بتطبيق WepIntoApp
+ctx.globalCompositeOperation = 'source-over';
     const url = out.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = url;
@@ -1017,6 +1019,7 @@ if (obj.type === 'image') {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
