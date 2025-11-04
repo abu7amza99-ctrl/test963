@@ -872,130 +872,6 @@ if (confirmDownload) confirmDownload.addEventListener('click', async () => {
     alert('خطأ أثناء التحميل النهائي: ' + err.message);
   }
 });
-    // نأخذ أبعاد المعاينة الأصلية
-    const rect = editorCanvas.getBoundingClientRect();
-    const W = Math.round(rect.width);
-    const H = Math.round(rect.height);
-
-    // نستخدم القيم المطلوبة إن وجدت
-    const desiredW = parseInt(document.getElementById('widthInput').value) || W;
-    const desiredH = parseInt(document.getElementById('heightInput').value) || H;
-
-    // إنشاء كانفس بنفس نسب المعاينة
-    const out = document.createElement('canvas');
-    const ctx = out.getContext('2d');
-
-    // دقة الشاشة (للحفاظ على الجودة)
-    const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
-    out.width = desiredW * pixelRatio;
-    out.height = desiredH * pixelRatio;
-    out.style.width = desiredW + 'px';
-    out.style.height = desiredH + 'px';
-
-    // نضبط المقياس بنفس نسب المعاينة تماماً
-    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.clearRect(0, 0, desiredW, desiredH);
-
-    // نحافظ على الرسم بنفس الإحداثيات الفعلية للمعاينة (بدون أي تغيير)
-    const scaleX = desiredW / W;
-    const scaleY = desiredH / H;
-    ctx.scale(scaleX, scaleY);
-     // نحافظ على نفس تمركز المحتوى داخل الصورة عند التحميل
-const offsetX = (desiredW / scaleX - W) / 2;
-const offsetY = (desiredH / scaleY - H) / 2;
-ctx.translate(offsetX, offsetY);
-
-    // نرسم العناصر بنفس مكانها ودقتها
-    const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
-    for (const dom of domChildren) {
-      const id = dom.dataset.id;
-      const obj = ELEMENTS.find(e => e.id === id);
-      if (!obj) continue;
-
-      const left = parseFloat(dom.style.left) || obj.x || 0;
-      const top = parseFloat(dom.style.top) || obj.y || 0;
-
-      if (obj.type === 'text') {
-        const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
-        ctx.save();
-        ctx.translate(left, top);
-        ctx.rotate(obj.rotation || 0);
-        ctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
-        ctx.textBaseline = 'top';
-        ctx.textAlign = 'left';
-
-        if (obj.fillMode === 'solid' || !obj.gradient) {
-          ctx.fillStyle = obj.color || '#000';
-          if (obj.stroke && obj.stroke > 0) {
-            ctx.lineWidth = obj.stroke;
-            ctx.strokeStyle = obj.strokeColor || '#000';
-            ctx.strokeText(obj.text, 0, 0);
-          }
-          ctx.fillText(obj.text, 0, 0);
-        } else if (obj.fillMode === 'gradient' && obj.gradient) {
-          const g = ctx.createLinearGradient(0, 0, obj.text.length * fontSize, 0);
-          g.addColorStop(0, obj.gradient[0]);
-          g.addColorStop(1, obj.gradient[1]);
-          ctx.fillStyle = g;
-          ctx.fillText(obj.text, 0, 0);
-        } else if (obj.fillMode === 'dress' && obj.dress) {
-          const tmp = document.createElement('canvas');
-          const tctx = tmp.getContext('2d');
-          const text = obj.text || '';
-          const w = Math.ceil(ctx.measureText(text).width);
-          const h = Math.ceil(fontSize * 1.1);
-          tmp.width = w;
-          tmp.height = h;
-          tctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
-          tctx.textBaseline = 'top';
-          tctx.fillStyle = '#000';
-          tctx.fillText(text, 0, 0);
-          await new Promise((res) => {
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
-              const pat = document.createElement('canvas');
-              const pctx = pat.getContext('2d');
-              pat.width = w; pat.height = h;
-              pctx.drawImage(img, 0, 0, w, h);
-              pctx.globalCompositeOperation = 'destination-in';
-              pctx.drawImage(tmp, 0, 0);
-              ctx.drawImage(pat, 0, 0);
-              res();
-            };
-            img.onerror = res;
-            img.src = obj.dress;
-          });
-        }
-        ctx.restore();
-      } else if (obj.type === 'image') {
-        const imgEl = dom.querySelector('img');
-        if (!imgEl) continue;
-        const drawW = parseFloat(imgEl.style.width) || obj.displayWidth || imgEl.naturalWidth;
-        const drawH = parseFloat(imgEl.style.height) || obj.displayHeight || imgEl.naturalHeight;
-        const overlay = dom.querySelector('.img-overlay-canvas');
-        if (overlay && overlay.style.display === 'block') {
-          ctx.drawImage(overlay, left, top, drawW, drawH);
-        } else {
-          ctx.drawImage(imgEl, left, top, drawW, drawH);
-        }
-      }
-    }
-
-    // حفظ الصورة النهائية
-    const url = out.toDataURL('image/png');
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'design.png';
-    a.click();
-
-  } catch (err) {
-    console.error(err);
-    alert('حدث خطأ أثناء التصدير: ' + (err && err.message || err));
-  }
-});
 
   // --- helpers specific for text ---
   function applyGradientToText(g) {
@@ -1110,6 +986,7 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
