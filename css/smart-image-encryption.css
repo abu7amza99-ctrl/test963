@@ -1,80 +1,23 @@
-/* ===== قسم تشفيف الصور الذكي ===== */
-
 .smart-main {
   text-align: center;
-  padding: 30px;
+  padding: 20px;
   color: #d4af37;
-}
-
-.upload-section {
-  margin-top: 20px;
-}
-
-#uploadBtn {
-  background: linear-gradient(90deg, rgba(212,175,55,0.8), rgba(255,215,0,0.8));
-  color: #000;
   font-family: 'Reem Kufi', sans-serif;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: 600;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-#uploadBtn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(212,175,55,0.6);
-}
-
-.preview-container {
-  margin-top: 30px;
+.iframe-container {
+  margin-top: 20px;
+  width: 100%;
+  height: 85vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
 }
 
-.preview-container img {
-  max-width: 90%;
-  border: 3px solid #d4af37;
-  border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.5);
-  margin-bottom: 25px;
-}
-
-.action-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 15px;
-}
-
-.action-buttons button {
-  background: rgba(212,175,55,0.85);
-  color: #000;
+.iframe-container iframe {
+  width: 95%;
+  height: 100%;
   border: none;
-  border-radius: 10px;
-  padding: 10px 18px;
-  font-size: 17px;
-  font-family: 'Reem Kufi', sans-serif;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-}
-
-.action-buttons button:hover {
-  background: linear-gradient(90deg, rgba(212,175,55,0.9), rgba(255,215,0,0.9));
-  transform: scale(1.07);
-}
-
-@media (max-width: 600px) {
-  .action-buttons {
-    flex-direction: column;
-  }
-  .action-buttons button {
-    width: 80%;
-  }
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
 }
