@@ -66,6 +66,16 @@
 
   <!-- سكربت الصفحة الأساسي -->
   <script src="../js/home.js" defer></script>
-
+<script>
+  // ✅ تشغيل هذا فقط على قسم الزخرفة الاحترافية
+  document.querySelectorAll('a[href="sections/professional-decoration.html"]').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault(); // منع الفتح داخل التطبيق
+      const url = link.href;
+      // فتح الرابط في المتصفح الخارجي (يعرض للمستخدم اختيار المتصفح)
+      window.open(url, '_blank');
+    });
+  });
+</script>
 </body>
 </html>
