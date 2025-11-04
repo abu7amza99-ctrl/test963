@@ -876,16 +876,18 @@ ctx.translate(offsetX, offsetY);
         }
         ctx.restore();
       } else if (obj.type === 'image') {
-        const imgEl = dom.querySelector('img');
-        if (!imgEl) continue;
-        const drawW = parseFloat(imgEl.style.width) || obj.displayWidth || imgEl.naturalWidth;
-        const drawH = parseFloat(imgEl.style.height) || obj.displayHeight || imgEl.naturalHeight;
-        const overlay = dom.querySelector('.img-overlay-canvas');
-        if (overlay && overlay.style.display === 'block') {
-          ctx.drawImage(overlay, left, top, drawW, drawH);
-        } else {
-          ctx.drawImage(imgEl, left, top, drawW, drawH);
-        }
+        // رسم الصورة بدون أي تلوين أو تغطية لتفادي تلبيس الخلفية كلها
+if (obj.type === 'image') {
+  const imgEl = dom.querySelector('img');
+  if (!imgEl) continue;
+  const drawW = parseFloat(imgEl.style.width) || obj.displayWidth || imgEl.naturalWidth;
+  const drawH = parseFloat(imgEl.style.height) || obj.displayHeight || imgEl.naturalHeight;
+  // فقط نرسم الصورة الأصلية كما هي
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.drawImage(imgEl, left, top, drawW, drawH);
+  ctx.restore();
+}
       }
     }
 
@@ -1015,5 +1017,6 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
