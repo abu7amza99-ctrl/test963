@@ -327,7 +327,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return dom;
   }
 
-// --- update overlay for image (HD preview & export ready) ---
+  //--- end of part1 ---
+                          // --- update overlay for image (HD preview & export ready) ---
 function updateImageOverlay(obj, wrap) {
   if (!wrap) return;
   const imgEl = wrap.querySelector('img');
@@ -772,60 +773,46 @@ function updateImageOverlay(obj, wrap) {
     if (obj.type === 'text' && dom) dom.style.fontFamily = fontName;
     if (obj.type === 'text' && obj.fillMode === 'dress') applyStyleToDom(obj, dom);
   }
-   
-// --- عرض نافذة المعاينة قبل التحميل ---
-if (downloadImage) {
-  downloadImage.addEventListener('click', async () => {
-    try {
-      const modal = document.getElementById('previewModal');
-      const previewCanvas = document.getElementById('previewCanvas');
-      if (!modal || !previewCanvas) return;
 
-      const ctxPrev = previewCanvas.getContext('2d');
-      const rect = editorCanvas.getBoundingClientRect();
-      previewCanvas.width = rect.width;
-      previewCanvas.height = rect.height;
-      ctxPrev.clearRect(0, 0, rect.width, rect.height);
-
-      // لقطة معاينة من التصميم
-      html2canvas(editorCanvas, { backgroundColor: null, useCORS: true, scale: 1 })
-        .then(canvas => {
-          ctxPrev.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
-        });
-
-      modal.classList.add('open');
-      modal.setAttribute('aria-hidden', 'false');
-    } catch (err) {
-      alert('حدث خطأ أثناء المعاينة: ' + err.message);
-    }
-  });
-}
-
-   // --- أزرار نافذة المعاينة ---
-const confirmDownload = document.getElementById('confirmDownload');
-const cancelPreview = document.getElementById('cancelPreview');
-const previewModal = document.getElementById('previewModal');
-
-if (cancelPreview) cancelPreview.addEventListener('click', () => {
-  previewModal.classList.remove('open');
-  previewModal.setAttribute('aria-hidden', 'true');
-});
-
-if (confirmDownload) confirmDownload.addEventListener('click', async () => {
+  // --- export / download as PNG (Perfect preview match) ---
+if (downloadImage) downloadImage.addEventListener('click', async () => {
   try {
-    const w = parseInt(document.getElementById('previewWidth').value);
-    const h = parseInt(document.getElementById('previewHeight').value);
-    const scale = window.devicePixelRatio || 1;
+    // نأخذ أبعاد المعاينة الأصلية
+    const rect = editorCanvas.getBoundingClientRect();
+    const W = Math.round(rect.width);
+    const H = Math.round(rect.height);
 
+    // نستخدم القيم المطلوبة إن وجدت
+    const desiredW = parseInt(document.getElementById('widthInput').value) || W;
+    const desiredH = parseInt(document.getElementById('heightInput').value) || H;
+
+    // إنشاء كانفس بنفس نسب المعاينة
     const out = document.createElement('canvas');
     const ctx = out.getContext('2d');
-    out.width = w * scale;
-    out.height = h * scale;
-    ctx.scale(scale, scale);
+
+    // دقة الشاشة (للحفاظ على الجودة)
+    const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
+    out.width = desiredW * pixelRatio;
+    out.height = desiredH * pixelRatio;
+    out.style.width = desiredW + 'px';
+    out.style.height = desiredH + 'px';
+
+    // نضبط المقياس بنفس نسب المعاينة تماماً
+    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    ctx.clearRect(0, 0, w, h);
+    ctx.clearRect(0, 0, desiredW, desiredH);
 
+    // نحافظ على الرسم بنفس الإحداثيات الفعلية للمعاينة (بدون أي تغيير)
+    const scaleX = desiredW / W;
+    const scaleY = desiredH / H;
+    ctx.scale(scaleX, scaleY);
+     // نحافظ على نفس تمركز المحتوى داخل الصورة عند التحميل
+const offsetX = (desiredW / scaleX - W) / 2;
+const offsetY = (desiredH / scaleY - H) / 2;
+ctx.translate(offsetX, offsetY);
+
+    // نرسم العناصر بنفس مكانها ودقتها
     const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
     for (const dom of domChildren) {
       const id = dom.dataset.id;
@@ -843,8 +830,50 @@ if (confirmDownload) confirmDownload.addEventListener('click', async () => {
         ctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
-        ctx.fillStyle = obj.color || '#000';
-        ctx.fillText(obj.text, 0, 0);
+
+        if (obj.fillMode === 'solid' || !obj.gradient) {
+          ctx.fillStyle = obj.color || '#000';
+          if (obj.stroke && obj.stroke > 0) {
+            ctx.lineWidth = obj.stroke;
+            ctx.strokeStyle = obj.strokeColor || '#000';
+            ctx.strokeText(obj.text, 0, 0);
+          }
+          ctx.fillText(obj.text, 0, 0);
+        } else if (obj.fillMode === 'gradient' && obj.gradient) {
+          const g = ctx.createLinearGradient(0, 0, obj.text.length * fontSize, 0);
+          g.addColorStop(0, obj.gradient[0]);
+          g.addColorStop(1, obj.gradient[1]);
+          ctx.fillStyle = g;
+          ctx.fillText(obj.text, 0, 0);
+        } else if (obj.fillMode === 'dress' && obj.dress) {
+          const tmp = document.createElement('canvas');
+          const tctx = tmp.getContext('2d');
+          const text = obj.text || '';
+          const w = Math.ceil(ctx.measureText(text).width);
+          const h = Math.ceil(fontSize * 1.1);
+          tmp.width = w;
+          tmp.height = h;
+          tctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
+          tctx.textBaseline = 'top';
+          tctx.fillStyle = '#000';
+          tctx.fillText(text, 0, 0);
+          await new Promise((res) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+              const pat = document.createElement('canvas');
+              const pctx = pat.getContext('2d');
+              pat.width = w; pat.height = h;
+              pctx.drawImage(img, 0, 0, w, h);
+              pctx.globalCompositeOperation = 'destination-in';
+              pctx.drawImage(tmp, 0, 0);
+              ctx.drawImage(pat, 0, 0);
+              res();
+            };
+            img.onerror = res;
+            img.src = obj.dress;
+          });
+        }
         ctx.restore();
       } else if (obj.type === 'image') {
         const imgEl = dom.querySelector('img');
@@ -860,16 +889,16 @@ if (confirmDownload) confirmDownload.addEventListener('click', async () => {
       }
     }
 
+    // حفظ الصورة النهائية
     const url = out.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = url;
     a.download = 'design.png';
     a.click();
 
-    previewModal.classList.remove('open');
-    previewModal.setAttribute('aria-hidden', 'true');
   } catch (err) {
-    alert('خطأ أثناء التحميل النهائي: ' + err.message);
+    console.error(err);
+    alert('حدث خطأ أثناء التصدير: ' + (err && err.message || err));
   }
 });
 
@@ -986,20 +1015,5 @@ if (confirmDownload) confirmDownload.addEventListener('click', async () => {
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
