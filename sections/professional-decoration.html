@@ -56,6 +56,21 @@
       background-color: #4caf50;
       color: white;
     }
+
+    /* popup basic */
+    .popup-container { 
+      position: fixed; inset:0; display:none; align-items:center; justify-content:center;
+      background: rgba(0,0,0,0.55); z-index: 9999;
+    }
+    .popup-container.open { display:flex; }
+    .popup {
+      background:#fff; border-radius:14px; padding:18px; width:95%; max-width:720px;
+      box-shadow:0 8px 30px rgba(0,0,0,0.25);
+    }
+    .btn { padding:10px 16px; border-radius:10px; cursor:pointer; border:none; }
+    .btn.primary { background:#e6b84a; color:#000; }
+    .btn.danger { background:#d95b5b; color:#fff; }
+    .btn.secondary { background:#eee; color:#000; }
   </style>
 </head>
 <body>
@@ -76,12 +91,12 @@
   <nav id="sidePanel" class="side-panel" aria-label="قائمة التنقل">
     <button id="closePanel" class="close-btn" aria-label="إغلاق القائمة">×</button>
     <ul>
-      ‏      <li><a href="../index.html">🏠الصفحة الرئيسية</a></li>
-‏      <li><a href="home.html">🖌️التصاميم الجاهزة</a></li>
-‏      <li><a href="professional-decoration.html"class="active">🎨الزخرفة الاحترافية</a></li>
-‏      <li><a href="name-decoration.html">✍️زخرفة الأسماء</a></li>
-‏      <li><a href="about.html">ℹ️لمحة عن التطبيق</a></li>
-‏      <li><a href="contact.html">☎️اتصل بنا</a></li>
+      <li><a href="../index.html">🏠الصفحة الرئيسية</a></li>
+      <li><a href="home.html">🖌️التصاميم الجاهزة</a></li>
+      <li><a href="professional-decoration.html" class="active">🎨الزخرفة الاحترافية</a></li>
+      <li><a href="name-decoration.html">✍️زخرفة الأسماء</a></li>
+      <li><a href="about.html">ℹ️لمحة عن التطبيق</a></li>
+      <li><a href="contact.html">☎️اتصل بنا</a></li>
     </ul>
   </nav>
 
@@ -168,26 +183,29 @@
   <!-- نافذة التدرجات والتلبيسات -->
   <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
 
-  <!-- نافذة المعاينة قبل التحميل -->
-<div id="previewModal" class="popup-container" aria-hidden="true">
-  <div class="popup" style="max-width:95%;text-align:center;">
-    <h3 style="color:#333;">معاينة قبل التحميل</h3>
-    <canvas id="previewCanvas" style="width:100%;max-width:600px;background:transparent;border:2px dashed #cfa23a;border-radius:10px;"></canvas>
-    <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-      <label>العرض:
-        <input id="previewWidth" type="number" value="3000" style="width:90px;">
-      </label>
-      <label>الارتفاع:
-        <input id="previewHeight" type="number" value="3000" style="width:90px;">
-      </label>
-    </div>
-    <div style="margin-top:16px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
-      <button id="confirmDownload" class="btn primary">تحميل نهائي</button>
-      <button id="cancelPreview" class="btn danger">إغلاق</button>
+  <!-- ====== إضافة نافذة المعاينة (المطلوبة) ====== -->
+  <div id="previewModal" class="popup-container" aria-hidden="true">
+    <div class="popup" style="max-width:95%;text-align:center;">
+      <h3 style="color:#333;">معاينة قبل التحميل</h3>
+      <canvas id="previewCanvas" style="width:100%;max-width:600px;background:transparent;border:2px dashed #cfa23a;border-radius:10px;"></canvas>
+
+      <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <label>العرض:
+          <input id="previewWidth" type="number" value="3000" style="width:90px;">
+        </label>
+        <label>الارتفاع:
+          <input id="previewHeight" type="number" value="3000" style="width:90px;">
+        </label>
+      </div>
+
+      <div style="margin-top:16px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+        <button id="confirmDownload" class="btn primary">تحميل نهائي</button>
+        <button id="cancelPreview" class="btn danger">إغلاق</button>
+      </div>
     </div>
   </div>
-</div>
-  
+  <!-- ====== نهاية نافذة المعاينة ====== -->
+
   <!-- ✅ كود فتح وإغلاق اللوحة الجانبية -->
   <script>
     const menuBtn = document.getElementById("menuBtn");
@@ -198,12 +216,10 @@
     if (closePanel) closePanel.addEventListener("click", () => sidePanel.classList.remove("open"));
   </script>
 
+  <!-- تحميل مكتبة html2canvas (يجب أن تكون قبل سكربت التطبيق) -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <!-- سكربت الأصلي -->
+
+  <!-- سكربت الأصلي (يبقى كما هو) -->
   <script src="../js/professional-decoration.js" defer></script>
 </body>
 </html>
-
-
-
-
