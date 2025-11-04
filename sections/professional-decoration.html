@@ -168,6 +168,26 @@
   <!-- نافذة التدرجات والتلبيسات -->
   <div id="popupContainer" class="popup-container" aria-hidden="true"></div>
 
+  <!-- نافذة المعاينة قبل التحميل -->
+<div id="previewModal" class="popup-container" aria-hidden="true">
+  <div class="popup" style="max-width:95%;text-align:center;">
+    <h3 style="color:#333;">معاينة قبل التحميل</h3>
+    <canvas id="previewCanvas" style="width:100%;max-width:600px;background:transparent;border:2px dashed #cfa23a;border-radius:10px;"></canvas>
+    <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <label>العرض:
+        <input id="previewWidth" type="number" value="3000" style="width:90px;">
+      </label>
+      <label>الارتفاع:
+        <input id="previewHeight" type="number" value="3000" style="width:90px;">
+      </label>
+    </div>
+    <div style="margin-top:16px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+      <button id="confirmDownload" class="btn primary">تحميل نهائي</button>
+      <button id="cancelPreview" class="btn danger">إغلاق</button>
+    </div>
+  </div>
+</div>
+  
   <!-- ✅ كود فتح وإغلاق اللوحة الجانبية -->
   <script>
     const menuBtn = document.getElementById("menuBtn");
@@ -182,5 +202,6 @@
   <script src="../js/professional-decoration.js" defer></script>
 </body>
 </html>
+
 
 
