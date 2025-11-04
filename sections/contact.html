@@ -85,6 +85,14 @@
 
     if (menuBtn) menuBtn.addEventListener("click", () => sidePanel.classList.add("open"));
     if (closePanel) closePanel.addEventListener("click", () => sidePanel.classList.remove("open"));
+// ✅ فتح قسم الزخرفة الاحترافية بالمتصفح الخارجي فقط
+document.querySelectorAll('a[href="../sections/professional-decoration.html"]').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const url = link.href;
+    window.open(url, '_blank'); // يفتح بالمتصفح (Chrome, Firefox, إلخ)
+  });
+});
   </script>
 
 </body>
