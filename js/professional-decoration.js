@@ -796,6 +796,77 @@ if (downloadImage) downloadImage.addEventListener('click', async () => {
     alert('حدث خطأ أثناء المعاينة: ' + err.message);
   }
 });
+   // --- أزرار نافذة المعاينة ---
+const confirmDownload = document.getElementById('confirmDownload');
+const cancelPreview = document.getElementById('cancelPreview');
+const previewModal = document.getElementById('previewModal');
+
+if (cancelPreview) cancelPreview.addEventListener('click', () => {
+  previewModal.classList.remove('open');
+  previewModal.setAttribute('aria-hidden', 'true');
+});
+
+if (confirmDownload) confirmDownload.addEventListener('click', async () => {
+  try {
+    const w = parseInt(document.getElementById('previewWidth').value);
+    const h = parseInt(document.getElementById('previewHeight').value);
+    const scale = window.devicePixelRatio || 1;
+
+    const out = document.createElement('canvas');
+    const ctx = out.getContext('2d');
+    out.width = w * scale;
+    out.height = h * scale;
+    ctx.scale(scale, scale);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.clearRect(0, 0, w, h);
+
+    const domChildren = Array.from(editorCanvas.querySelectorAll('.canvas-item'));
+    for (const dom of domChildren) {
+      const id = dom.dataset.id;
+      const obj = ELEMENTS.find(e => e.id === id);
+      if (!obj) continue;
+
+      const left = parseFloat(dom.style.left) || obj.x || 0;
+      const top = parseFloat(dom.style.top) || obj.y || 0;
+
+      if (obj.type === 'text') {
+        const fontSize = (obj.size || DEFAULT_FONT_SIZE) * (obj.scale || 1);
+        ctx.save();
+        ctx.translate(left, top);
+        ctx.rotate(obj.rotation || 0);
+        ctx.font = `${fontSize}px "${obj.font || 'ReemKufiLocalFallback'}"`;
+        ctx.textBaseline = 'top';
+        ctx.textAlign = 'left';
+        ctx.fillStyle = obj.color || '#000';
+        ctx.fillText(obj.text, 0, 0);
+        ctx.restore();
+      } else if (obj.type === 'image') {
+        const imgEl = dom.querySelector('img');
+        if (!imgEl) continue;
+        const drawW = parseFloat(imgEl.style.width) || obj.displayWidth || imgEl.naturalWidth;
+        const drawH = parseFloat(imgEl.style.height) || obj.displayHeight || imgEl.naturalHeight;
+        const overlay = dom.querySelector('.img-overlay-canvas');
+        if (overlay && overlay.style.display === 'block') {
+          ctx.drawImage(overlay, left, top, drawW, drawH);
+        } else {
+          ctx.drawImage(imgEl, left, top, drawW, drawH);
+        }
+      }
+    }
+
+    const url = out.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'design.png';
+    a.click();
+
+    previewModal.classList.remove('open');
+    previewModal.setAttribute('aria-hidden', 'true');
+  } catch (err) {
+    alert('خطأ أثناء التحميل النهائي: ' + err.message);
+  }
+});
     // نأخذ أبعاد المعاينة الأصلية
     const rect = editorCanvas.getBoundingClientRect();
     const W = Math.round(rect.width);
@@ -1034,6 +1105,7 @@ ctx.translate(offsetX, offsetY);
 
   // --- End of DOMContentLoaded handler ---
 }); // end DOMContentLoaded
+
 
 
 
