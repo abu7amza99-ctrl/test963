@@ -28,7 +28,7 @@
     <ul>
       ‏      <li><a href="../index.html">🏠الصفحة الرئيسية</a></li>
 ‏      <li><a href="home.html">🖌️التصاميم الجاهزة</a></li>
-‏      <li><a href="professional-decoration.html">🎨الزخرفة الاحترافية</a></li>
+‏      <li><a href="https://abu7amza99-ctrl.github.io/designcraftsworld/sections/professional-decoration.html" onclick="openInBrowser(event)">🎨الزخرفة الاحترافية</a></li>
 ‏      <li><a href="name-decoration.html">✍️زخرفة الأسماء</a></li>
       <li><a href="smart-image-encryption.html">🧠تشفيف الصور الذكي</a></li>
 ‏      <li><a href="about.html">ℹ️لمحة عن التطبيق</a></li>
@@ -86,14 +86,16 @@
 
     if (menuBtn) menuBtn.addEventListener("click", () => sidePanel.classList.add("open"));
     if (closePanel) closePanel.addEventListener("click", () => sidePanel.classList.remove("open"));
-// ✅ فتح قسم الزخرفة الاحترافية بالمتصفح الخارجي فقط
-document.querySelectorAll('a[href="../sections/professional-decoration.html"]').forEach(link => {
-  link.addEventListener('click', e => {
-    e.preventDefault();
-    const url = link.href;
-    window.open(url, '_blank'); // يفتح بالمتصفح (Chrome, Firefox, إلخ)
-  });
-});
+function openInBrowser(event) {
+  event.preventDefault();
+  const url = event.currentTarget.getAttribute('href');
+  if (window.navigator && window.navigator.userAgent.includes('wv')) {
+    window.location.href = 'intent://' + url.replace(/^https?:\/\//, '') +
+      '#Intent;scheme=https;package=com.android.chrome;end';
+  } else {
+    window.open(url, '_blank');
+  }
+}
   </script>
 
 </body>
